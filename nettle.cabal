@@ -1,0 +1,65 @@
+Name:                nettle
+Version:             0.0.1
+Description:         haskell nettle binding
+License:             MIT
+License-file:        COPYING
+Copyright:           Stefan Bühler <stbuehler@web.de>
+Author:              Stefan Bühler <stbuehler@web.de>
+Maintainer:          Stefan Bühler <stbuehler@web.de>
+Synopsis:            Haskell nettle binding
+Category:            Cryptography
+Build-Type:          Simple
+Homepage:            http://github.com/stbuehler/haskell-nettle
+Cabal-Version:       >=1.8
+
+Flag UsePkgConfig
+  Description: Use pkg-config to check for library dependences
+  Default: True
+
+Library
+  hs-source-dirs:    src
+  Build-Depends:     base >= 4 && < 5
+                   , bytestring
+                   , byteable
+                   , securemem >= 0.1.2
+                   , crypto-cipher-types >= 0.0.3 && < 0.1
+  Exposed-modules:   Crypto.Nettle.Ciphers
+  Other-modules:     Crypto.Nettle.Internal
+                   , Nettle.ForeignImports
+                   , Nettle.Utils
+  ghc-options:       -Wall -optc-O3 -fno-cse
+  include-dirs:      src
+  C-sources:         src/nettle.c
+  if flag(UsePkgConfig)
+    PkgConfig-Depends: nettle
+  else
+    Extra-libraries: nettle
+
+Test-Suite test-ciphers
+  type:              exitcode-stdio-1.0
+  hs-source-dirs:    src/Tests
+  Main-Is:           Ciphers.hs
+  Build-depends:     base >= 4 && < 5
+                   , bytestring
+                   , QuickCheck >= 2
+                   , test-framework >= 0.3.3
+                   , HUnit
+                   , test-framework-quickcheck2 >= 0.2.9
+                   , byteable
+                   , crypto-cipher-types
+                   , nettle
+
+Benchmark bench-cipher-des
+  hs-source-dirs:    Benchmarks
+  Main-Is:           Benchmarks.hs
+  type:              exitcode-stdio-1.0
+  Build-depends:     base >= 4 && < 5
+                   , bytestring
+                   , criterion
+                   , mtl
+                   , crypto-cipher-types
+                   , crypto-cipher-benchmarks
+
+source-repository head
+  type:     git
+  location: git://github.com/stbuehler/haskell-nettle
