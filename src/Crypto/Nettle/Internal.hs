@@ -191,10 +191,10 @@ gcm_init
 gcm_init encctxoffset encrypt encctx iv = unsafeDupablePerformIO $
 	withBytePtr iv $ \ivptr ->
 	withSecureMemPtr encctx $ \encctxptr -> do
-	h <- createSecureMem c_gcm_ctx_size $ \hptr ->
+	h <- createSecureMem c_gcm_key_size $ \hptr ->
 		c_gcm_set_key hptr (encctxoffset encctxptr) encrypt
 	withSecureMemPtr h $ \hptr -> do
-	ctx <- createSecureMem c_gcm_key_size $ \ctxptr -> do
+	ctx <- createSecureMem c_gcm_ctx_size $ \ctxptr -> do
 		c_gcm_set_iv ctxptr hptr (fromIntegral $ byteableLength iv) ivptr
 	return (NettleGCM ctx h)
 
