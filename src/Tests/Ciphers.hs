@@ -5,6 +5,7 @@ import Test.QuickCheck (Gen(..), elements, choose, vectorOf, label, conjoin)
 
 import Crypto.Nettle.Ciphers
 import Crypto.Cipher.Types
+import Crypto.Cipher.Tests
 
 import qualified Data.ByteString as B
 import Data.Word (Word8)
@@ -126,8 +127,28 @@ gen_arctwoInitGutmann = do
 	return $ arctwoInitGutmann k
 
 main = defaultMain
+-- KATs ?
+	[ testBlockCipher defaultKATs (undefined :: AES)
+	, testBlockCipher defaultKATs (undefined :: AES128)
+	, testBlockCipher defaultKATs (undefined :: AES192)
+	, testBlockCipher defaultKATs (undefined :: AES256)
+	, testBlockCipher defaultKATs (undefined :: ARCTWO)
+	, testBlockCipher defaultKATs (undefined :: BLOWFISH)
+	, testBlockCipher defaultKATs (undefined :: Camellia)
+	, testBlockCipher defaultKATs (undefined :: Camellia128)
+	, testBlockCipher defaultKATs (undefined :: Camellia192)
+	, testBlockCipher defaultKATs (undefined :: Camellia256)
+	, testBlockCipher defaultKATs (undefined :: CAST128)
+	, testBlockCipher defaultKATs (undefined :: DES)
+	, testBlockCipher defaultKATs (undefined :: DES_EDE3)
+	, testBlockCipher defaultKATs (undefined :: TWOFISH)
+	, testBlockCipher defaultKATs (undefined :: SERPENT)
+	, testStreamCipher defaultStreamKATs (undefined :: ARCFOUR)
+	, testStreamCipher defaultStreamKATs (undefined :: SALSA20)
+	, testStreamCipher defaultStreamKATs (undefined :: ESTREAM_SALSA20)
+
 -- these checks just make sure the api isn't broken horribly
-	[ genBlockTest (undefined :: AES)
+	, genBlockTest (undefined :: AES)
 	, genBlockTest (undefined :: AES128)
 	, genBlockTest (undefined :: AES192)
 	, genBlockTest (undefined :: AES256)
