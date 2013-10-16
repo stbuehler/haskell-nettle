@@ -81,20 +81,23 @@ nettle_cipherInit k = let ctx = nc_Ctx $ key_init (nc_cipherInit ctx) (nc_ctx_si
 nettle_cipherInit' :: NettleCipher c => (Ptr Word8 -> Word -> Ptr Word8 -> IO()) -> Key c -> c
 nettle_cipherInit' f k = let ctx = nc_Ctx $ key_init f (nc_ctx_size ctx) k in ctx
 
+assert_blockSize :: NettleBlockCipher c => c -> B.ByteString -> a -> a
+assert_blockSize c src result = if 0 /= B.length src `mod` nbc_blockSize c then error "input not a multiple of blockSize" else result
+
 nettle_ecbEncrypt :: NettleBlockCipher c => c -> B.ByteString -> B.ByteString
-nettle_ecbEncrypt c = c_run_crypt   (nbc_encrypt_ctx_offset c)               (nbc_ecb_encrypt c) (nc_ctx c)
+nettle_ecbEncrypt c    src = assert_blockSize c src $ c_run_crypt   (nbc_encrypt_ctx_offset c)               (nbc_ecb_encrypt c) (nc_ctx c) src
 nettle_ecbDecrypt :: NettleBlockCipher c => c -> B.ByteString -> B.ByteString
-nettle_ecbDecrypt c = c_run_crypt   (nbc_decrypt_ctx_offset c)               (nbc_ecb_decrypt c) (nc_ctx c)
+nettle_ecbDecrypt c    src = assert_blockSize c src $ c_run_crypt   (nbc_decrypt_ctx_offset c)               (nbc_ecb_decrypt c) (nc_ctx c) src
 nettle_cbcEncrypt :: NettleBlockCipher c => c -> IV c -> B.ByteString -> B.ByteString
-nettle_cbcEncrypt c = blockmode_run (nbc_encrypt_ctx_offset c) c_cbc_encrypt (nbc_fun_encrypt c) (nc_ctx c)
+nettle_cbcEncrypt c iv src = assert_blockSize c src $ blockmode_run (nbc_encrypt_ctx_offset c) c_cbc_encrypt (nbc_fun_encrypt c) (nc_ctx c) iv src
 nettle_cbcDecrypt :: NettleBlockCipher c => c -> IV c -> B.ByteString -> B.ByteString
-nettle_cbcDecrypt c = blockmode_run (nbc_decrypt_ctx_offset c) c_cbc_decrypt (nbc_fun_decrypt c) (nc_ctx c)
+nettle_cbcDecrypt c iv src = assert_blockSize c src $ blockmode_run (nbc_decrypt_ctx_offset c) c_cbc_decrypt (nbc_fun_decrypt c) (nc_ctx c) iv src
 nettle_cfbEncrypt :: NettleBlockCipher c => c -> IV c -> B.ByteString -> B.ByteString
-nettle_cfbEncrypt c = blockmode_run (nbc_encrypt_ctx_offset c) c_cfb_encrypt (nbc_fun_encrypt c) (nc_ctx c)
+nettle_cfbEncrypt c iv src = assert_blockSize c src $ blockmode_run (nbc_encrypt_ctx_offset c) c_cfb_encrypt (nbc_fun_encrypt c) (nc_ctx c) iv src
 nettle_cfbDecrypt :: NettleBlockCipher c => c -> IV c -> B.ByteString -> B.ByteString
-nettle_cfbDecrypt c = blockmode_run (nbc_encrypt_ctx_offset c) c_cfb_decrypt (nbc_fun_encrypt c) (nc_ctx c)
+nettle_cfbDecrypt c iv src = assert_blockSize c src $ blockmode_run (nbc_encrypt_ctx_offset c) c_cfb_decrypt (nbc_fun_encrypt c) (nc_ctx c) iv src
 nettle_ctrCombine :: NettleBlockCipher c => c -> IV c -> B.ByteString -> B.ByteString
-nettle_ctrCombine c = blockmode_run (nbc_encrypt_ctx_offset c) c_ctr_crypt   (nbc_fun_encrypt c) (nc_ctx c)
+nettle_ctrCombine c        =                          blockmode_run (nbc_encrypt_ctx_offset c) c_ctr_crypt   (nbc_fun_encrypt c) (nc_ctx c)
 
 nettle_streamCombine :: NettleStreamCipher c => c -> B.ByteString -> (B.ByteString, c)
 nettle_streamCombine c indata = let (r, c') = stream_crypt (nsc_streamCombine c) (nc_ctx c) indata in (r, nc_Ctx c')
