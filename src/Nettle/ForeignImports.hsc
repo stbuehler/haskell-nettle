@@ -102,6 +102,9 @@ module Nettle.ForeignImports
 
 import Nettle.Utils
 
+-- internal functions are not camelCase on purpose
+{-# ANN module "HLint: ignore Use camelCase" #-}
+
 #include "nettle.h"
 
 type NettleCryptFunc = Ptr Word8 -> Word -> Ptr Word8 -> Ptr Word8 -> IO ()

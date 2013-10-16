@@ -37,6 +37,9 @@ import Data.Bits (xor)
 import Nettle.Utils
 import Nettle.ForeignImports
 
+-- internal functions are not camelCase on purpose
+{-# ANN module "HLint: ignore Use camelCase" #-}
+
 class NettleCipher c where
 	-- | pointer to new context, key length, (const) key pointer
 	nc_cipherInit    :: c -> Ptr Word8 -> Word -> Ptr Word8 -> IO()
@@ -48,9 +51,9 @@ class NettleCipher c where
 class NettleCipher c => NettleBlockCipher c where
 	nbc_blockSize          :: c -> Int
 	nbc_encrypt_ctx_offset :: c -> Ptr Word8 -> Ptr Word8
-	nbc_encrypt_ctx_offset _ = id
+	nbc_encrypt_ctx_offset = const id
 	nbc_decrypt_ctx_offset :: c -> Ptr Word8 -> Ptr Word8
-	nbc_decrypt_ctx_offset _ = id
+	nbc_decrypt_ctx_offset = const id
 	nbc_ecb_encrypt        :: c -> NettleCryptFunc
 	nbc_ecb_decrypt        :: c -> NettleCryptFunc
 	nbc_fun_encrypt        :: c -> FunPtr NettleCryptFunc
@@ -58,9 +61,9 @@ class NettleCipher c => NettleBlockCipher c where
 class NettleCipher c => NettleStreamCipher c where
 	nsc_streamCombine      :: c -> NettleCryptFunc
 	nsc_nonceSize          :: c -> T.KeySizeSpecifier
-	nsc_nonceSize          _ = T.KeySizeEnum []
+	nsc_nonceSize          = const $ T.KeySizeEnum []
 	nsc_setNonce           :: c -> Maybe (Ptr Word8 -> Word -> Ptr Word8 -> IO ())
-	nsc_setNonce           _ = Nothing
+	nsc_setNonce           = const Nothing
 
 -- stream cipher based on generating (large) blocks to XOR with input,
 -- but don't keep incomplete blocks in the state, so we have to do that here
@@ -71,9 +74,9 @@ class NettleCipher c => NettleBlockedStreamCipher c where
 	nbsc_incompleteState    :: c -> B.ByteString
 	nbsc_streamCombine      :: c -> NettleCryptFunc
 	nbsc_nonceSize          :: c -> T.KeySizeSpecifier
-	nbsc_nonceSize          _ = T.KeySizeEnum []
+	nbsc_nonceSize          = const $ T.KeySizeEnum []
 	nbsc_setNonce           :: c -> Maybe (Ptr Word8 -> Word -> Ptr Word8 -> IO ())
-	nbsc_setNonce           _ = Nothing
+	nbsc_setNonce           = const Nothing
 
 nettle_cipherInit :: NettleCipher c => Key c -> c
 nettle_cipherInit k = let ctx = nc_Ctx $ key_init (nc_cipherInit ctx) (nc_ctx_size ctx) k in ctx
@@ -123,9 +126,9 @@ nettle_blockedStreamCombine c indata = if B.length indata == 0 then (indata, c) 
 			c' = if B.length inc2 == 0 then nc_Ctx $ nc_ctx c else nbsc_IncompleteState c inc2
 			(r, c'') = nettle_blockedStreamCombine c' i2
 			in (B.append r1 r, c'')
-		else if B.length indata `mod` (nbsc_blockSize c) /= 0
+		else if B.length indata `mod` nbsc_blockSize c /= 0
 			then let
-				padding = B.replicate (nbsc_blockSize c - (B.length indata `mod` (nbsc_blockSize c))) 0
+				padding = B.replicate (nbsc_blockSize c - (B.length indata `mod` nbsc_blockSize c)) 0
 				(r', c') = stream_crypt (nbsc_streamCombine c) (nc_ctx c) (B.append indata padding)
 				(r, inc') = B.splitAt (B.length indata) r'
 				in (r, nbsc_IncompleteState (nc_Ctx c') inc')
@@ -143,7 +146,7 @@ nettle_blockedStreamSetNonce c nonce = case nbsc_setNonce c of
 
 
 nettle_gcm_aeadInit              :: (NettleBlockCipher c, AEADModeImpl c NettleGCM, Byteable iv) => c -> iv -> Maybe (AEAD c)
-nettle_gcm_aeadInit          c  iv = if (nbc_blockSize c == 16) then Just $ AEAD c $ AEADState $ gcm_init (nbc_encrypt_ctx_offset c) (nbc_fun_encrypt c) (nc_ctx c) iv else Nothing
+nettle_gcm_aeadInit          c  iv = if nbc_blockSize c == 16 then Just $ AEAD c $ AEADState $ gcm_init (nbc_encrypt_ctx_offset c) (nbc_fun_encrypt c) (nc_ctx c) iv else Nothing
 nettle_gcm_aeadStateAppendHeader :: t -> NettleGCM -> B.ByteString -> NettleGCM
 nettle_gcm_aeadStateAppendHeader _ = gcm_update
 nettle_gcm_aeadStateEncrypt      :: NettleBlockCipher c => c -> NettleGCM -> B.ByteString -> (B.ByteString, NettleGCM)
@@ -197,7 +200,7 @@ gcm_init encctxoffset encrypt encctx iv = unsafeDupablePerformIO $
 	h <- createSecureMem c_gcm_key_size $ \hptr ->
 		c_gcm_set_key hptr (encctxoffset encctxptr) encrypt
 	withSecureMemPtr h $ \hptr -> do
-	ctx <- createSecureMem c_gcm_ctx_size $ \ctxptr -> do
+	ctx <- createSecureMem c_gcm_ctx_size $ \ctxptr ->
 		c_gcm_set_iv ctxptr hptr (fromIntegral $ byteableLength iv) ivptr
 	return (NettleGCM ctx h)
 
@@ -249,4 +252,4 @@ stream_crypt crypt ctx indata = unsafeDupablePerformIO $
 	withByteStringPtr indata $ \indatalen indataptr -> do
 	outdata <- B.create (B.length indata) $ \outptr ->
 		crypt ctxptr indatalen outptr indataptr
-	return $ (outdata, ctx')
+	return (outdata, ctx')

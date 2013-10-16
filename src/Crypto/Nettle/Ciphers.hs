@@ -1,4 +1,5 @@
-{-# LANGUAGE ForeignFunctionInterface, CPP, MultiParamTypeClasses, FlexibleInstances, FlexibleContexts #-}
+{-# LANGUAGE CPP, MultiParamTypeClasses, FlexibleInstances, FlexibleContexts #-}
+
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Crypto.Nettle.Ciphers
@@ -69,6 +70,9 @@ import Data.Bits
 import Crypto.Nettle.Internal
 import Nettle.Utils
 import Nettle.ForeignImports
+
+-- internal functions are not camelCase on purpose
+{-# ANN module "HLint: ignore Use camelCase" #-}
 
 #define INSTANCE_CIPHER(Typ) \
 instance Cipher Typ where \
@@ -397,7 +401,7 @@ The parity bit is ignored by this implementation.
 -}
 newtype DES = DES SecureMem
 instance NettleCipher DES where
-	nc_cipherInit    _ = \ctxptr _ keyptr -> c_des_set_key ctxptr keyptr
+	nc_cipherInit    _ ctxptr _ = c_des_set_key ctxptr
 	nc_cipherName    _ = "DES"
 	nc_cipherKeySize _ = KeySizeFixed 8
 	nc_ctx_size      _ = c_des_ctx_size
@@ -421,7 +425,7 @@ and the keys are simply concatenated, forming a 24 byte key string (with 168 bit
 -}
 newtype DES_EDE3 = DES_EDE3 SecureMem
 instance NettleCipher DES_EDE3 where
-	nc_cipherInit    _ = \ctxptr _ keyptr -> c_des3_set_key ctxptr keyptr
+	nc_cipherInit    _ ctxptr _ = c_des3_set_key ctxptr
 	nc_cipherName    _ = "DES-EDE3"
 	nc_cipherKeySize _ = KeySizeFixed 24
 	nc_ctx_size      _ = c_des3_ctx_size

@@ -27,6 +27,6 @@ withByteStringPtr b f = withForeignPtr fptr $ \ptr -> f (fromIntegral len) (ptr 
 	where (fptr, off, len) = B.toForeignPtr b
 
 netEncode :: (Integral n) => Int -> n -> [Word8]
-netEncode bytes value = _work bytes [] value where
+netEncode bytes = _work bytes [] where
 	_work 0 r _ = r
 	_work n r v = let (d, m) = divMod v 256 in _work (n-1) (fromIntegral m:r) d

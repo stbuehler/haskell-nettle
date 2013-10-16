@@ -45,6 +45,9 @@ import Data.Byteable
 
 import Nettle.Utils
 
+-- internal functions are not camelCase on purpose
+{-# ANN module "HLint: ignore Use camelCase" #-}
+
 -- ccm needs a 128-bit block cipher
 
 data CCM cipher

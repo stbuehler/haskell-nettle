@@ -11,20 +11,21 @@ import qualified Data.ByteString as B
 import Data.Word (Word8)
 import qualified Numeric as N
 import Data.Maybe (fromJust)
+import Control.Monad (liftM)
 
 fromRight :: Either a b -> b
 fromRight (Right x) = x
 fromRight _ = error "expected Right"
 
 genByteString :: Int -> Gen B.ByteString
-genByteString len = vectorOf len (choose (0,255)) >>= return . B.pack
+genByteString len = liftM B.pack $ vectorOf len (choose (0,255))
 
 runEither :: (Monad m, Show e) => Either e x -> m x
 runEither (Left e) = fail $ show e
 runEither (Right x) = return x
 
 runMaybe :: (Monad m) => Maybe x -> m x
-runMaybe Nothing = fail $ "got nothing"
+runMaybe Nothing = fail "got nothing"
 runMaybe (Just x) = return x
 
 genKey' :: KeySizeSpecifier -> Gen B.ByteString
@@ -37,12 +38,12 @@ genKey :: Cipher c => c -> Gen (Key c)
 genKey c = genKey' (cipherKeySize c) >>= runEither . makeKey
 
 genCipher :: Cipher c => c -> Gen c
-genCipher c = genKey c >>= return . cipherInit
+genCipher c = liftM cipherInit $ genKey c
 
 genIV :: BlockCipher c => c -> Gen (IV c)
 genIV c = genByteString (blockSize c) >>= runMaybe . makeIV
 
-genBlockCipherInput :: BlockCipher c => c -> Int -> Gen (B.ByteString)
+genBlockCipherInput :: BlockCipher c => c -> Int -> Gen B.ByteString
 genBlockCipherInput c blocks = genByteString (blockSize c * blocks)
 
 genBlockTest :: BlockCipher c => c -> Test
@@ -57,7 +58,7 @@ genBlockTest' = go undefined where
 		block1 <- genBlockCipherInput c 1
 		block10 <- genBlockCipherInput c 10
 		input <- choose (1, B.length block10) >>= genByteString
-		return $ conjoin $
+		return $ conjoin
 			[ label "ecbEncrypt + ecbDecrypt 1 block"   $ (ecbDecrypt c    . ecbEncrypt c   ) block1  == block1
 			, label "ecbDecrypt + ecbEncrypt 1 block"   $ (ecbEncrypt c    . ecbDecrypt c   ) block1  == block1
 			, label "ecbEncrypt + ecbDecrypt 10 blocks" $ (ecbDecrypt c    . ecbEncrypt c   ) block10 == block10
@@ -75,6 +76,7 @@ genBlockTest' = go undefined where
 			, label "ctrCombine + ctrCombine unaligned" $ (ctrCombine c iv . ctrCombine c iv) input   == input
 			]
 
+{-# ANN module "HLint: ignore Reduce duplication" #-}
 genStreamTest :: StreamCipher c => c -> Test
 genStreamTest c' = testProperty ("generated " ++ cipherName c' ++ " stream cipher test") $ do
 	c <- genCipher c'
@@ -82,7 +84,7 @@ genStreamTest c' = testProperty ("generated " ++ cipherName c' ++ " stream ciphe
 	let run2 (i1, i2) = fst $ let (o1, c') = streamCombine c i1; (o2, c'') = streamCombine c' i2 in (B.append o1 o2, c'')
 	input1 <- choose (1, 256) >>= genByteString
 	input2 <- choose (1, 256) >>= genByteString
-	return $ conjoin $
+	return $ conjoin
 		[ label "streamCombine one block" $ run (run input1) == input1
 		, label "streamCombine two blocks" $ run (run2 (input1, input2)) == B.append input1 input2
 		]
@@ -96,7 +98,7 @@ genStreamNonceTest c' = testProperty ("generated " ++ cipherName c' ++ " stream 
 	let run2 (i1, i2) = fst $ let (o1, c') = streamCombine c i1; (o2, c'') = streamCombine c' i2 in (B.append o1 o2, c'')
 	input1 <- choose (1, 256) >>= genByteString
 	input2 <- choose (1, 256) >>= genByteString
-	return $ conjoin $
+	return $ conjoin
 		[ label "streamCombine one block with nonce" $ run (run input1) == input1
 		, label "streamCombine two blocks with nonce" $ run (run2 (input1, input2)) == B.append input1 input2
 		]
@@ -110,19 +112,19 @@ genStreamNonceWord64Test c' = testProperty ("generated " ++ cipherName c' ++ " s
 	let run2 (i1, i2) = fst $ let (o1, c') = streamCombine c i1; (o2, c'') = streamCombine c' i2 in (B.append o1 o2, c'')
 	input1 <- choose (1, 256) >>= genByteString
 	input2 <- choose (1, 256) >>= genByteString
-	return $ conjoin $
-		[ label "streamCombine one block with nonce" $ run (run input1) == input1
-		, label "streamCombine two blocks with nonce" $ run (run2 (input1, input2)) == B.append input1 input2
+	return $ conjoin
+		[ label "streamCombine one block with Word64 nonce" $ run (run input1) == input1
+		, label "streamCombine two blocks with Word64 nonce" $ run (run2 (input1, input2)) == B.append input1 input2
 		]
 
-gen_arctwoInitEKB :: Gen ARCTWO
-gen_arctwoInitEKB = do
+genArctwoInitEKB :: Gen ARCTWO
+genArctwoInitEKB = do
 	k <- genKey (undefined :: ARCTWO)
 	ekb <- choose (0, 1024)
 	return $ arctwoInitEKB k ekb
 
-gen_arctwoInitGutmann :: Gen ARCTWO
-gen_arctwoInitGutmann = do
+genArctwoInitGutmann :: Gen ARCTWO
+genArctwoInitGutmann = do
 	k <- genKey (undefined :: ARCTWO)
 	return $ arctwoInitGutmann k
 
@@ -153,8 +155,8 @@ main = defaultMain
 	, genBlockTest (undefined :: AES192)
 	, genBlockTest (undefined :: AES256)
 	, genBlockTest (undefined :: ARCTWO)
-	, genBlockTest' gen_arctwoInitEKB
-	, genBlockTest' gen_arctwoInitGutmann
+	, genBlockTest' genArctwoInitEKB
+	, genBlockTest' genArctwoInitGutmann
 	, genBlockTest (undefined :: BLOWFISH)
 	, genBlockTest (undefined :: Camellia)
 	, genBlockTest (undefined :: Camellia128)
