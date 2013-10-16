@@ -24,9 +24,10 @@ Library
                    , securemem >= 0.1.2
                    , crypto-cipher-types >= 0.0.3 && < 0.1
   Exposed-modules:   Crypto.Nettle.Ciphers
+                     Crypto.Nettle.CCM
   Other-modules:     Crypto.Nettle.Internal
-                   , Nettle.ForeignImports
-                   , Nettle.Utils
+                     Nettle.ForeignImports
+                     Nettle.Utils
   ghc-options:       -Wall -optc-O3 -fno-cse
   include-dirs:      src
   C-sources:         src/nettle.c
