@@ -1,6 +1,6 @@
 
-#ifndef _HS_NETTLE_H
-#define _HS_NETTLE_H _HS_NETTLE_H
+#ifndef _HS_NETTLE_CIPHERS_H
+#define _HS_NETTLE_CIPHERS_H _HS_NETTLE_CIPHERS_H
 
 #include <sys/types.h>
 #include <nettle/cbc.h>

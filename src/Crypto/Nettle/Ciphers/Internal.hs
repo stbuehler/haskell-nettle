@@ -1,6 +1,6 @@
 {-# LANGUAGE MultiParamTypeClasses, FlexibleInstances, FlexibleContexts #-}
 
-module Crypto.Nettle.Internal
+module Crypto.Nettle.Ciphers.Internal
 	( NettleCipher(..)
 	, NettleBlockCipher(..)
 	, NettleStreamCipher(..)
@@ -35,7 +35,7 @@ import qualified Data.ByteString.Internal as B
 import Data.Bits (xor)
 
 import Nettle.Utils
-import Nettle.ForeignImports
+import Crypto.Nettle.Ciphers.ForeignImports
 
 -- internal functions are not camelCase on purpose
 {-# ANN module "HLint: ignore Use camelCase" #-}

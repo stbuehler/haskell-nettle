@@ -21,16 +21,19 @@ Library
   Build-Depends:     base >= 4 && < 5
                    , bytestring
                    , byteable
+                   , tagged
                    , securemem >= 0.1.2
                    , crypto-cipher-types >= 0.0.3 && < 0.1
   Exposed-modules:   Crypto.Nettle.Ciphers
                      Crypto.Nettle.CCM
-  Other-modules:     Crypto.Nettle.Internal
-                     Nettle.ForeignImports
+                     Crypto.Nettle.Hash
+  Other-modules:     Crypto.Nettle.Ciphers.Internal
+                     Crypto.Nettle.Ciphers.ForeignImports
+                     Crypto.Nettle.Hash.ForeignImports
                      Nettle.Utils
   ghc-options:       -Wall -optc-O3 -fno-cse
   include-dirs:      src
-  C-sources:         src/nettle.c
+  C-sources:         src/nettle-ciphers.c
   if flag(UsePkgConfig)
     PkgConfig-Depends: nettle
   else
@@ -47,6 +50,18 @@ Test-Suite test-ciphers
                    , test-framework-quickcheck2 >= 0.2.9
                    , crypto-cipher-types
                    , crypto-cipher-tests
+                   , nettle
+
+Test-Suite test-hashes
+  type:              exitcode-stdio-1.0
+  hs-source-dirs:    src/Tests
+  Main-Is:           Hash.hs
+  Build-depends:     base >= 4 && < 5
+                   , bytestring
+                   , tagged
+                   , QuickCheck >= 2
+                   , test-framework >= 0.3.3
+                   , test-framework-quickcheck2 >= 0.2.9
                    , nettle
 
 source-repository head

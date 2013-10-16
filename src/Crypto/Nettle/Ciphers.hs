@@ -67,9 +67,9 @@ import qualified Data.ByteString as B
 import Data.Word (Word64)
 import Data.Bits
 
-import Crypto.Nettle.Internal
+import Crypto.Nettle.Ciphers.Internal
+import Crypto.Nettle.Ciphers.ForeignImports
 import Nettle.Utils
-import Nettle.ForeignImports
 
 -- internal functions are not camelCase on purpose
 {-# ANN module "HLint: ignore Use camelCase" #-}

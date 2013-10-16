@@ -1,6 +1,6 @@
 {-# LANGUAGE ForeignFunctionInterface, CPP #-}
 
-module Nettle.ForeignImports
+module Crypto.Nettle.Ciphers.ForeignImports
 	( NettleCryptFunc
 	, NettleBlockMode
 	, NettleGCMMode
@@ -105,7 +105,7 @@ import Nettle.Utils
 -- internal functions are not camelCase on purpose
 {-# ANN module "HLint: ignore Use camelCase" #-}
 
-#include "nettle.h"
+#include "nettle-ciphers.h"
 
 type NettleCryptFunc = Ptr Word8 -> Word -> Ptr Word8 -> Ptr Word8 -> IO ()
 type NettleBlockMode = Ptr Word8 -> FunPtr NettleCryptFunc -> Word -> Ptr Word8 -> Word -> Ptr Word8 -> Ptr Word8 -> IO ()
@@ -288,3 +288,7 @@ foreign import ccall unsafe "nettle_salsa20_crypt"
 	c_salsa20_crypt :: NettleCryptFunc
 foreign import ccall unsafe "nettle_salsa20r12_crypt"
 	c_salsa20r12_crypt :: NettleCryptFunc
+
+
+
+

@@ -1,5 +1,5 @@
 
-#include "nettle.h"
+#include "nettle-ciphers.h"
 
 #undef NDEBUG
 #include <assert.h>

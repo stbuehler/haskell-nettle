@@ -7,6 +7,6 @@ cd "${base}"
 
 rm -rf gh-pages/*
 
-cabal haddock --html-location='http://hackage.haskell.org/packages/archive/$pkg/latest/doc/html' --hyperlink-source --haddock-option="--built-in-themes"
+cabal haddock --html-location='http://hackage.haskell.org/packages/archive/$pkg/latest/doc/html' --hyperlink-source --haddock-options="--built-in-themes -q aliased"
 
 cp -ar dist/doc/html/nettle/* gh-pages/
