@@ -61,64 +61,15 @@ module Crypto.Nettle.Hash (
 	) where
 
 import Crypto.Nettle.Hash.ForeignImports
+import Crypto.Nettle.Hash.Types
 import Nettle.Utils
 
 import Data.SecureMem
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Internal as B
-import qualified Data.ByteString.Lazy as L
-import Data.Tagged
-import Control.Applicative ((<$>))
 
 -- internal functions are not camelCase on purpose
 {-# ANN module "HLint: ignore Use camelCase" #-}
-
-{-|
-'HashAlgorithm' is a generic class that hash algorithms will implement. generating a digest is a 3 step procedure:
-
-  * 'hashInit' to create a new context
-
-  * 'hashUpdate' to hash data
-
-  * 'hashFinalize' to extract the final digest
-
-The final digest has 'hashDigestSize' bytes, and the algorithm uses 'hashBlockSize' as internal block size.
--}
-class HashAlgorithm a where
-	-- | Block size in bytes the hash algorithm operates on
-	hashBlockSize  :: Tagged a Int
-	-- | Digest size in bytes the hash algorithm returns
-	hashDigestSize :: Tagged a Int
-	-- | Name of the hash algorithm
-	hashName       :: Tagged a String
-	-- | Initialize a new context for this hash algorithm
-	hashInit       :: a
-	-- | Update the context with bytestring, and return a new context with the updates.
-	hashUpdate     :: a -> B.ByteString -> a
-	-- | Finalize a context and return a digest.
-	hashFinalize   :: a -> B.ByteString
-
-{-|
-Helper to hash a single (strict) 'B.ByteString' in one step.
--}
-hash :: HashAlgorithm a => B.ByteString -> Tagged a B.ByteString
-hash msg = hashFinalize <$> flip hashUpdate msg <$> tagSelf hashInit
-{-|
-Untagged variant of 'hash'; takes a (possible 'undefined') typed 'HashAlgorithm' context as parameter.
--}
-hash' :: HashAlgorithm a => a -> B.ByteString -> B.ByteString
-hash' a = flip witness a . hash
-
-{-|
-Helper to hash a single (lazy) 'L.ByteString' in one step.
--}
-hashLazy :: HashAlgorithm a => L.ByteString -> Tagged a L.ByteString
-hashLazy msg = L.fromStrict <$> hashFinalize <$> flip (foldl hashUpdate) (L.toChunks msg) <$> tagSelf hashInit
-{-|
-Untagged variant of 'hashLazy'; takes a (possible 'undefined') typed 'HashAlgorithm' context as parameter.
--}
-hashLazy' :: HashAlgorithm a => a -> L.ByteString -> L.ByteString
-hashLazy' a = flip witness a . hashLazy
 
 nettleHashBlockSize  :: NettleHashAlgorithm a => Tagged a Int
 nettleHashBlockSize = nha_block_size
