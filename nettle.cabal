@@ -29,6 +29,7 @@ Library
                      Crypto.Nettle.Hash
                      Crypto.Nettle.KeyedHash
                      Crypto.Nettle.HMAC
+                     Crypto.Nettle.UMAC
   Other-modules:     Crypto.Nettle.Ciphers.Internal
                      Crypto.Nettle.Ciphers.ForeignImports
                      Crypto.Nettle.Hash.ForeignImports

@@ -102,6 +102,34 @@ module Crypto.Nettle.Hash.ForeignImports
 	, c_gosthash94_init
 	, c_gosthash94_update
 	, c_gosthash94_digest
+
+	, c_umac32_ctx_size
+	, c_umac32_digest_size
+	, c_umac32_set_key
+	, c_umac32_set_nonce
+	, c_umac32_update
+	, c_umac32_digest
+
+	, c_umac64_ctx_size
+	, c_umac64_digest_size
+	, c_umac64_set_key
+	, c_umac64_set_nonce
+	, c_umac64_update
+	, c_umac64_digest
+
+	, c_umac96_ctx_size
+	, c_umac96_digest_size
+	, c_umac96_set_key
+	, c_umac96_set_nonce
+	, c_umac96_update
+	, c_umac96_digest
+
+	, c_umac128_ctx_size
+	, c_umac128_digest_size
+	, c_umac128_set_key
+	, c_umac128_set_nonce
+	, c_umac128_update
+	, c_umac128_digest
 	) where
 
 import Nettle.Utils
@@ -297,3 +325,55 @@ foreign import ccall unsafe "nettle_gosthash94_update"
 foreign import ccall unsafe "nettle_gosthash94_digest"
 	c_gosthash94_digest :: NettleHashDigest
 
+
+c_umac32_ctx_size :: Int
+c_umac32_ctx_size = #{size struct umac32_ctx}
+c_umac32_digest_size :: Int
+c_umac32_digest_size = #{const UMAC32_DIGEST_SIZE}
+foreign import ccall unsafe "nettle_umac32_set_key"
+	c_umac32_set_key :: Ptr Word8 -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_umac32_set_nonce"
+	c_umac32_set_nonce :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_umac32_update"
+	c_umac32_update :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_umac32_digest"
+	c_umac32_digest :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()
+
+c_umac64_ctx_size :: Int
+c_umac64_ctx_size = #{size struct umac64_ctx}
+c_umac64_digest_size :: Int
+c_umac64_digest_size = #{const UMAC64_DIGEST_SIZE}
+foreign import ccall unsafe "nettle_umac64_set_key"
+	c_umac64_set_key :: Ptr Word8 -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_umac64_set_nonce"
+	c_umac64_set_nonce :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_umac64_update"
+	c_umac64_update :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_umac64_digest"
+	c_umac64_digest :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()
+
+c_umac96_ctx_size :: Int
+c_umac96_ctx_size = #{size struct umac96_ctx}
+c_umac96_digest_size :: Int
+c_umac96_digest_size = #{const UMAC96_DIGEST_SIZE}
+foreign import ccall unsafe "nettle_umac96_set_key"
+	c_umac96_set_key :: Ptr Word8 -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_umac96_set_nonce"
+	c_umac96_set_nonce :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_umac96_update"
+	c_umac96_update :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_umac96_digest"
+	c_umac96_digest :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()
+
+c_umac128_ctx_size :: Int
+c_umac128_ctx_size = #{size struct umac128_ctx}
+c_umac128_digest_size :: Int
+c_umac128_digest_size = #{const UMAC128_DIGEST_SIZE}
+foreign import ccall unsafe "nettle_umac128_set_key"
+	c_umac128_set_key :: Ptr Word8 -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_umac128_set_nonce"
+	c_umac128_set_nonce :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_umac128_update"
+	c_umac128_update :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_umac128_digest"
+	c_umac128_digest :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()

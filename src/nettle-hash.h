@@ -17,4 +17,6 @@
 #include <nettle/sha2.h>
 #include <nettle/sha3.h>
 
+#include <nettle/umac.h>
+
 #endif
