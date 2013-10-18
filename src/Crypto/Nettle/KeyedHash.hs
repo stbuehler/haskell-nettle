@@ -23,10 +23,13 @@ module Crypto.Nettle.KeyedHash
 	, keyedHashInit
 	, keyedHashInit'
 	, keyedHashUpdate
+	, keyedHashUpdateLazy
 	, keyedHashInitPrivate
 	, keyedHashFinalize
 	, keyedHash
 	, keyedHash'
+	, keyedHashLazy
+	, keyedHashLazy'
 	) where
 
 import Crypto.Nettle.Hash.Types

@@ -32,9 +32,12 @@ module Crypto.Nettle.Hash.Types
 	, keyedHashInit'
 	, keyedHashInitPrivate
 	, keyedHashUpdate
+	, keyedHashUpdateLazy
 	, keyedHashFinalize
 	, keyedHash
 	, keyedHash'
+	, keyedHashLazy
+	, keyedHashLazy'
 
 	, module Data.Tagged
 
@@ -44,6 +47,8 @@ module Crypto.Nettle.Hash.Types
 	, hmacInit'
 	, hmac
 	, hmac'
+	, hmacLazy
+	, hmacLazy'
 	) where
 
 import Data.Tagged
@@ -51,6 +56,7 @@ import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as L
 import Control.Applicative ((<$>))
 import Data.Bits (xor)
+import Data.List (foldl')
 
 
 {-|
@@ -75,6 +81,9 @@ class HashAlgorithm a where
 	hashInit       :: a
 	-- | Update the context with bytestring, and return a new context with the updates.
 	hashUpdate     :: a -> B.ByteString -> a
+	-- | Update the context with a lazy bytestring, and return a new context with the updates.
+	hashUpdateLazy :: a -> L.ByteString -> a
+	hashUpdateLazy a = foldl' hashUpdate a . L.toChunks
 	-- | Finalize a context and return a digest.
 	hashFinalize   :: a -> B.ByteString
 	-- | Use 'HashAlgorithm' for HMAC; can use a optimized variant or the default 'hmacInit' one
@@ -108,7 +117,7 @@ Example:
 > untag (hashLazy (fromString "abc") :: Tagged SHA256 L.ByteString)
 -}
 hashLazy :: HashAlgorithm a => L.ByteString -> Tagged a L.ByteString
-hashLazy msg = L.fromStrict <$> hashFinalize <$> flip (foldl hashUpdate) (L.toChunks msg) <$> tagSelf hashInit
+hashLazy msg = L.fromStrict <$> hashFinalize <$> flip hashUpdateLazy msg <$> tagSelf hashInit
 {-|
 Untagged variant of 'hashLazy'; takes a (possible 'undefined') typed 'HashAlgorithm' context as parameter.
 
@@ -137,6 +146,9 @@ class KeyedHashAlgorithm k s | k -> s where
 	implKeyedHashInit :: B.ByteString -> (k, s)
 	-- | Add more message data to the state
 	implKeyedHashUpdate :: k -> s -> B.ByteString -> s
+	-- | Add more lazy message data to the state
+	implKeyedHashUpdateLazy :: k -> s -> L.ByteString -> s
+	implKeyedHashUpdateLazy k s = foldl' (implKeyedHashUpdate k) s . L.toChunks
 	-- | Produce final digest
 	implKeyedHashFinalize :: k -> s -> B.ByteString
 
@@ -186,6 +198,11 @@ Add more message data to the context
 keyedHashUpdate :: KeyedHash -> B.ByteString -> KeyedHash
 keyedHashUpdate (KeyedHash k s) = KeyedHash k . implKeyedHashUpdate k s
 {-|
+Add more lazy message data to the context
+-}
+keyedHashUpdateLazy :: KeyedHash -> L.ByteString -> KeyedHash
+keyedHashUpdateLazy (KeyedHash k s) = KeyedHash k . implKeyedHashUpdateLazy k s
+{-|
 Produce final digest
 -}
 keyedHashFinalize :: KeyedHash -> B.ByteString
@@ -208,6 +225,24 @@ Example:
 -}
 keyedHash' :: KeyedHashAlgorithm k s => k -> B.ByteString -> B.ByteString -> B.ByteString
 keyedHash' k key msg = keyedHash key msg `witness` k
+{-|
+Helper to hash @key@ and lazy @message@ in one step
+
+Example:
+
+> untag (keyedHashLazy (fromString "secretkey") (fromString "secret message") :: Tagged (HMAC SHA256) B.ByteString)
+-}
+keyedHashLazy :: KeyedHashAlgorithm k s => B.ByteString -> L.ByteString -> Tagged k B.ByteString
+keyedHashLazy key msg = keyedHashFinalize <$> flip keyedHashUpdateLazy msg <$> keyedHashInit key
+{-|
+Untagged variant of 'keyedHashLazy'; takes a (possible 'undefined') key typed value from a 'KeyedHashAlgorithm' instance as parameter.
+
+Example:
+
+> keyedHashLazy' (undefined :: HMAC SHA256) (fromString "secretkey") (fromString "secret message")
+-}
+keyedHashLazy' :: KeyedHashAlgorithm k s => k -> B.ByteString -> L.ByteString -> B.ByteString
+keyedHashLazy' k key msg = keyedHashLazy key msg `witness` k
 
 {-|
 'HMAC' is the key for a 'KeyedHashAlgorithm' instance to calculate the 'HMAC' based
@@ -236,6 +271,7 @@ instance HashAlgorithm a => KeyedHashAlgorithm (HMAC a) (HMACState a) where
 		let i_key = B.map (xor 0x36) key'
 		return (HMAC $ hashUpdate i o_key, HMACState $ hashUpdate i i_key)
 	implKeyedHashUpdate _ (HMACState s) = HMACState . hashUpdate s
+	implKeyedHashUpdateLazy _ (HMACState s) = HMACState . hashUpdateLazy s
 	implKeyedHashFinalize (HMAC k) (HMACState s) = hashFinalize $ hashUpdate k $ hashFinalize s
 
 {-|
@@ -282,3 +318,25 @@ Example:
 -}
 hmac' :: HashAlgorithm a => a -> B.ByteString -> B.ByteString -> B.ByteString
 hmac' = keyedHash' . HMAC
+
+{-|
+calculate HMAC with a 'HashAlgorithm' for a @key@ and lazy @message@
+
+Example:
+
+> untag (hmacLazy (fromString "secretkey") (fromString "secret message") :: Tagged SHA256 B.ByteString)
+-}
+hmacLazy :: HashAlgorithm a => B.ByteString {- ^ @key@ argument -} -> L.ByteString {- ^ @message@ argument -} -> Tagged a B.ByteString
+hmacLazy key = rt . keyedHashLazy key where
+	rt :: Tagged (HMAC a) x -> Tagged a x
+	rt = retag
+
+{-|
+Untagged variant of 'hmacLazy'; takes a (possible 'undefined') typed 'HashAlgorithm' context as parameter.
+
+Example:
+
+> hmacLazy' (undefined :: SHA256) (fromString "secretkey") (fromString "secret message")
+-}
+hmacLazy' :: HashAlgorithm a => a -> B.ByteString -> L.ByteString -> B.ByteString
+hmacLazy' = keyedHashLazy' . HMAC

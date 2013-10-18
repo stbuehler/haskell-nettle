@@ -20,6 +20,8 @@ module Crypto.Nettle.HMAC
 	, hmacInit'
 	, hmac
 	, hmac'
+	, hmacLazy
+	, hmacLazy'
 	) where
 
 import Crypto.Nettle.Hash.Types

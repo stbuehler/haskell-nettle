@@ -29,7 +29,9 @@ import Data.SecureMem
 import Data.Tagged
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Internal as B
+import qualified Data.ByteString.Lazy as L
 import Control.Applicative ((<$>))
+import Data.List (foldl')
 
 import Nettle.Utils
 import Crypto.Nettle.KeyedHash
@@ -56,6 +58,9 @@ class UMAC u where
 	umacSetNonce :: u -> B.ByteString {- ^ @nonce@ argument -} -> u
 	-- | append @message@ data to be hashed
 	umacUpdate :: u -> B.ByteString {- ^ @message@ argument -} -> u
+	-- | append lazy @message@ data to be hashed
+	umacUpdateLazy :: u -> L.ByteString {- ^ @message@ argument -} -> u
+	umacUpdateLazy u = foldl' umacUpdate u . L.toChunks
 	-- | produce a digest, and return a new state with incremented nonce
 	umacFinalize :: u -> (B.ByteString, u)
 
@@ -120,6 +125,16 @@ nettleUmacUpdate c msg = untag $ go c where
 			withSecureMemCopy (nu_ctx ctx) $ \ctxptr ->
 			withByteStringPtr msg $ \msglen msgptr ->
 				update ctxptr msglen msgptr
+nettleUmacUpdateLazy :: NettleUMAC u => u -> L.ByteString -> u
+nettleUmacUpdateLazy c msg = untag $ go c where
+	go :: NettleUMAC u => u -> Tagged u u
+	go ctx = do
+		update <- nu_update
+		return $ nu_Ctx $ unsafeDupablePerformIO $
+			withSecureMemCopy (nu_ctx ctx) $ \ctxptr ->
+			flip mapM_ (L.toChunks msg) $ \chunk ->
+			withByteStringPtr chunk $ \chunklen chunkptr ->
+				update ctxptr chunklen chunkptr
 nettleUmacFinalize :: NettleUMAC u => u -> (B.ByteString, u)
 nettleUmacFinalize c = untag $ go c where
 	go :: NettleUMAC u => u -> Tagged u (B.ByteString, u)
@@ -139,6 +154,7 @@ instance UMAC Typ where \
 	; umacInit       = nettleUmacInit \
 	; umacSetNonce   = nettleUmacSetNonce \
 	; umacUpdate     = nettleUmacUpdate \
+	; umacUpdateLazy = nettleUmacUpdateLazy \
 	; umacFinalize   = nettleUmacFinalize \
 	} ; \
 instance KeyedHashAlgorithm Typ Typ where \
@@ -153,7 +169,7 @@ instance KeyedHashAlgorithm Typ Typ where \
 {-|
 'UMAC32' is the 32-bit (4 byte) digest variant. See 'umacInitKeyedHash' for the 'KeyedHashAlgorithm' instance.
 -}
-data UMAC32 = UMAC32 { umac32_ctx :: SecureMem }
+newtype UMAC32 = UMAC32 { umac32_ctx :: SecureMem }
 instance NettleUMAC UMAC32 where
 	nu_ctx_size    = Tagged c_umac32_ctx_size
 	nu_digest_size = Tagged c_umac32_digest_size
@@ -168,7 +184,7 @@ INSTANCE_UMAC(UMAC32)
 {-|
 'UMAC64' is the 32-bit (4 byte) digest variant. See 'umacInitKeyedHash' for the 'KeyedHashAlgorithm' instance.
 -}
-data UMAC64 = UMAC64 { umac64_ctx :: SecureMem }
+newtype UMAC64 = UMAC64 { umac64_ctx :: SecureMem }
 instance NettleUMAC UMAC64 where
 	nu_ctx_size    = Tagged c_umac64_ctx_size
 	nu_digest_size = Tagged c_umac64_digest_size
@@ -183,7 +199,7 @@ INSTANCE_UMAC(UMAC64)
 {-|
 'UMAC96' is the 32-bit (4 byte) digest variant. See 'umacInitKeyedHash' for the 'KeyedHashAlgorithm' instance.
 -}
-data UMAC96 = UMAC96 { umac96_ctx :: SecureMem }
+newtype UMAC96 = UMAC96 { umac96_ctx :: SecureMem }
 instance NettleUMAC UMAC96 where
 	nu_ctx_size    = Tagged c_umac96_ctx_size
 	nu_digest_size = Tagged c_umac96_digest_size
@@ -198,7 +214,7 @@ INSTANCE_UMAC(UMAC96)
 {-|
 'UMAC128' is the 32-bit (4 byte) digest variant. See 'umacInitKeyedHash' for the 'KeyedHashAlgorithm' instance.
 -}
-data UMAC128 = UMAC128 { umac128_ctx :: SecureMem }
+newtype UMAC128 = UMAC128 { umac128_ctx :: SecureMem }
 instance NettleUMAC UMAC128 where
 	nu_ctx_size    = Tagged c_umac128_ctx_size
 	nu_digest_size = Tagged c_umac128_digest_size
