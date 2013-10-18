@@ -63,9 +63,23 @@ Test-Suite test-hashes
   Build-depends:     base >= 4 && < 5
                    , bytestring
                    , tagged
-                   , QuickCheck >= 2
+                   , array
                    , test-framework >= 0.3.3
-                   , test-framework-quickcheck2 >= 0.2.9
+                   , HUnit
+                   , test-framework-hunit
+                   , nettle
+
+Test-Suite test-hmac
+  type:              exitcode-stdio-1.0
+  hs-source-dirs:    src/Tests
+  Main-Is:           HMAC.hs
+  Build-depends:     base >= 4 && < 5
+                   , bytestring
+                   , tagged
+                   , array
+                   , test-framework >= 0.3.3
+                   , HUnit
+                   , test-framework-hunit
                    , nettle
 
 source-repository head
