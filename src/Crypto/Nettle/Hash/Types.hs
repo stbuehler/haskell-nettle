@@ -129,11 +129,6 @@ hashLazy' a = flip witness a . hashLazy
 {-|
 'KeyedHashAlgorithm' is a class for keyed hash algorithms that take a key and a message to produce a digest.
 The most popular example is 'HMAC'.
-
-A 'KeyedHashAlgorithm' will operate on a fixed key @k@ and a state @s@; @s@ will be updated as messages
-are added.
-
-On start an implementation will generate the fixed key @k@ and an initial state @s@ from a 'B.ByteString' key.
 -}
 class KeyedHashAlgorithm k where
 	-- | Digest size in bytes the keyed hash algorithm returns
