@@ -69,22 +69,20 @@ umacKHDigestSize :: UMAC u => Tagged u Int
 umacKHDigestSize = umacDigestSize
 umacKHName :: UMAC u => Tagged u String
 umacKHName = umacName
-umacKHInit :: UMAC u => B.ByteString -> (u, u)
-umacKHInit = (,) undefined . umacInit
-umacKHUpdate :: UMAC u => u -> u -> B.ByteString -> u
-umacKHUpdate _ = umacUpdate
-umacKHFinalize :: UMAC u => u -> u -> B.ByteString
-umacKHFinalize _ = fst . umacFinalize
+umacKHInit :: UMAC u => B.ByteString -> u
+umacKHInit = umacInit
+umacKHUpdate :: UMAC u => u -> B.ByteString -> u
+umacKHUpdate = umacUpdate
+umacKHFinalize :: UMAC u => u -> B.ByteString
+umacKHFinalize = fst . umacFinalize
 
 {-|
 The default 'KeyedHash' generated for UMAC 'KeyedHashAlgorithm' instances use a zero nonce; to set a different nonce you need to use this initialization function (or use the 'UMAC' interface).
 
 Once the UMAC lives as 'KeyedHash' the nonce cannot be changed anymore, as 'KeyedHash' hides all internal state.
 -}
-umacInitKeyedHash :: (UMAC u, KeyedHashAlgorithm u u) => B.ByteString {- ^ @key@ argument -} -> B.ByteString {- ^ @nonce@ argument -} -> Tagged u KeyedHash
-umacInitKeyedHash key nonce = makeKH undefined <$> flip umacSetNonce nonce <$> tagSelf (umacInit key) where
-	makeKH :: KeyedHashAlgorithm u u => u -> u -> KeyedHash -- fix type of first argument
-	makeKH = keyedHashInitPrivate
+umacInitKeyedHash :: (UMAC u, KeyedHashAlgorithm u) => B.ByteString {- ^ @key@ argument -} -> B.ByteString {- ^ @nonce@ argument -} -> Tagged u KeyedHash
+umacInitKeyedHash key nonce = KeyedHash <$> flip umacSetNonce nonce <$> tagSelf (umacInit key)
 
 class NettleUMAC u where
 	nu_ctx_size :: Tagged u Int
@@ -157,7 +155,7 @@ instance UMAC Typ where \
 	; umacUpdateLazy = nettleUmacUpdateLazy \
 	; umacFinalize   = nettleUmacFinalize \
 	} ; \
-instance KeyedHashAlgorithm Typ Typ where \
+instance KeyedHashAlgorithm Typ where \
 	{ implKeyedHashDigestSize = umacKHDigestSize \
 	; implKeyedHashName       = umacKHName \
 	; implKeyedHashInit       = umacKHInit \

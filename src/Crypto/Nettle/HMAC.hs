@@ -15,7 +15,6 @@
 
 module Crypto.Nettle.HMAC
 	( HMAC
-	, HMACState
 	, hmacInit
 	, hmacInit'
 	, hmac

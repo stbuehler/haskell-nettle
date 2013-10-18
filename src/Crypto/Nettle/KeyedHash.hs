@@ -14,7 +14,7 @@
 
 module Crypto.Nettle.KeyedHash
 	( KeyedHashAlgorithm(..)
-	, KeyedHash
+	, KeyedHash(..)
 
 	, keyedHashDigestSize
 	, keyedHashDigestSize'
@@ -24,7 +24,6 @@ module Crypto.Nettle.KeyedHash
 	, keyedHashInit'
 	, keyedHashUpdate
 	, keyedHashUpdateLazy
-	, keyedHashInitPrivate
 	, keyedHashFinalize
 	, keyedHash
 	, keyedHash'
