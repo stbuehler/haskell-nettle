@@ -1,16 +1,22 @@
 Name:                nettle
-Version:             0.0.1
-Description:         haskell nettle binding
+Version:             0.1.0
+Synopsis:            safe nettle binding
+Description:
+  safe binding for the nettle (<http://www.lysator.liu.se/~nisse/nettle/nettle.html>) library.
 License:             MIT
 License-file:        COPYING
 Copyright:           Stefan Bühler <stbuehler@web.de>
 Author:              Stefan Bühler <stbuehler@web.de>
 Maintainer:          Stefan Bühler <stbuehler@web.de>
-Synopsis:            Haskell nettle binding
 Category:            Cryptography
 Build-Type:          Simple
-Homepage:            http://github.com/stbuehler/haskell-nettle
+Homepage:            https://github.com/stbuehler/haskell-nettle
+Bug-reports:         https://github.com/stbuehler/haskell-nettle/issues
 Cabal-Version:       >=1.8
+Extra-source-files:  README.md
+                   , src/nettle-ciphers.h
+                   , src/nettle-hash.h
+                   , src/Tests/*.hs
 
 Flag UsePkgConfig
   Description: Use pkg-config to check for library dependences
