@@ -1,10 +1,10 @@
-{-# LANGUAGe OverloadedStrings #-}
+{-# LANGUAGe OverloadedStrings, Safe #-}
 
 module VectorsUMAC
 	( umacTestVectors
 	) where
 
-import TestUtils
+import HexUtils
 import qualified Data.ByteString as B
 
 -- repeat chunks of s until filled length bytes

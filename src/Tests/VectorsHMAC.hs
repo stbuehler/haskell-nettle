@@ -1,11 +1,11 @@
-{-# LANGUAGe OverloadedStrings #-}
+{-# LANGUAGe OverloadedStrings, Safe #-}
 
 module VectorsHMAC
 	( hmacTestVectors
 	, findHmacTestVectors
 	) where
 
-import TestUtils
+import HexUtils
 import qualified Data.ByteString as B
 
 hmacTestVectors :: [(String, [(B.ByteString, B.ByteString, String)])]

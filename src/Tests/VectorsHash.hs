@@ -1,11 +1,11 @@
-{-# LANGUAGe OverloadedStrings #-}
+{-# LANGUAGe OverloadedStrings, Safe #-}
 
 module VectorsHash
 	( hashTestVectors
 	, findHashTestVectors
 	) where
 
-import TestUtils
+import HexUtils
 import qualified Data.ByteString as B
 
 -- test vector froms nettle
