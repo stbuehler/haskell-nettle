@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP, MultiParamTypeClasses, FunctionalDependencies, EmptyDataDecls #-}
+{-# LANGUAGE CPP, MultiParamTypeClasses #-}
 
 -----------------------------------------------------------------------------
 -- |
@@ -36,6 +36,9 @@ import Data.List (foldl')
 import Nettle.Utils
 import Crypto.Nettle.KeyedHash
 import Crypto.Nettle.Hash.ForeignImports
+
+-- internal functions are not camelCase on purpose
+{-# ANN module "HLint: ignore Use camelCase" #-}
 
 {-|
 'UMAC' is a class of keyed hash algorithms that take an additional nonce.
@@ -130,7 +133,7 @@ nettleUmacUpdateLazy c msg = untag $ go c where
 		update <- nu_update
 		return $ nu_Ctx $ unsafeDupablePerformIO $
 			withSecureMemCopy (nu_ctx ctx) $ \ctxptr ->
-			flip mapM_ (L.toChunks msg) $ \chunk ->
+			forM_ (L.toChunks msg) $ \chunk ->
 			withByteStringPtr chunk $ \chunklen chunkptr ->
 				update ctxptr chunklen chunkptr
 nettleUmacFinalize :: NettleUMAC u => u -> (B.ByteString, u)

@@ -38,7 +38,7 @@ readHex' [] = return []
 readHex' (' ':xs) = readHex' xs
 readHex' (a:' ':xs) = readHex' $ a:xs
 readHex' (a:b:xs) = do
-	n <- case (N.readHex (a:b:[])) of
+	n <- case N.readHex [a,b] of
 		(n, ""):_ -> return n
 		_ -> fail "invalid hex encoding"
 	xn <- readHex' xs

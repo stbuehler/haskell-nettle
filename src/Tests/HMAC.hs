@@ -13,10 +13,10 @@ assertHMAC (key, msg, h) = do
 	h' <- hmac key msg
 	return $ assertEqualHex "" (hs h) $ B.take (B.length $ hs h) h'
 
-testHMAC :: HashAlgorithm a => Tagged a (Test)
+testHMAC :: HashAlgorithm a => Tagged a Test
 testHMAC = do
 	name <- hashName
-	vectors <- find_hmac_test_vectors ("HMAC-" ++ name)
+	vectors <- findHmacTestVectors ("HMAC-" ++ name)
 	results <- mapM assertHMAC vectors
 	return $ testCases ("testing HMAC-" ++ name) results
 --	return $ debugTestCases ("testing HMAC-" ++ name) results

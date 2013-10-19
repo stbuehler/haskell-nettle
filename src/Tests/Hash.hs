@@ -12,13 +12,13 @@ assertHash (src, h) = do
 	h' <- hash src
 	return $ assertEqualHex "" (hs h) h'
 
-testHash :: HashAlgorithm a => Tagged a (Test)
+testHash :: HashAlgorithm a => Tagged a Test
 testHash = do
 	name <- hashName
-	vectors <- find_hash_test_vectors name
+	vectors <- findHashTestVectors name
 	results <- mapM assertHash vectors
-	return $ testCases ("testing HashAlgorithm " ++ name) $ results
---	return $ debugTestCases ("testing HashAlgorithm " ++ name) $ results
+	return $ testCases ("testing HashAlgorithm " ++ name) results
+--	return $ debugTestCases ("testing HashAlgorithm " ++ name) results
 
 main = defaultMain
 	[ testHash `witness` (undefined :: GOSTHASH94)

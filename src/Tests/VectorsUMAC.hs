@@ -1,7 +1,7 @@
 {-# LANGUAGe OverloadedStrings #-}
 
 module VectorsUMAC
-	( umac_test_vectors
+	( umacTestVectors
 	) where
 
 import TestUtils
@@ -13,8 +13,8 @@ repString len s = if len > B.length s then s:let l' = len - B.length s in l' `se
 
 -- [(key, nonce, message-chunks, [(umac32, umac64, umac128)])]
 -- umac96 is truncated umac128
-umac_test_vectors :: [(B.ByteString, Maybe B.ByteString, [B.ByteString], [(String, String, String)])]
-umac_test_vectors =
+umacTestVectors :: [(B.ByteString, Maybe B.ByteString, [B.ByteString], [(String, String, String)])]
+umacTestVectors =
 --  /* From RFC 4418 (except that it lacks the last 32 bits of 128-bit tags) */
 	[ ("abcdefghijklmnop", Just "bcdefghi", repString 0 "",
 		[ ("113145FB", "6E155FAD26900BE1", "32fedb100c79ad58f07ff7643cc60465")

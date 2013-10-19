@@ -20,6 +20,7 @@ module Nettle.Utils
 	, FunPtr
 	, Word8
 	, Word
+	, forM_
 	, unsafeDupablePerformIO
 	, withByteStringPtr
 	, netEncode
@@ -31,6 +32,7 @@ import qualified Data.ByteString.Internal as B
 import Foreign.Ptr (Ptr, plusPtr, FunPtr)
 import Foreign.ForeignPtr (withForeignPtr)
 import Data.Word (Word8, Word)
+import Control.Monad (forM_)
 
 import System.IO.Unsafe (unsafeDupablePerformIO)
 

@@ -39,4 +39,4 @@ assertUMAC (key, nonce, msg, hashes) = let
 				assertEqualHex (txt ++ " UMAC128") (hs h128) h128'
 				rounds (n+1) (umac32', umac64', umac96', umac128') xs
 
-main = defaultMain $ [ debugTestCases "UMAC" $ map assertUMAC umac_test_vectors ]
+main = defaultMain [ debugTestCases "UMAC" $ map assertUMAC umacTestVectors ]

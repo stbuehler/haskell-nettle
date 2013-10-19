@@ -1,4 +1,4 @@
-{-# LANGUAGE ExistentialQuantification, MultiParamTypeClasses, FunctionalDependencies #-}
+{-# LANGUAGE ExistentialQuantification, MultiParamTypeClasses #-}
 
 -----------------------------------------------------------------------------
 -- |
@@ -141,7 +141,7 @@ class KeyedHashAlgorithm k where
 	implKeyedHashUpdate :: k -> B.ByteString -> k
 	-- | Add more lazy message data to the state
 	implKeyedHashUpdateLazy :: k -> L.ByteString -> k
-	implKeyedHashUpdateLazy k = foldl' (implKeyedHashUpdate) k . L.toChunks
+	implKeyedHashUpdateLazy k = foldl' implKeyedHashUpdate k . L.toChunks
 	-- | Produce final digest
 	implKeyedHashFinalize :: k -> B.ByteString
 

@@ -1,15 +1,15 @@
 {-# LANGUAGe OverloadedStrings #-}
 
 module VectorsHMAC
-	( hmac_test_vectors
-	, find_hmac_test_vectors
+	( hmacTestVectors
+	, findHmacTestVectors
 	) where
 
 import TestUtils
 import qualified Data.ByteString as B
 
-hmac_test_vectors :: [(String, [(B.ByteString, B.ByteString, String)])]
-hmac_test_vectors =
+hmacTestVectors :: [(String, [(B.ByteString, B.ByteString, String)])]
+hmacTestVectors =
 -- Wikipedia on HMAC
 	[ ( "HMAC-MD5",
 		[ ("", "", "74e6f7298a9c2d168935f58c001bad88")
@@ -169,7 +169,7 @@ hmac_test_vectors =
 		])
 	]
 
-find_hmac_test_vectors :: Monad m => String -> m [(B.ByteString, B.ByteString, String)]
-find_hmac_test_vectors key = case filter ((key == ) . fst) hmac_test_vectors of
+findHmacTestVectors :: Monad m => String -> m [(B.ByteString, B.ByteString, String)]
+findHmacTestVectors key = case filter ((key == ) . fst) hmacTestVectors of
 	[] -> fail $ "unknown HMAC: " ++ key
-	l -> return $ concat $ map snd l
+	l -> return $ concatMap snd l

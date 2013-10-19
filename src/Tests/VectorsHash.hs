@@ -1,8 +1,8 @@
 {-# LANGUAGe OverloadedStrings #-}
 
 module VectorsHash
-	( hash_test_vectors
-	, find_hash_test_vectors
+	( hashTestVectors
+	, findHashTestVectors
 	) where
 
 import TestUtils
@@ -14,22 +14,22 @@ import qualified Data.ByteString as B
 --  /* Collisions, reported by Xiaoyun Wang1, Dengguo Feng2, Xuejia
 --     Lai3, Hongbo Yu1, http://eprint.iacr.org/2004/199. */
 --  /* Note: The checksum in the paper, 1f160396 efc71ff4 bcff659f
---     bf9d0fa3, is incorrect. */ (md5_h0)
---  /* Note: Also different from the checksum in the paper */ (md5_h1)
+--     bf9d0fa3, is incorrect. */ (md5H0)
+--  /* Note: Also different from the checksum in the paper */ (md5H1)
 
 --                                                   vv                                                          vv                               vv
-md5_m0 = hs $ "d131dd02 c5e6eec4 693d9a06 98aff95c 2fcab5 87 12467eab 4004583e b8fb7f89 55ad3406 09f4b302 83e48883 25 71 415a 085125e8 f7cdc99f d91dbd f2 80373c5b"
-md5_m1 = hs $ "d131dd02 c5e6eec4 693d9a06 98aff95c 2fcab5 07 12467eab 4004583e b8fb7f89 55ad3406 09f4b302 83e48883 25 f1 415a 085125e8 f7cdc99f d91dbd 72 80373c5b"
-md5_n0 = hs $ "960b1dd1 dc417b9c e4d897f4 5a6555d5 35739a c7 f0ebfd0c 3029f166 d109b18f 75277f79 30d55ceb 22e8adba 79 cc 155c ed74cbdd 5fc5d36d b19b0a d8 35cca7e3"
-md5_n1 = hs $ "960b1dd1 dc417b9c e4d897f4 5a6555d5 35739a 47 f0ebfd0c 3029f166 d109b18f 75277f79 30d55ceb 22e8adba 79 4c 155c ed74cbdd 5fc5d36d b19b0a 58 35cca7e3"
-md5_n2 = hs $ "d8823e31 56348f5b ae6dacd4 36c919c6 dd53e2 b4 87da03fd 02396306 d248cda0 e99f3342 0f577ee8 ce54b670 80 a8 0d1e c69821bc b6a88393 96f965 2b 6ff72a70"
-md5_n3 = hs $ "d8823e31 56348f5b ae6dacd4 36c919c6 dd53e2 34 87da03fd 02396306 d248cda0 e99f3342 0f577ee8 ce54b670 80 28 0d1e c69821bc b6a88393 96f965 ab 6ff72a70"
-md5_h0 = "a4c0d35c 95a63a80 5915367d cfe6b751"
-md5_h1 = "79054025 255fb1a2 6e4bc422 aef54eb4"
+md5M0 = hs "d131dd02 c5e6eec4 693d9a06 98aff95c 2fcab5 87 12467eab 4004583e b8fb7f89 55ad3406 09f4b302 83e48883 25 71 415a 085125e8 f7cdc99f d91dbd f2 80373c5b"
+md5M1 = hs "d131dd02 c5e6eec4 693d9a06 98aff95c 2fcab5 07 12467eab 4004583e b8fb7f89 55ad3406 09f4b302 83e48883 25 f1 415a 085125e8 f7cdc99f d91dbd 72 80373c5b"
+md5N0 = hs "960b1dd1 dc417b9c e4d897f4 5a6555d5 35739a c7 f0ebfd0c 3029f166 d109b18f 75277f79 30d55ceb 22e8adba 79 cc 155c ed74cbdd 5fc5d36d b19b0a d8 35cca7e3"
+md5N1 = hs "960b1dd1 dc417b9c e4d897f4 5a6555d5 35739a 47 f0ebfd0c 3029f166 d109b18f 75277f79 30d55ceb 22e8adba 79 4c 155c ed74cbdd 5fc5d36d b19b0a 58 35cca7e3"
+md5N2 = hs "d8823e31 56348f5b ae6dacd4 36c919c6 dd53e2 b4 87da03fd 02396306 d248cda0 e99f3342 0f577ee8 ce54b670 80 a8 0d1e c69821bc b6a88393 96f965 2b 6ff72a70"
+md5N3 = hs "d8823e31 56348f5b ae6dacd4 36c919c6 dd53e2 34 87da03fd 02396306 d248cda0 e99f3342 0f577ee8 ce54b670 80 28 0d1e c69821bc b6a88393 96f965 ab 6ff72a70"
+md5H0 = "a4c0d35c 95a63a80 5915367d cfe6b751"
+md5H1 = "79054025 255fb1a2 6e4bc422 aef54eb4"
 
 
-hash_test_vectors :: [(String, [(B.ByteString, String)])]
-hash_test_vectors =
+hashTestVectors :: [(String, [(B.ByteString, String)])]
+hashTestVectors =
 	[ ( "GOSTHAST94",
 -- /* Using test vectors from Wikipedia article on GOST */
 		[ ("The quick brown fox jumps over the lazy dog", "77b7fa410c9ac58a25f49bca7d0468c9296529315eaca76bd1a10f376d1f4294")
@@ -73,10 +73,10 @@ hash_test_vectors =
 --  /* Additional test vector, from Daniel Kahn Gillmor */
 		, ("38", "a5771bce93e200c3 6f7cd9dfd0e5deaa")
 -- collisions
-		, (B.append md5_m0 md5_n0, md5_h0)
-		, (B.append md5_m1 md5_n1, md5_h0)
-		, (B.append md5_m0 md5_n2, md5_h1)
-		, (B.append md5_m1 md5_n3, md5_h1)
+		, (B.append md5M0 md5N0, md5H0)
+		, (B.append md5M1 md5N1, md5H0)
+		, (B.append md5M0 md5N2, md5H1)
+		, (B.append md5M1 md5N3, md5H1)
 		])
 	, ( "RIPEMD160",
 		[ ("", "9c1185a5c5e9fc54612808977ee8f548b2258d31")
@@ -937,7 +937,7 @@ hash_test_vectors =
 		, ( hs "3A3A819C48EFDE2AD914FBF00E18AB6BC4F14513AB27D0C178A188B61431E7F5623CB66B23346775D386B50E982C493ADBBFC54B9A3CD383382336A1A0B2150A15358F336D03AE18F666C7573D55C4FD181C29E6CCFDE63EA35F0ADF5885CFC0A3D84A2B2E4DD24496DB789E663170CEF74798AA1BBCD4574EA0BBA40489D764B2F83AADC66B148B4A0CD95246C127D5871C4F11418690A5DDF01246A0C80A43C70088B6183639DCFDA4125BD113A8F49EE23ED306FAAC576C3FB0C1E256671D817FC2534A52F5B439F72E424DE376F4C565CCA82307DD9EF76DA5B7C4EB7E085172E328807C02D011FFBF33785378D79DC266F6A5BE6BB0E4A92ECEEBAEB1", "6BFF1C8405A3FE594E360E3BCCEA1EBCD509310DC79B9E45C263783D7A5DD662C6789B18BD567DBDDA1554F5BEE6A860")
 		])
 	, ( "SHA3-512",
---  /* Extracted from ShortMsgKAT_512.txt using sha3.awk. */
+--  /* Extracted from ShortMsgKAT512.txt using sha3.awk. */
 		[ (hs "", "0EAB42DE4C3CEB9235FC91ACFFE746B29C29A8C366B7C60E4E67C466F36A4304C00FA9CAF9D87976BA469BCBE06713B435F091EF2769FB160CDAB33D3670680E")
 		, (hs "CC", "8630C13CBD066EA74BBE7FE468FEC1DEE10EDC1254FB4C1B7C5FD69B646E44160B8CE01D05A0908CA790DFB080F4B513BC3B6225ECE7A810371441A5AC666EB9")
 		, (hs "41FB", "551DA6236F8B96FCE9F97F1190E901324F0B45E06DBBB5CDB8355D6ED1DC34B3F0EAE7DCB68622FF232FA3CECE0D4616CDEB3931F93803662A28DF1CD535B731")
@@ -1197,7 +1197,7 @@ hash_test_vectors =
 		])
 	]
 
-find_hash_test_vectors :: Monad m => String -> m [(B.ByteString, String)]
-find_hash_test_vectors key = case filter ((key == ) . fst) hash_test_vectors of
-	[] -> fail $ "unknown HMAC: " ++ key
-	l -> return $ concat $ map snd l
+findHashTestVectors :: Monad m => String -> m [(B.ByteString, String)]
+findHashTestVectors key = case filter ((key == ) . fst) hashTestVectors of
+	[] -> fail $ "unknown Hash: " ++ key
+	l -> return $ concatMap snd l
