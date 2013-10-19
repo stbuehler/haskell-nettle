@@ -19,7 +19,7 @@ module Crypto.Nettle.Ciphers (
 	-- * Block ciphers
 	-- | Only block ciphers with a 128-bit 'blockSize' (16 bytes) support the XTS cipher mode.
 	--
-	--  For 'aeadInit' only 'AEAD_GCM' and 'AEAD_CCM' is supported, and only if the the 'blockSize' is 16 bytes.
+	--  For 'aeadInit' only 'AEAD_GCM' and 'AEAD_CCM' (with 'ccmInitTLS') is supported, and only if the the 'blockSize' is 16 bytes.
 	--  In all other cases 'aeadInit' just returns 'Nothing'.
 
 	-- ** AES
