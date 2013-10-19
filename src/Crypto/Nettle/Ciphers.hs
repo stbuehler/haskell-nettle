@@ -66,6 +66,7 @@ import Data.SecureMem
 import qualified Data.ByteString as B
 import Data.Word (Word64)
 import Data.Bits
+import Data.Tagged
 
 import Crypto.Nettle.Ciphers.Internal
 import Crypto.Nettle.Ciphers.ForeignImports
@@ -77,13 +78,13 @@ import Nettle.Utils
 #define INSTANCE_CIPHER(Typ) \
 instance Cipher Typ where \
 	{ cipherInit = nettle_cipherInit \
-	; cipherName = nc_cipherName \
-	; cipherKeySize = nc_cipherKeySize \
+	; cipherName = witness nc_cipherName \
+	; cipherKeySize = witness nc_cipherKeySize \
 	}
 #define INSTANCE_BLOCKCIPHER(Typ) \
 INSTANCE_CIPHER(Typ); \
 instance BlockCipher Typ where \
-	{ blockSize = nbc_blockSize \
+	{ blockSize = witness nbc_blockSize \
 	; ecbEncrypt = nettle_ecbEncrypt \
 	; ecbDecrypt = nettle_ecbDecrypt \
 	; cbcEncrypt = nettle_cbcEncrypt \
@@ -110,7 +111,7 @@ instance StreamCipher Typ where \
 INSTANCE_STREAMCIPHER(Typ); \
 instance StreamNonceCipher Typ where \
 	{ streamSetNonce = nettle_streamSetNonce \
-	; streamNonceSize = nsc_nonceSize \
+	; streamNonceSize = witness nsc_nonceSize \
 	}
 #define INSTANCE_BLOCKEDSTREAMCIPHER(Typ) \
 INSTANCE_CIPHER(Typ); \
@@ -121,7 +122,7 @@ instance StreamCipher Typ where \
 INSTANCE_BLOCKEDSTREAMCIPHER(Typ); \
 instance StreamNonceCipher Typ where \
 	{ streamSetNonce = nettle_blockedStreamSetNonce \
-	; streamNonceSize = nbsc_nonceSize \
+	; streamNonceSize = witness nbsc_nonceSize \
 	}
 
 
@@ -133,20 +134,20 @@ of 128, 196 and 256 bits (16, 24 and 32 bytes). The 'blockSize' is always 128 bi
 -}
 newtype AES = AES SecureMem
 instance NettleCipher AES where
-	nc_cipherInit    _ = c_hs_aes_init
-	nc_cipherName    _ = "AES"
-	nc_cipherKeySize _ = KeySizeEnum [16,24,32]
-	nc_ctx_size      _ = c_hs_aes_ctx_size
-	nc_ctx     (AES c) = c
-	nc_Ctx             = AES
+	nc_cipherInit    = Tagged c_hs_aes_init
+	nc_cipherName    = Tagged "AES"
+	nc_cipherKeySize = Tagged $ KeySizeEnum [16,24,32]
+	nc_ctx_size      = Tagged c_hs_aes_ctx_size
+	nc_ctx   (AES c) = c
+	nc_Ctx           = AES
 instance NettleBlockCipher AES where
-	nbc_blockSize          _ = 16
-	nbc_encrypt_ctx_offset _ = c_hs_aes_ctx_encrypt
-	nbc_decrypt_ctx_offset _ = c_hs_aes_ctx_decrypt
-	nbc_ecb_encrypt        _ = c_aes_encrypt
-	nbc_ecb_decrypt        _ = c_aes_decrypt
-	nbc_fun_encrypt        _ = p_aes_encrypt
-	nbc_fun_decrypt        _ = p_aes_decrypt
+	nbc_blockSize          = Tagged 16
+	nbc_encrypt_ctx_offset = Tagged c_hs_aes_ctx_encrypt
+	nbc_decrypt_ctx_offset = Tagged c_hs_aes_ctx_decrypt
+	nbc_ecb_encrypt        = Tagged c_aes_encrypt
+	nbc_ecb_decrypt        = Tagged c_aes_decrypt
+	nbc_fun_encrypt        = Tagged p_aes_encrypt
+	nbc_fun_decrypt        = Tagged p_aes_decrypt
 
 INSTANCE_BLOCKCIPHER(AES)
 
@@ -156,20 +157,20 @@ INSTANCE_BLOCKCIPHER(AES)
 -}
 newtype AES128 = AES128 SecureMem
 instance NettleCipher AES128 where
-	nc_cipherInit    _ = c_hs_aes_init
-	nc_cipherName    _ = "AES-128"
-	nc_cipherKeySize _ = KeySizeFixed 16
-	nc_ctx_size      _ = c_hs_aes_ctx_size
-	nc_ctx  (AES128 c) = c
-	nc_Ctx             = AES128
+	nc_cipherInit    = Tagged c_hs_aes_init
+	nc_cipherName    = Tagged "AES-128"
+	nc_cipherKeySize = Tagged $ KeySizeFixed 16
+	nc_ctx_size      = Tagged c_hs_aes_ctx_size
+	nc_ctx (AES128 c) = c
+	nc_Ctx            = AES128
 instance NettleBlockCipher AES128 where
-	nbc_blockSize          _ = 16
-	nbc_encrypt_ctx_offset _ = c_hs_aes_ctx_encrypt
-	nbc_decrypt_ctx_offset _ = c_hs_aes_ctx_decrypt
-	nbc_ecb_encrypt        _ = c_aes_encrypt
-	nbc_ecb_decrypt        _ = c_aes_decrypt
-	nbc_fun_encrypt        _ = p_aes_encrypt
-	nbc_fun_decrypt        _ = p_aes_decrypt
+	nbc_blockSize          = Tagged 16
+	nbc_encrypt_ctx_offset = Tagged c_hs_aes_ctx_encrypt
+	nbc_decrypt_ctx_offset = Tagged c_hs_aes_ctx_decrypt
+	nbc_ecb_encrypt        = Tagged c_aes_encrypt
+	nbc_ecb_decrypt        = Tagged c_aes_decrypt
+	nbc_fun_encrypt        = Tagged p_aes_encrypt
+	nbc_fun_decrypt        = Tagged p_aes_decrypt
 
 INSTANCE_BLOCKCIPHER(AES128)
 
@@ -179,20 +180,20 @@ INSTANCE_BLOCKCIPHER(AES128)
 -}
 newtype AES192 = AES192 SecureMem
 instance NettleCipher AES192 where
-	nc_cipherInit    _ = c_hs_aes_init
-	nc_cipherName    _ = "AES-192"
-	nc_cipherKeySize _ = KeySizeFixed 24
-	nc_ctx_size      _ = c_hs_aes_ctx_size
+	nc_cipherInit    = Tagged c_hs_aes_init
+	nc_cipherName    = Tagged "AES-192"
+	nc_cipherKeySize = Tagged $ KeySizeFixed 24
+	nc_ctx_size      = Tagged c_hs_aes_ctx_size
 	nc_ctx  (AES192 c) = c
 	nc_Ctx             = AES192
 instance NettleBlockCipher AES192 where
-	nbc_blockSize          _ = 16
-	nbc_encrypt_ctx_offset _ = c_hs_aes_ctx_encrypt
-	nbc_decrypt_ctx_offset _ = c_hs_aes_ctx_decrypt
-	nbc_ecb_encrypt        _ = c_aes_encrypt
-	nbc_ecb_decrypt        _ = c_aes_decrypt
-	nbc_fun_encrypt        _ = p_aes_encrypt
-	nbc_fun_decrypt        _ = p_aes_decrypt
+	nbc_blockSize          = Tagged 16
+	nbc_encrypt_ctx_offset = Tagged c_hs_aes_ctx_encrypt
+	nbc_decrypt_ctx_offset = Tagged c_hs_aes_ctx_decrypt
+	nbc_ecb_encrypt        = Tagged c_aes_encrypt
+	nbc_ecb_decrypt        = Tagged c_aes_decrypt
+	nbc_fun_encrypt        = Tagged p_aes_encrypt
+	nbc_fun_decrypt        = Tagged p_aes_decrypt
 
 INSTANCE_BLOCKCIPHER(AES192)
 
@@ -202,20 +203,20 @@ INSTANCE_BLOCKCIPHER(AES192)
 -}
 newtype AES256 = AES256 SecureMem
 instance NettleCipher AES256 where
-	nc_cipherInit    _ = c_hs_aes_init
-	nc_cipherName    _ = "AES-256"
-	nc_cipherKeySize _ = KeySizeFixed 32
-	nc_ctx_size      _ = c_hs_aes_ctx_size
+	nc_cipherInit    = Tagged c_hs_aes_init
+	nc_cipherName    = Tagged "AES-256"
+	nc_cipherKeySize = Tagged $ KeySizeFixed 32
+	nc_ctx_size      = Tagged c_hs_aes_ctx_size
 	nc_ctx  (AES256 c) = c
 	nc_Ctx             = AES256
 instance NettleBlockCipher AES256 where
-	nbc_blockSize          _ = 16
-	nbc_encrypt_ctx_offset _ = c_hs_aes_ctx_encrypt
-	nbc_decrypt_ctx_offset _ = c_hs_aes_ctx_decrypt
-	nbc_ecb_encrypt        _ = c_aes_encrypt
-	nbc_ecb_decrypt        _ = c_aes_decrypt
-	nbc_fun_encrypt        _ = p_aes_encrypt
-	nbc_fun_decrypt        _ = p_aes_decrypt
+	nbc_blockSize          = Tagged 16
+	nbc_encrypt_ctx_offset = Tagged c_hs_aes_ctx_encrypt
+	nbc_decrypt_ctx_offset = Tagged c_hs_aes_ctx_decrypt
+	nbc_ecb_encrypt        = Tagged c_aes_encrypt
+	nbc_ecb_decrypt        = Tagged c_aes_decrypt
+	nbc_fun_encrypt        = Tagged p_aes_encrypt
+	nbc_fun_decrypt        = Tagged p_aes_decrypt
 
 INSTANCE_BLOCKCIPHER(AES256)
 
@@ -230,18 +231,18 @@ The default 'cipherInit' uses @ekb = bit-length of the key@; 'arctwoInitEKB' all
 -}
 newtype ARCTWO = ARCTWO SecureMem
 instance NettleCipher ARCTWO where
-	nc_cipherInit    _ = c_arctwo_set_key
-	nc_cipherName    _ = "ARCTWO"
-	nc_cipherKeySize _ = KeySizeRange 1 128
-	nc_ctx_size      _ = c_arctwo_ctx_size
+	nc_cipherInit    = Tagged c_arctwo_set_key
+	nc_cipherName    = Tagged "ARCTWO"
+	nc_cipherKeySize = Tagged $ KeySizeRange 1 128
+	nc_ctx_size      = Tagged c_arctwo_ctx_size
 	nc_ctx  (ARCTWO c) = c
 	nc_Ctx             = ARCTWO
 instance NettleBlockCipher ARCTWO where
-	nbc_blockSize          _ = 8
-	nbc_ecb_encrypt        _ = c_arctwo_encrypt
-	nbc_ecb_decrypt        _ = c_arctwo_decrypt
-	nbc_fun_encrypt        _ = p_arctwo_encrypt
-	nbc_fun_decrypt        _ = p_arctwo_decrypt
+	nbc_blockSize          = Tagged 8
+	nbc_ecb_encrypt        = Tagged c_arctwo_encrypt
+	nbc_ecb_decrypt        = Tagged c_arctwo_decrypt
+	nbc_fun_encrypt        = Tagged p_arctwo_encrypt
+	nbc_fun_decrypt        = Tagged p_arctwo_decrypt
 INSTANCE_BLOCKCIPHER(ARCTWO)
 {-|
 Initialize cipher with an explicit @ekb@ value (valid values from 1 to 1024, 0 meaning the same as 1024).
@@ -262,18 +263,18 @@ It uses a 'blockSize' of 64 bits (8 bytes), and a variable key size from 64 to 4
 -}
 newtype BLOWFISH = BLOWFISH SecureMem
 instance NettleCipher BLOWFISH where
-	nc_cipherInit    _ = c_blowfish_set_key
-	nc_cipherName    _ = "BLOWFISH"
-	nc_cipherKeySize _ = KeySizeRange 1 128
-	nc_ctx_size      _ = c_blowfish_ctx_size
+	nc_cipherInit    = Tagged c_blowfish_set_key
+	nc_cipherName    = Tagged "BLOWFISH"
+	nc_cipherKeySize = Tagged $ KeySizeRange 1 128
+	nc_ctx_size      = Tagged c_blowfish_ctx_size
 	nc_ctx  (BLOWFISH c) = c
 	nc_Ctx             = BLOWFISH
 instance NettleBlockCipher BLOWFISH where
-	nbc_blockSize          _ = 8
-	nbc_ecb_encrypt        _ = c_blowfish_encrypt
-	nbc_ecb_decrypt        _ = c_blowfish_decrypt
-	nbc_fun_encrypt        _ = p_blowfish_encrypt
-	nbc_fun_decrypt        _ = p_blowfish_decrypt
+	nbc_blockSize          = Tagged 8
+	nbc_ecb_encrypt        = Tagged c_blowfish_encrypt
+	nbc_ecb_decrypt        = Tagged c_blowfish_decrypt
+	nbc_fun_encrypt        = Tagged p_blowfish_encrypt
+	nbc_fun_decrypt        = Tagged p_blowfish_decrypt
 INSTANCE_BLOCKCIPHER(BLOWFISH)
 
 
@@ -288,20 +289,20 @@ Camellia uses a the same 'blockSize' and key sizes as 'AES'.
 -}
 newtype Camellia = Camellia SecureMem
 instance NettleCipher Camellia where
-	nc_cipherInit    _ = c_hs_camellia_init
-	nc_cipherName    _ = "Camellia"
-	nc_cipherKeySize _ = KeySizeEnum [16,24,32]
-	nc_ctx_size      _ = c_hs_camellia_ctx_size
+	nc_cipherInit    = Tagged c_hs_camellia_init
+	nc_cipherName    = Tagged "Camellia"
+	nc_cipherKeySize = Tagged $ KeySizeEnum [16,24,32]
+	nc_ctx_size      = Tagged c_hs_camellia_ctx_size
 	nc_ctx     (Camellia c) = c
 	nc_Ctx             = Camellia
 instance NettleBlockCipher Camellia where
-	nbc_blockSize          _ = 16
-	nbc_encrypt_ctx_offset _ = c_hs_camellia_ctx_encrypt
-	nbc_decrypt_ctx_offset _ = c_hs_camellia_ctx_decrypt
-	nbc_ecb_encrypt        _ = c_camellia_crypt
-	nbc_ecb_decrypt        _ = c_camellia_crypt
-	nbc_fun_encrypt        _ = p_camellia_crypt
-	nbc_fun_decrypt        _ = p_camellia_crypt
+	nbc_blockSize          = Tagged 16
+	nbc_encrypt_ctx_offset = Tagged c_hs_camellia_ctx_encrypt
+	nbc_decrypt_ctx_offset = Tagged c_hs_camellia_ctx_decrypt
+	nbc_ecb_encrypt        = Tagged c_camellia_crypt
+	nbc_ecb_decrypt        = Tagged c_camellia_crypt
+	nbc_fun_encrypt        = Tagged p_camellia_crypt
+	nbc_fun_decrypt        = Tagged p_camellia_crypt
 
 INSTANCE_BLOCKCIPHER(Camellia)
 
@@ -310,20 +311,20 @@ INSTANCE_BLOCKCIPHER(Camellia)
 -}
 newtype Camellia128 = Camellia128 SecureMem
 instance NettleCipher Camellia128 where
-	nc_cipherInit    _ = c_hs_camellia_init
-	nc_cipherName    _ = "Camellia-128"
-	nc_cipherKeySize _ = KeySizeFixed 16
-	nc_ctx_size      _ = c_hs_camellia_ctx_size
+	nc_cipherInit    = Tagged c_hs_camellia_init
+	nc_cipherName    = Tagged "Camellia-128"
+	nc_cipherKeySize = Tagged $ KeySizeFixed 16
+	nc_ctx_size      = Tagged c_hs_camellia_ctx_size
 	nc_ctx  (Camellia128 c) = c
 	nc_Ctx             = Camellia128
 instance NettleBlockCipher Camellia128 where
-	nbc_blockSize          _ = 16
-	nbc_encrypt_ctx_offset _ = c_hs_camellia_ctx_encrypt
-	nbc_decrypt_ctx_offset _ = c_hs_camellia_ctx_decrypt
-	nbc_ecb_encrypt        _ = c_camellia_crypt
-	nbc_ecb_decrypt        _ = c_camellia_crypt
-	nbc_fun_encrypt        _ = p_camellia_crypt
-	nbc_fun_decrypt        _ = p_camellia_crypt
+	nbc_blockSize          = Tagged 16
+	nbc_encrypt_ctx_offset = Tagged c_hs_camellia_ctx_encrypt
+	nbc_decrypt_ctx_offset = Tagged c_hs_camellia_ctx_decrypt
+	nbc_ecb_encrypt        = Tagged c_camellia_crypt
+	nbc_ecb_decrypt        = Tagged c_camellia_crypt
+	nbc_fun_encrypt        = Tagged p_camellia_crypt
+	nbc_fun_decrypt        = Tagged p_camellia_crypt
 
 INSTANCE_BLOCKCIPHER(Camellia128)
 
@@ -332,20 +333,20 @@ INSTANCE_BLOCKCIPHER(Camellia128)
 -}
 newtype Camellia192 = Camellia192 SecureMem
 instance NettleCipher Camellia192 where
-	nc_cipherInit    _ = c_hs_camellia_init
-	nc_cipherName    _ = "Camellia-192"
-	nc_cipherKeySize _ = KeySizeFixed 24
-	nc_ctx_size      _ = c_hs_camellia_ctx_size
+	nc_cipherInit    = Tagged c_hs_camellia_init
+	nc_cipherName    = Tagged "Camellia-192"
+	nc_cipherKeySize = Tagged $ KeySizeFixed 24
+	nc_ctx_size      = Tagged c_hs_camellia_ctx_size
 	nc_ctx  (Camellia192 c) = c
 	nc_Ctx             = Camellia192
 instance NettleBlockCipher Camellia192 where
-	nbc_blockSize          _ = 16
-	nbc_encrypt_ctx_offset _ = c_hs_camellia_ctx_encrypt
-	nbc_decrypt_ctx_offset _ = c_hs_camellia_ctx_decrypt
-	nbc_ecb_encrypt        _ = c_camellia_crypt
-	nbc_ecb_decrypt        _ = c_camellia_crypt
-	nbc_fun_encrypt        _ = p_camellia_crypt
-	nbc_fun_decrypt        _ = p_camellia_crypt
+	nbc_blockSize          = Tagged 16
+	nbc_encrypt_ctx_offset = Tagged c_hs_camellia_ctx_encrypt
+	nbc_decrypt_ctx_offset = Tagged c_hs_camellia_ctx_decrypt
+	nbc_ecb_encrypt        = Tagged c_camellia_crypt
+	nbc_ecb_decrypt        = Tagged c_camellia_crypt
+	nbc_fun_encrypt        = Tagged p_camellia_crypt
+	nbc_fun_decrypt        = Tagged p_camellia_crypt
 
 INSTANCE_BLOCKCIPHER(Camellia192)
 
@@ -354,20 +355,20 @@ INSTANCE_BLOCKCIPHER(Camellia192)
 -}
 newtype Camellia256 = Camellia256 SecureMem
 instance NettleCipher Camellia256 where
-	nc_cipherInit    _ = c_hs_camellia_init
-	nc_cipherName    _ = "Camellia-256"
-	nc_cipherKeySize _ = KeySizeFixed 32
-	nc_ctx_size      _ = c_hs_camellia_ctx_size
+	nc_cipherInit    = Tagged c_hs_camellia_init
+	nc_cipherName    = Tagged "Camellia-256"
+	nc_cipherKeySize = Tagged $ KeySizeFixed 32
+	nc_ctx_size      = Tagged c_hs_camellia_ctx_size
 	nc_ctx  (Camellia256 c) = c
 	nc_Ctx             = Camellia256
 instance NettleBlockCipher Camellia256 where
-	nbc_blockSize          _ = 16
-	nbc_encrypt_ctx_offset _ = c_hs_camellia_ctx_encrypt
-	nbc_decrypt_ctx_offset _ = c_hs_camellia_ctx_decrypt
-	nbc_ecb_encrypt        _ = c_camellia_crypt
-	nbc_ecb_decrypt        _ = c_camellia_crypt
-	nbc_fun_encrypt        _ = p_camellia_crypt
-	nbc_fun_decrypt        _ = p_camellia_crypt
+	nbc_blockSize          = Tagged 16
+	nbc_encrypt_ctx_offset = Tagged c_hs_camellia_ctx_encrypt
+	nbc_decrypt_ctx_offset = Tagged c_hs_camellia_ctx_decrypt
+	nbc_ecb_encrypt        = Tagged c_camellia_crypt
+	nbc_ecb_decrypt        = Tagged c_camellia_crypt
+	nbc_fun_encrypt        = Tagged p_camellia_crypt
+	nbc_fun_decrypt        = Tagged p_camellia_crypt
 
 INSTANCE_BLOCKCIPHER(Camellia256)
 
@@ -377,18 +378,18 @@ and a variable key size of 40 up to 128 bits (5 to 16 bytes).
 -}
 newtype CAST128 = CAST128 SecureMem
 instance NettleCipher CAST128 where
-	nc_cipherInit    _ = c_cast128_set_key
-	nc_cipherName    _ = "CAST-128"
-	nc_cipherKeySize _ = KeySizeRange 5 16
-	nc_ctx_size      _ = c_cast128_ctx_size
+	nc_cipherInit    = Tagged c_cast128_set_key
+	nc_cipherName    = Tagged "CAST-128"
+	nc_cipherKeySize = Tagged $ KeySizeRange 5 16
+	nc_ctx_size      = Tagged c_cast128_ctx_size
 	nc_ctx  (CAST128 c) = c
 	nc_Ctx             = CAST128
 instance NettleBlockCipher CAST128 where
-	nbc_blockSize          _ = 8
-	nbc_ecb_encrypt        _ = c_cast128_encrypt
-	nbc_ecb_decrypt        _ = c_cast128_decrypt
-	nbc_fun_encrypt        _ = p_cast128_encrypt
-	nbc_fun_decrypt        _ = p_cast128_decrypt
+	nbc_blockSize          = Tagged 8
+	nbc_ecb_encrypt        = Tagged c_cast128_encrypt
+	nbc_ecb_decrypt        = Tagged c_cast128_decrypt
+	nbc_fun_encrypt        = Tagged p_cast128_encrypt
+	nbc_fun_decrypt        = Tagged p_cast128_decrypt
 
 INSTANCE_BLOCKCIPHER(CAST128)
 
@@ -401,18 +402,18 @@ The parity bit is ignored by this implementation.
 -}
 newtype DES = DES SecureMem
 instance NettleCipher DES where
-	nc_cipherInit    _ ctxptr _ = c_des_set_key ctxptr
-	nc_cipherName    _ = "DES"
-	nc_cipherKeySize _ = KeySizeFixed 8
-	nc_ctx_size      _ = c_des_ctx_size
+	nc_cipherInit    = Tagged $ \ctxptr _ -> c_des_set_key ctxptr
+	nc_cipherName    = Tagged "DES"
+	nc_cipherKeySize = Tagged $ KeySizeFixed 8
+	nc_ctx_size      = Tagged c_des_ctx_size
 	nc_ctx  (DES c) = c
 	nc_Ctx             = DES
 instance NettleBlockCipher DES where
-	nbc_blockSize          _ = 8
-	nbc_ecb_encrypt        _ = c_des_encrypt
-	nbc_ecb_decrypt        _ = c_des_decrypt
-	nbc_fun_encrypt        _ = p_des_encrypt
-	nbc_fun_decrypt        _ = p_des_decrypt
+	nbc_blockSize          = Tagged 8
+	nbc_ecb_encrypt        = Tagged c_des_encrypt
+	nbc_ecb_decrypt        = Tagged c_des_decrypt
+	nbc_fun_encrypt        = Tagged p_des_encrypt
+	nbc_fun_decrypt        = Tagged p_des_decrypt
 
 INSTANCE_BLOCKCIPHER(DES)
 
@@ -425,18 +426,18 @@ and the keys are simply concatenated, forming a 24 byte key string (with 168 bit
 -}
 newtype DES_EDE3 = DES_EDE3 SecureMem
 instance NettleCipher DES_EDE3 where
-	nc_cipherInit    _ ctxptr _ = c_des3_set_key ctxptr
-	nc_cipherName    _ = "DES-EDE3"
-	nc_cipherKeySize _ = KeySizeFixed 24
-	nc_ctx_size      _ = c_des3_ctx_size
+	nc_cipherInit    = Tagged $ \ctxptr _ -> c_des3_set_key ctxptr
+	nc_cipherName    = Tagged "DES-EDE3"
+	nc_cipherKeySize = Tagged $ KeySizeFixed 24
+	nc_ctx_size      = Tagged c_des3_ctx_size
 	nc_ctx  (DES_EDE3 c) = c
 	nc_Ctx             = DES_EDE3
 instance NettleBlockCipher DES_EDE3 where
-	nbc_blockSize          _ = 8
-	nbc_ecb_encrypt        _ = c_des3_encrypt
-	nbc_ecb_decrypt        _ = c_des3_decrypt
-	nbc_fun_encrypt        _ = p_des3_encrypt
-	nbc_fun_decrypt        _ = p_des3_decrypt
+	nbc_blockSize          = Tagged 8
+	nbc_ecb_encrypt        = Tagged c_des3_encrypt
+	nbc_ecb_decrypt        = Tagged c_des3_decrypt
+	nbc_fun_encrypt        = Tagged p_des3_encrypt
+	nbc_fun_decrypt        = Tagged p_des3_decrypt
 
 INSTANCE_BLOCKCIPHER(DES_EDE3)
 
@@ -450,18 +451,18 @@ although smaller bits are just padded with zeroes.
 -}
 newtype SERPENT = SERPENT SecureMem
 instance NettleCipher SERPENT where
-	nc_cipherInit    _ = c_serpent_set_key
-	nc_cipherName    _ = "SERPENT"
-	nc_cipherKeySize _ = KeySizeRange 16 32
-	nc_ctx_size      _ = c_serpent_ctx_size
+	nc_cipherInit    = Tagged c_serpent_set_key
+	nc_cipherName    = Tagged "SERPENT"
+	nc_cipherKeySize = Tagged $ KeySizeRange 16 32
+	nc_ctx_size      = Tagged c_serpent_ctx_size
 	nc_ctx  (SERPENT c) = c
 	nc_Ctx             = SERPENT
 instance NettleBlockCipher SERPENT where
-	nbc_blockSize          _ = 16
-	nbc_ecb_encrypt        _ = c_serpent_encrypt
-	nbc_ecb_decrypt        _ = c_serpent_decrypt
-	nbc_fun_encrypt        _ = p_serpent_encrypt
-	nbc_fun_decrypt        _ = p_serpent_decrypt
+	nbc_blockSize          = Tagged 16
+	nbc_ecb_encrypt        = Tagged c_serpent_encrypt
+	nbc_ecb_decrypt        = Tagged c_serpent_decrypt
+	nbc_fun_encrypt        = Tagged p_serpent_encrypt
+	nbc_fun_decrypt        = Tagged p_serpent_decrypt
 INSTANCE_BLOCKCIPHER(SERPENT)
 
 {-|
@@ -473,18 +474,18 @@ INSTANCE_BLOCKCIPHER(SERPENT)
 -}
 newtype TWOFISH = TWOFISH SecureMem
 instance NettleCipher TWOFISH where
-	nc_cipherInit    _ = c_twofish_set_key
-	nc_cipherName    _ = "TWOFISH"
-	nc_cipherKeySize _ = KeySizeEnum [16,24,32]
-	nc_ctx_size      _ = c_twofish_ctx_size
+	nc_cipherInit    = Tagged c_twofish_set_key
+	nc_cipherName    = Tagged "TWOFISH"
+	nc_cipherKeySize = Tagged $ KeySizeEnum [16,24,32]
+	nc_ctx_size      = Tagged c_twofish_ctx_size
 	nc_ctx  (TWOFISH c) = c
 	nc_Ctx             = TWOFISH
 instance NettleBlockCipher TWOFISH where
-	nbc_blockSize          _ = 16
-	nbc_ecb_encrypt        _ = c_twofish_encrypt
-	nbc_ecb_decrypt        _ = c_twofish_decrypt
-	nbc_fun_encrypt        _ = p_twofish_encrypt
-	nbc_fun_decrypt        _ = p_twofish_decrypt
+	nbc_blockSize          = Tagged 16
+	nbc_ecb_encrypt        = Tagged c_twofish_encrypt
+	nbc_ecb_decrypt        = Tagged c_twofish_decrypt
+	nbc_fun_encrypt        = Tagged p_twofish_encrypt
+	nbc_fun_decrypt        = Tagged p_twofish_decrypt
 INSTANCE_BLOCKCIPHER(TWOFISH)
 
 
@@ -495,14 +496,14 @@ Valid key sizes are from 1 to 256 bytes.
 -}
 newtype ARCFOUR = ARCFOUR SecureMem
 instance NettleCipher ARCFOUR where
-	nc_cipherInit    _ = c_arcfour_set_key
-	nc_cipherName    _ = "ARCFOUR"
-	nc_cipherKeySize _ = KeySizeEnum [16,24,32]
-	nc_ctx_size      _ = c_arcfour_ctx_size
+	nc_cipherInit    = Tagged c_arcfour_set_key
+	nc_cipherName    = Tagged "ARCFOUR"
+	nc_cipherKeySize = Tagged $ KeySizeEnum [16,24,32]
+	nc_ctx_size      = Tagged c_arcfour_ctx_size
 	nc_ctx  (ARCFOUR c) = c
 	nc_Ctx             = ARCFOUR
 instance NettleStreamCipher ARCFOUR where
-	nsc_streamCombine _ = c_arcfour_crypt
+	nsc_streamCombine = Tagged c_arcfour_crypt
 INSTANCE_STREAMCIPHER(ARCFOUR)
 
 
@@ -553,19 +554,19 @@ Setting a nonce also resets the remaining padding data.
 -}
 newtype SALSA20 = SALSA20 (SecureMem, B.ByteString)
 instance NettleCipher SALSA20 where
-	nc_cipherInit    _ = wrap_salsa20_set_key
-	nc_cipherName    _ = "Salsa20"
-	nc_cipherKeySize _ = KeySizeEnum [16,32]
-	nc_ctx_size      _ = c_salsa20_ctx_size
+	nc_cipherInit    = Tagged wrap_salsa20_set_key
+	nc_cipherName    = Tagged "Salsa20"
+	nc_cipherKeySize = Tagged $ KeySizeEnum [16,32]
+	nc_ctx_size      = Tagged c_salsa20_ctx_size
 	nc_ctx (SALSA20 (c, _)) = c
 	nc_Ctx c           = SALSA20 (c, B.empty)
 instance NettleBlockedStreamCipher SALSA20 where
-	nbsc_blockSize     _ = 64
+	nbsc_blockSize     = Tagged 64
 	nbsc_IncompleteState (SALSA20 (c, _)) inc = SALSA20 (c, inc)
 	nbsc_incompleteState (SALSA20 (_, inc)) = inc
-	nbsc_streamCombine _ = c_salsa20_crypt
-	nbsc_nonceSize     _ = KeySizeFixed 8
-	nbsc_setNonce      _ = Just wrap_salsa20_set_iv
+	nbsc_streamCombine = Tagged c_salsa20_crypt
+	nbsc_nonceSize     = Tagged $ KeySizeFixed 8
+	nbsc_setNonce      = Tagged $ Just wrap_salsa20_set_iv
 INSTANCE_BLOCKEDSTREAMNONCECIPHER(SALSA20)
 
 
@@ -574,17 +575,17 @@ INSTANCE_BLOCKEDSTREAMNONCECIPHER(SALSA20)
 -}
 newtype ESTREAM_SALSA20 = ESTREAM_SALSA20 (SecureMem, B.ByteString)
 instance NettleCipher ESTREAM_SALSA20 where
-	nc_cipherInit    _ = wrap_salsa20_set_key
-	nc_cipherName    _ = "eSTREAM-Salsa20"
-	nc_cipherKeySize _ = KeySizeEnum [16,32]
-	nc_ctx_size      _ = c_salsa20_ctx_size
+	nc_cipherInit    = Tagged wrap_salsa20_set_key
+	nc_cipherName    = Tagged "eSTREAM-Salsa20"
+	nc_cipherKeySize = Tagged $ KeySizeEnum [16,32]
+	nc_ctx_size      = Tagged c_salsa20_ctx_size
 	nc_ctx (ESTREAM_SALSA20 (c, _)) = c
 	nc_Ctx c           = ESTREAM_SALSA20 (c, B.empty)
 instance NettleBlockedStreamCipher ESTREAM_SALSA20 where
-	nbsc_blockSize     _ = 64
+	nbsc_blockSize     = Tagged 64
 	nbsc_IncompleteState (ESTREAM_SALSA20 (c, _)) inc = ESTREAM_SALSA20 (c, inc)
 	nbsc_incompleteState (ESTREAM_SALSA20 (_, inc)) = inc
-	nbsc_streamCombine _ = c_salsa20r12_crypt
-	nbsc_nonceSize     _ = KeySizeFixed 8
-	nbsc_setNonce      _ = Just wrap_salsa20_set_iv
+	nbsc_streamCombine = Tagged c_salsa20r12_crypt
+	nbsc_nonceSize     = Tagged $ KeySizeFixed 8
+	nbsc_setNonce      = Tagged $ Just wrap_salsa20_set_iv
 INSTANCE_BLOCKEDSTREAMNONCECIPHER(ESTREAM_SALSA20)
