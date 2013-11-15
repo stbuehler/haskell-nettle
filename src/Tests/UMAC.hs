@@ -14,7 +14,7 @@ executeRound :: UMAC u => u -> [B.ByteString] -> (B.ByteString, u)
 executeRound u [s] = umacFinalize $ umacUpdate u s
 executeRound u s   = umacFinalize $ umacUpdateLazy u $ L.fromChunks s
 
-assertUMAC :: (B.ByteString, Maybe B.ByteString, [B.ByteString], [(String, String, String)]) -> Assertion
+assertUMAC :: (B.ByteString, Maybe B.ByteString, Int -> [B.ByteString], [(String, String, String)]) -> Assertion
 assertUMAC (key, nonce, msg, hashes) = let
 		umac32  = uinit :: UMAC32
 		umac64  = uinit :: UMAC64
@@ -28,10 +28,10 @@ assertUMAC (key, nonce, msg, hashes) = let
 		rounds _ _ [] = return ()
 		rounds n (umac32, umac64, umac96, umac128) ((h32,h64,h128):xs) = let
 			txt = "round " ++ show n
-			(h32', umac32') = executeRound umac32 msg
-			(h64', umac64') = executeRound umac64 msg
-			(h96', umac96') = executeRound umac96 msg
-			(h128', umac128') = executeRound umac128 msg
+			(h32', umac32') = executeRound umac32 (msg $ 4*n + 0)
+			(h64', umac64') = executeRound umac64 (msg $ 4*n + 1)
+			(h96', umac96') = executeRound umac96 (msg $ 4*n + 2)
+			(h128', umac128') = executeRound umac128 (msg $ 4*n + 3)
 			in do
 				assertEqualHex (txt ++ " UMAC32") (hs h32) h32'
 				assertEqualHex (txt ++ " UMAC64") (hs h64) h64'

@@ -8,12 +8,12 @@ import HexUtils
 import qualified Data.ByteString as B
 
 -- repeat chunks of s until filled length bytes
-repString :: Int -> B.ByteString -> [B.ByteString]
-repString len s = if len > B.length s then s:let l' = len - B.length s in l' `seq` repString l' s else [B.take len s]
+repString :: Int -> B.ByteString -> Int -> [B.ByteString]
+repString len s n = if len > B.length s then s:let l' = len - B.length s in l' `seq` repString l' s n else [B.take len s]
 
 -- [(key, nonce, message-chunks, [(umac32, umac64, umac128)])]
 -- umac96 is truncated umac128
-umacTestVectors :: [(B.ByteString, Maybe B.ByteString, [B.ByteString], [(String, String, String)])]
+umacTestVectors :: [(B.ByteString, Maybe B.ByteString, Int -> [B.ByteString], [(String, String, String)])]
 umacTestVectors =
 --  /* From RFC 4418 (except that it lacks the last 32 bits of 128-bit tags) */
 	[ ("abcdefghijklmnop", Just "bcdefghi", repString 0 "",
@@ -42,7 +42,7 @@ umacTestVectors =
 	, ("abcdefghijklmnop", Just "bcdefghi", repString 1500 "abc",
 		[ ("ABEB3C8B", "D4CF26DDEFD5C01A", "8824a260c53c66a36c9260a62cb83aa1")
 		])
-	, ("abcdefghijklmnop", Nothing, ["zero"],
+	, ("abcdefghijklmnop", Nothing, const ["zero"],
 		[ ("a0e94011", "a0e940111c9c2cd5", "a0e940111c9c2cd5fa59090e3ac2061f")
 		, ("8c6fea51", "6d8971434be8ee41", "cbbf18b799fd0f4afb9216e52a89f247")
 		, ("6d897143", "c9c9aef87e2be502", "c9c9aef87e2be50237716af8e24f8959")
@@ -50,14 +50,14 @@ umacTestVectors =
 		, ("a75e23b7", "a75e23b7d419e03a", "a75e23b7d419e03a02d55ebf1ba62824")
 		, ("44ea26be", "950526f26a8cc07a", "2e63031d182a59b84f148d9a91de70a3")
 		])
-	, ("abcdefghijklmnop", Just "a", ["nonce-a"],
+	, ("abcdefghijklmnop", Just "a", const ["nonce-a"],
 		[ ("81b4ac24", "b7e8aad0da6e7f99", "d7604bffb5e368da5fe564da0068d2cc")
 		, ("b7e8aad0", "138814c6a03bdadf", "138814c6a03bdadff7f1666e1bd881aa")
 		, ("f70246fe", "fb77dd1cd4c7074f", "86a016d9e67957c8ab5ebb78a673e4e9")
 		, ("0595f0bf", "0595f0bf8585c7e2", "0595f0bf8585c7e28dfab00598d4e612")
 		, ("a8e9fe85", "817c0b7757cb60f7", "3266ec16a9d85b4f0dc74ec8272238a9")
 		])
-	, ("abcdefghijklmnop", Just $ hs "beafcafe", ["nonce-beaf-cafe"],
+	, ("abcdefghijklmnop", Just $ hs "beafcafe", const ["nonce-beaf-cafe"],
 		[ ("f19d9dc1", "9e878413aa079032", "9e878413aa0790329604f3b6ae980e58")
 		, ("4604a56a", "9cfd7af0bb107748", "f2b2dd5dab08bb3bc5e9a83e1b4ab2e7")
 		, ("4ba9420e", "4ba9420e55b6ba13", "4ba9420e55b6ba137d03443f6ee01734")
