@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 
 import Test.Framework (defaultMain, testGroup, Test(..))
 import Test.Framework.Providers.QuickCheck2 (testProperty)
@@ -76,7 +77,9 @@ genBlockTest' = go undefined where
 			, label "ctrCombine + ctrCombine unaligned" $ (ctrCombine c iv . ctrCombine c iv) input   == input
 			]
 
+#ifdef GHCI
 {-# ANN module "HLint: ignore Reduce duplication" #-}
+#endif
 genStreamTest :: StreamCipher c => c -> Test
 genStreamTest c' = testProperty ("generated " ++ cipherName c' ++ " stream cipher test") $ do
 	c <- genCipher c'

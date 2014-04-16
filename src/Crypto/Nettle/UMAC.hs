@@ -37,8 +37,10 @@ import Nettle.Utils
 import Crypto.Nettle.KeyedHash
 import Crypto.Nettle.Hash.ForeignImports
 
+#ifdef GHCI
 -- internal functions are not camelCase on purpose
 {-# ANN module "HLint: ignore Use camelCase" #-}
+#endif
 
 {-|
 'UMAC' is a class of keyed hash algorithms that take an additional nonce.

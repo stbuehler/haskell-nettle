@@ -72,8 +72,10 @@ import Crypto.Nettle.Ciphers.Internal
 import Crypto.Nettle.Ciphers.ForeignImports
 import Nettle.Utils
 
+#ifdef GHCI
 -- internal functions are not camelCase on purpose
 {-# ANN module "HLint: ignore Use camelCase" #-}
+#endif
 
 #define INSTANCE_CIPHER(Typ) \
 instance Cipher Typ where \

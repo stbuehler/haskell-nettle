@@ -68,8 +68,10 @@ import Data.SecureMem
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Internal as B
 
+#ifdef GHCI
 -- internal functions are not camelCase on purpose
 {-# ANN module "HLint: ignore Use camelCase" #-}
+#endif
 
 nettleHashBlockSize  :: NettleHashAlgorithm a => Tagged a Int
 nettleHashBlockSize = nha_block_size

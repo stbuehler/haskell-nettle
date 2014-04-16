@@ -1,4 +1,4 @@
-{-# LANGUAGE MultiParamTypeClasses, FlexibleInstances #-}
+{-# LANGUAGE CPP, MultiParamTypeClasses, FlexibleInstances #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Crypto.Nettle.CCM
@@ -45,8 +45,10 @@ import Data.Byteable
 
 import Nettle.Utils
 
+#ifdef GHCI
 -- internal functions are not camelCase on purpose
 {-# ANN module "HLint: ignore Use camelCase" #-}
+#endif
 
 -- ccm needs a 128-bit block cipher
 

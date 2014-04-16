@@ -102,8 +102,10 @@ module Crypto.Nettle.Ciphers.ForeignImports
 
 import Nettle.Utils
 
+#ifdef GHCI
 -- internal functions are not camelCase on purpose
 {-# ANN module "HLint: ignore Use camelCase" #-}
+#endif
 
 #include "nettle-ciphers.h"
 
