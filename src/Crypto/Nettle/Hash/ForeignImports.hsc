@@ -1,4 +1,4 @@
-{-# LANGUAGE ForeignFunctionInterface #-}
+{-# LANGUAGE CPP, ForeignFunctionInterface #-}
 
 module Crypto.Nettle.Hash.ForeignImports
 	( NettleHashInit
@@ -134,8 +134,10 @@ module Crypto.Nettle.Hash.ForeignImports
 
 import Nettle.Utils
 
+#ifdef GHCI
 -- internal functions are not camelCase on purpose
 {-# ANN module "HLint: ignore Use camelCase" #-}
+#endif
 
 #include "nettle-hash.h"
 

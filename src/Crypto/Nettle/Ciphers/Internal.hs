@@ -1,4 +1,4 @@
-{-# LANGUAGE MultiParamTypeClasses, FlexibleInstances, FlexibleContexts #-}
+{-# LANGUAGE CPP, MultiParamTypeClasses, FlexibleInstances, FlexibleContexts #-}
 
 module Crypto.Nettle.Ciphers.Internal
 	( NettleCipher(..)
@@ -38,8 +38,10 @@ import Data.Bits (xor)
 import Nettle.Utils
 import Crypto.Nettle.Ciphers.ForeignImports
 
+#ifdef GHCI
 -- internal functions are not camelCase on purpose
 {-# ANN module "HLint: ignore Use camelCase" #-}
+#endif
 
 class NettleCipher c where
 	-- | pointer to new context, key length, (const) key pointer
