@@ -18,6 +18,7 @@ Extra-source-files:  README.md
                    , src/nettle-ciphers.h
                    , src/nettle-hash.h
                    , src/Tests/*.hs
+                   , src/Tests/KAT/*.hs
 
 Flag UsePkgConfig
   Description: Use pkg-config to check for library dependences
@@ -57,6 +58,7 @@ Test-Suite test-ciphers
   Build-depends:     base >= 4 && < 5
                    , bytestring
                    , QuickCheck >= 2
+                   , array
                    , test-framework >= 0.3.3
                    , test-framework-quickcheck2 >= 0.2.9
                    , crypto-cipher-types

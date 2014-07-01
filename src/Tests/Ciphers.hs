@@ -13,6 +13,8 @@ import qualified Numeric as N
 import Data.Maybe (fromJust)
 import Control.Monad (liftM)
 
+import KAT.AES
+
 fromRight :: Either a b -> b
 fromRight (Right x) = x
 fromRight _ = error "expected Right"
@@ -129,11 +131,11 @@ genArctwoInitGutmann = do
 	return $ arctwoInitGutmann k
 
 main = defaultMain
--- KATs ?
-	[ testBlockCipher defaultKATs (undefined :: AES)
-	, testBlockCipher defaultKATs (undefined :: AES128)
-	, testBlockCipher defaultKATs (undefined :: AES192)
-	, testBlockCipher defaultKATs (undefined :: AES256)
+-- own KATs + generated tests (from crypto-cipher-tests)
+	[ testBlockCipher katAES      (undefined :: AES)
+	, testBlockCipher katAES128   (undefined :: AES128)
+	, testBlockCipher katAES192   (undefined :: AES192)
+	, testBlockCipher katAES256   (undefined :: AES256)
 	, testBlockCipher defaultKATs (undefined :: ARCTWO)
 	, testBlockCipher defaultKATs (undefined :: BLOWFISH)
 	, testBlockCipher defaultKATs (undefined :: Camellia)
@@ -149,7 +151,7 @@ main = defaultMain
 	, testStreamCipher defaultStreamKATs (undefined :: SALSA20)
 	, testStreamCipher defaultStreamKATs (undefined :: ESTREAM_SALSA20)
 
--- these checks just make sure the api isn't broken horribly
+-- more generated tests: these checks just make sure the api isn't broken horribly
 	, genBlockTest (undefined :: AES)
 	, genBlockTest (undefined :: AES128)
 	, genBlockTest (undefined :: AES192)
