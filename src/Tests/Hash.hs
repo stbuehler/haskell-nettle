@@ -1,4 +1,4 @@
-{-# LANGUAGe OverloadedStrings #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 
 import TestUtils

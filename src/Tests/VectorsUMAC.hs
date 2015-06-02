@@ -1,4 +1,4 @@
-{-# LANGUAGe OverloadedStrings, Safe #-}
+{-# LANGUAGE OverloadedStrings, Safe #-}
 
 module VectorsUMAC
 	( umacTestVectors
