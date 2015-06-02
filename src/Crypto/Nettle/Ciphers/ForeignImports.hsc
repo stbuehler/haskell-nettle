@@ -149,6 +149,14 @@ module Crypto.Nettle.Ciphers.ForeignImports
 	, c_salsa20_set_nonce
 	, c_salsa20_crypt
 	, c_salsa20r12_crypt
+
+	, c_chacha_poly1305_ctx_size
+	, c_chacha_poly1305_set_key
+	, c_chacha_poly1305_set_nonce
+	, c_chacha_poly1305_update
+	, c_chacha_poly1305_encrypt
+	, c_chacha_poly1305_decrypt
+	, c_chacha_poly1305_digest
 	) where
 
 import Nettle.Utils
@@ -435,3 +443,18 @@ foreign import ccall unsafe "nettle_salsa20_crypt"
 	c_salsa20_crypt :: NettleCryptFunc
 foreign import ccall unsafe "nettle_salsa20r12_crypt"
 	c_salsa20r12_crypt :: NettleCryptFunc
+
+c_chacha_poly1305_ctx_size :: Int
+c_chacha_poly1305_ctx_size = #{size struct chacha_poly1305_ctx}
+foreign import ccall unsafe "nettle_chacha_poly1305_set_key"
+	c_chacha_poly1305_set_key :: Ptr Word8 -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_chacha_poly1305_set_nonce"
+	c_chacha_poly1305_set_nonce :: Ptr Word8 -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_chacha_poly1305_update"
+	c_chacha_poly1305_update :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_chacha_poly1305_encrypt"
+	c_chacha_poly1305_encrypt :: NettleCryptFunc
+foreign import ccall unsafe "nettle_chacha_poly1305_decrypt"
+	c_chacha_poly1305_decrypt :: NettleCryptFunc
+foreign import ccall unsafe "nettle_chacha_poly1305_digest"
+	c_chacha_poly1305_digest :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()

@@ -28,6 +28,13 @@
 #include <nettle/chacha.h>
 #include <nettle/salsa20.h>
 
+/* AEAD ciphers */
+#include <nettle/chacha-poly1305.h>
+
+#if (CHACHA_POLY1305_NONCE_SIZE != CHACHA_NONCE96_SIZE)
+#error unsupported nettle version, require 96-bit nonce chacha-poly1305 variant
+#endif
+
 void hs_nettle_cfb_encrypt(void *ctx, nettle_crypt_func *f,
 	unsigned block_size, uint8_t *iv,
 	unsigned length, uint8_t *dst,
