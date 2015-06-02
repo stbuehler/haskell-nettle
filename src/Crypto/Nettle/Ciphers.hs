@@ -54,6 +54,8 @@ module Crypto.Nettle.Ciphers (
 	, streamSetNonceWord64
 	-- ** ARCFOUR
 	, ARCFOUR
+	-- ** ChaCha
+	, CHACHA
 	-- ** Salsa20
 	, SALSA20
 	, ESTREAM_SALSA20
@@ -521,6 +523,49 @@ Sets a 'Word64' as 8-byte nonce (bigendian encoded)
 -}
 streamSetNonceWord64 :: StreamNonceCipher cipher => cipher -> Word64 -> Maybe cipher
 streamSetNonceWord64 c nonce = streamSetNonce c $ word64BE nonce
+
+-- set nonce to 0 on init
+wrap_chacha_set_key :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()
+wrap_chacha_set_key ctxptr _ keyptr = do
+	c_chacha_set_key ctxptr keyptr
+	withByteStringPtr (B.replicate 8 0) $ \_ nonceptr ->
+		c_chacha_set_nonce ctxptr nonceptr
+
+-- check nonce length
+wrap_chacha_set_nonce :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()
+wrap_chacha_set_nonce ctxptr ivlen ivptr = if ivlen == 8 then c_chacha_set_nonce ctxptr ivptr else fail "Invalid nonce length"
+
+{-|
+'CHACHA' is a variant of the 'SALSA20' stream cipher, both designed by D. J. Bernstein.
+
+Key size is 256 bits (32 bytes).
+
+'CHACHA' works similar to 'SALSA20'; it could theoretically also support 128-bit keys, but there is no need for it as they share the same performance.
+
+ChaCha uses a blocksize of 64 bytes internally; if crpyted input isn't aligned to 64 bytes it will
+pad it with 0 and store the encrypted padding to xor with future input data.
+
+Each message also requires a 8-byte ('Word64') nonce (which is initialized to 0; you can use a message sequence number).
+Don't reuse a nonce with the same key.
+
+Setting a nonce also resets the remaining padding data.
+-}
+newtype CHACHA = CHACHA (SecureMem, B.ByteString)
+instance NettleCipher CHACHA where
+	nc_cipherInit    = Tagged wrap_chacha_set_key
+	nc_cipherName    = Tagged "ChaCha"
+	nc_cipherKeySize = Tagged $ KeySizeFixed 32
+	nc_ctx_size      = Tagged c_chacha_ctx_size
+	nc_ctx (CHACHA (c, _)) = c
+	nc_Ctx c           = CHACHA (c, B.empty)
+instance NettleBlockedStreamCipher CHACHA where
+	nbsc_blockSize     = Tagged 64
+	nbsc_IncompleteState (CHACHA (c, _)) inc = CHACHA (c, inc)
+	nbsc_incompleteState (CHACHA (_, inc)) = inc
+	nbsc_streamCombine = Tagged c_chacha_crypt
+	nbsc_nonceSize     = Tagged $ KeySizeFixed 8
+	nbsc_setNonce      = Tagged $ Just wrap_chacha_set_nonce
+INSTANCE_BLOCKEDSTREAMNONCECIPHER(CHACHA)
 
 -- set nonce to 0 on init
 wrap_salsa20_set_key :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()

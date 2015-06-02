@@ -139,6 +139,11 @@ module Crypto.Nettle.Ciphers.ForeignImports
 	, c_arcfour_set_key
 	, c_arcfour_crypt
 
+	, c_chacha_ctx_size
+	, c_chacha_set_key
+	, c_chacha_set_nonce
+	, c_chacha_crypt
+
 	, c_salsa20_ctx_size
 	, c_salsa20_set_key
 	, c_salsa20_set_nonce
@@ -411,6 +416,15 @@ foreign import ccall unsafe "nettle_arcfour_set_key"
 foreign import ccall unsafe "nettle_arcfour_crypt"
 	c_arcfour_crypt :: NettleCryptFunc
 
+c_chacha_ctx_size :: Int
+c_chacha_ctx_size = #{size struct chacha_ctx}
+foreign import ccall unsafe "nettle_chacha_set_key"
+	c_chacha_set_key :: Ptr Word8 -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_chacha_set_nonce"
+	c_chacha_set_nonce :: Ptr Word8 -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_chacha_crypt"
+	c_chacha_crypt :: NettleCryptFunc
+
 c_salsa20_ctx_size :: Int
 c_salsa20_ctx_size = #{size struct salsa20_ctx}
 foreign import ccall unsafe "nettle_salsa20_set_key"
@@ -421,7 +435,3 @@ foreign import ccall unsafe "nettle_salsa20_crypt"
 	c_salsa20_crypt :: NettleCryptFunc
 foreign import ccall unsafe "nettle_salsa20r12_crypt"
 	c_salsa20r12_crypt :: NettleCryptFunc
-
-
-
-

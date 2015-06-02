@@ -148,6 +148,7 @@ main = defaultMain
 	, testBlockCipher defaultKATs (undefined :: TWOFISH)
 	, testBlockCipher defaultKATs (undefined :: SERPENT)
 	, testStreamCipher defaultStreamKATs (undefined :: ARCFOUR)
+	, testStreamCipher defaultStreamKATs (undefined :: CHACHA)
 	, testStreamCipher defaultStreamKATs (undefined :: SALSA20)
 	, testStreamCipher defaultStreamKATs (undefined :: ESTREAM_SALSA20)
 
@@ -170,10 +171,13 @@ main = defaultMain
 	, genBlockTest (undefined :: TWOFISH)
 	, genBlockTest (undefined :: SERPENT)
 	, genStreamTest (undefined :: ARCFOUR)
+	, genStreamTest (undefined :: CHACHA)
 	, genStreamTest (undefined :: SALSA20)
 	, genStreamTest (undefined :: ESTREAM_SALSA20)
+	, genStreamNonceTest (undefined :: CHACHA)
 	, genStreamNonceTest (undefined :: SALSA20)
 	, genStreamNonceTest (undefined :: ESTREAM_SALSA20)
+	, genStreamNonceWord64Test (undefined :: CHACHA)
 	, genStreamNonceWord64Test (undefined :: SALSA20)
 	, genStreamNonceWord64Test (undefined :: ESTREAM_SALSA20)
 	]

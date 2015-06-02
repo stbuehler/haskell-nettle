@@ -25,6 +25,7 @@
 
 /* stream ciphers */
 #include <nettle/arcfour.h>
+#include <nettle/chacha.h>
 #include <nettle/salsa20.h>
 
 void hs_nettle_cfb_encrypt(void *ctx, nettle_crypt_func *f,
