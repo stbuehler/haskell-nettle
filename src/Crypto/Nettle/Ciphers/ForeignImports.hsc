@@ -23,13 +23,38 @@ module Crypto.Nettle.Ciphers.ForeignImports
 	, c_gcm_digest
 
 	, c_hs_aes_ctx_size
-	, c_hs_aes_ctx_encrypt
-	, c_hs_aes_ctx_decrypt
 	, c_hs_aes_init
-	, c_aes_encrypt
-	, p_aes_encrypt
-	, c_aes_decrypt
-	, p_aes_decrypt
+	, c_hs_aes_encrypt
+	, p_hs_aes_encrypt
+	, c_hs_aes_decrypt
+	, p_hs_aes_decrypt
+
+	, c_hs_aes128_ctx_size
+	, c_hs_aes128_ctx_encrypt
+	, c_hs_aes128_ctx_decrypt
+	, c_hs_aes128_init
+	, c_aes128_encrypt
+	, p_aes128_encrypt
+	, c_aes128_decrypt
+	, p_aes128_decrypt
+
+	, c_hs_aes192_ctx_size
+	, c_hs_aes192_ctx_encrypt
+	, c_hs_aes192_ctx_decrypt
+	, c_hs_aes192_init
+	, c_aes192_encrypt
+	, p_aes192_encrypt
+	, c_aes192_decrypt
+	, p_aes192_decrypt
+
+	, c_hs_aes256_ctx_size
+	, c_hs_aes256_ctx_encrypt
+	, c_hs_aes256_ctx_decrypt
+	, c_hs_aes256_init
+	, c_aes256_encrypt
+	, p_aes256_encrypt
+	, c_aes256_decrypt
+	, p_aes256_decrypt
 
 	, c_arctwo_ctx_size
 	, c_arctwo_set_key
@@ -48,14 +73,35 @@ module Crypto.Nettle.Ciphers.ForeignImports
 	, p_blowfish_decrypt
 
 	, c_hs_camellia_ctx_size
-	, c_hs_camellia_ctx_encrypt
-	, c_hs_camellia_ctx_decrypt
 	, c_hs_camellia_init
-	, c_camellia_crypt
-	, p_camellia_crypt
+	, c_hs_camellia_encrypt
+	, p_hs_camellia_encrypt
+	, c_hs_camellia_decrypt
+	, p_hs_camellia_decrypt
+
+	, c_hs_camellia128_ctx_size
+	, c_hs_camellia128_ctx_encrypt
+	, c_hs_camellia128_ctx_decrypt
+	, c_hs_camellia128_init
+	, c_camellia128_crypt
+	, p_camellia128_crypt
+
+	, c_hs_camellia192_ctx_size
+	, c_hs_camellia192_ctx_encrypt
+	, c_hs_camellia192_ctx_decrypt
+	, c_hs_camellia192_init
+	, c_camellia192_crypt
+	, p_camellia192_crypt
+
+	, c_hs_camellia256_ctx_size
+	, c_hs_camellia256_ctx_encrypt
+	, c_hs_camellia256_ctx_decrypt
+	, c_hs_camellia256_init
+	, c_camellia256_crypt
+	, p_camellia256_crypt
 
 	, c_cast128_ctx_size
-	, c_cast128_set_key
+	, c_cast5_set_key
 	, c_cast128_encrypt
 	, p_cast128_encrypt
 	, c_cast128_decrypt
@@ -95,7 +141,7 @@ module Crypto.Nettle.Ciphers.ForeignImports
 
 	, c_salsa20_ctx_size
 	, c_salsa20_set_key
-	, c_salsa20_set_iv
+	, c_salsa20_set_nonce
 	, c_salsa20_crypt
 	, c_salsa20r12_crypt
 	) where
@@ -145,21 +191,67 @@ foreign import ccall unsafe "nettle_gcm_digest"
 
 c_hs_aes_ctx_size :: Int
 c_hs_aes_ctx_size = #{size struct hs_aes_ctx}
-c_hs_aes_ctx_encrypt :: Ptr Word8 -> Ptr Word8
-c_hs_aes_ctx_encrypt = #ptr struct hs_aes_ctx, encrypt
-c_hs_aes_ctx_decrypt :: Ptr Word8 -> Ptr Word8
-c_hs_aes_ctx_decrypt = #ptr struct hs_aes_ctx, decrypt
 foreign import ccall unsafe "hs_nettle_aes_init"
 	c_hs_aes_init :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()
-foreign import ccall unsafe "nettle_aes_encrypt"
-	c_aes_encrypt :: NettleCryptFunc
-foreign import ccall unsafe "&nettle_aes_encrypt"
-	p_aes_encrypt :: FunPtr NettleCryptFunc
-foreign import ccall unsafe "nettle_aes_decrypt"
-	c_aes_decrypt :: NettleCryptFunc
-foreign import ccall unsafe "&nettle_aes_decrypt"
-	p_aes_decrypt :: FunPtr NettleCryptFunc
+foreign import ccall unsafe "hs_nettle_aes_encrypt"
+	c_hs_aes_encrypt :: NettleCryptFunc
+foreign import ccall unsafe "&hs_nettle_aes_encrypt"
+	p_hs_aes_encrypt :: FunPtr NettleCryptFunc
+foreign import ccall unsafe "hs_nettle_aes_decrypt"
+	c_hs_aes_decrypt :: NettleCryptFunc
+foreign import ccall unsafe "&hs_nettle_aes_decrypt"
+	p_hs_aes_decrypt :: FunPtr NettleCryptFunc
 
+c_hs_aes128_ctx_size :: Int
+c_hs_aes128_ctx_size = #{size struct hs_aes128_ctx}
+c_hs_aes128_ctx_encrypt :: Ptr Word8 -> Ptr Word8
+c_hs_aes128_ctx_encrypt = #ptr struct hs_aes128_ctx, encrypt
+c_hs_aes128_ctx_decrypt :: Ptr Word8 -> Ptr Word8
+c_hs_aes128_ctx_decrypt = #ptr struct hs_aes128_ctx, decrypt
+foreign import ccall unsafe "hs_nettle_aes128_init"
+	c_hs_aes128_init :: Ptr Word8 -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_aes128_encrypt"
+	c_aes128_encrypt :: NettleCryptFunc
+foreign import ccall unsafe "&nettle_aes128_encrypt"
+	p_aes128_encrypt :: FunPtr NettleCryptFunc
+foreign import ccall unsafe "nettle_aes128_decrypt"
+	c_aes128_decrypt :: NettleCryptFunc
+foreign import ccall unsafe "&nettle_aes128_decrypt"
+	p_aes128_decrypt :: FunPtr NettleCryptFunc
+
+c_hs_aes192_ctx_size :: Int
+c_hs_aes192_ctx_size = #{size struct hs_aes192_ctx}
+c_hs_aes192_ctx_encrypt :: Ptr Word8 -> Ptr Word8
+c_hs_aes192_ctx_encrypt = #ptr struct hs_aes192_ctx, encrypt
+c_hs_aes192_ctx_decrypt :: Ptr Word8 -> Ptr Word8
+c_hs_aes192_ctx_decrypt = #ptr struct hs_aes192_ctx, decrypt
+foreign import ccall unsafe "hs_nettle_aes192_init"
+	c_hs_aes192_init :: Ptr Word8 -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_aes192_encrypt"
+	c_aes192_encrypt :: NettleCryptFunc
+foreign import ccall unsafe "&nettle_aes192_encrypt"
+	p_aes192_encrypt :: FunPtr NettleCryptFunc
+foreign import ccall unsafe "nettle_aes192_decrypt"
+	c_aes192_decrypt :: NettleCryptFunc
+foreign import ccall unsafe "&nettle_aes192_decrypt"
+	p_aes192_decrypt :: FunPtr NettleCryptFunc
+
+c_hs_aes256_ctx_size :: Int
+c_hs_aes256_ctx_size = #{size struct hs_aes256_ctx}
+c_hs_aes256_ctx_encrypt :: Ptr Word8 -> Ptr Word8
+c_hs_aes256_ctx_encrypt = #ptr struct hs_aes256_ctx, encrypt
+c_hs_aes256_ctx_decrypt :: Ptr Word8 -> Ptr Word8
+c_hs_aes256_ctx_decrypt = #ptr struct hs_aes256_ctx, decrypt
+foreign import ccall unsafe "hs_nettle_aes256_init"
+	c_hs_aes256_init :: Ptr Word8 -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_aes256_encrypt"
+	c_aes256_encrypt :: NettleCryptFunc
+foreign import ccall unsafe "&nettle_aes256_encrypt"
+	p_aes256_encrypt :: FunPtr NettleCryptFunc
+foreign import ccall unsafe "nettle_aes256_decrypt"
+	c_aes256_decrypt :: NettleCryptFunc
+foreign import ccall unsafe "&nettle_aes256_decrypt"
+	p_aes256_decrypt :: FunPtr NettleCryptFunc
 
 c_arctwo_ctx_size :: Int
 c_arctwo_ctx_size = #{size struct arctwo_ctx}
@@ -193,21 +285,62 @@ foreign import ccall unsafe "&nettle_blowfish_decrypt"
 
 c_hs_camellia_ctx_size :: Int
 c_hs_camellia_ctx_size = #{size struct hs_camellia_ctx}
-c_hs_camellia_ctx_encrypt :: Ptr Word8 -> Ptr Word8
-c_hs_camellia_ctx_encrypt = #ptr struct hs_camellia_ctx, encrypt
-c_hs_camellia_ctx_decrypt :: Ptr Word8 -> Ptr Word8
-c_hs_camellia_ctx_decrypt = #ptr struct hs_camellia_ctx, decrypt
 foreign import ccall unsafe "hs_nettle_camellia_init"
 	c_hs_camellia_init :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()
-foreign import ccall unsafe "nettle_camellia_crypt"
-	c_camellia_crypt :: NettleCryptFunc
-foreign import ccall unsafe "&nettle_camellia_crypt"
-	p_camellia_crypt :: FunPtr NettleCryptFunc
+foreign import ccall unsafe "hs_nettle_camellia_encrypt"
+	c_hs_camellia_encrypt :: NettleCryptFunc
+foreign import ccall unsafe "&hs_nettle_camellia_encrypt"
+	p_hs_camellia_encrypt :: FunPtr NettleCryptFunc
+foreign import ccall unsafe "hs_nettle_camellia_decrypt"
+	c_hs_camellia_decrypt :: NettleCryptFunc
+foreign import ccall unsafe "&hs_nettle_camellia_decrypt"
+	p_hs_camellia_decrypt :: FunPtr NettleCryptFunc
+
+c_hs_camellia128_ctx_size :: Int
+c_hs_camellia128_ctx_size = #{size struct hs_camellia128_ctx}
+c_hs_camellia128_ctx_encrypt :: Ptr Word8 -> Ptr Word8
+c_hs_camellia128_ctx_encrypt = #ptr struct hs_camellia128_ctx, encrypt
+c_hs_camellia128_ctx_decrypt :: Ptr Word8 -> Ptr Word8
+c_hs_camellia128_ctx_decrypt = #ptr struct hs_camellia128_ctx, decrypt
+foreign import ccall unsafe "hs_nettle_camellia128_init"
+	c_hs_camellia128_init :: Ptr Word8 -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_camellia128_crypt"
+	c_camellia128_crypt :: NettleCryptFunc
+foreign import ccall unsafe "&nettle_camellia128_crypt"
+	p_camellia128_crypt :: FunPtr NettleCryptFunc
+
+c_hs_camellia192_ctx_size :: Int
+c_hs_camellia192_ctx_size = #{size struct hs_camellia192_ctx}
+c_hs_camellia192_ctx_encrypt :: Ptr Word8 -> Ptr Word8
+c_hs_camellia192_ctx_encrypt = #ptr struct hs_camellia192_ctx, encrypt
+c_hs_camellia192_ctx_decrypt :: Ptr Word8 -> Ptr Word8
+c_hs_camellia192_ctx_decrypt = #ptr struct hs_camellia192_ctx, decrypt
+foreign import ccall unsafe "hs_nettle_camellia192_init"
+	c_hs_camellia192_init :: Ptr Word8 -> Ptr Word8 -> IO ()
+-- 192 and 256 bit variants use same crypt function
+foreign import ccall unsafe "nettle_camellia256_crypt"
+	c_camellia192_crypt :: NettleCryptFunc
+foreign import ccall unsafe "&nettle_camellia256_crypt"
+	p_camellia192_crypt :: FunPtr NettleCryptFunc
+
+c_hs_camellia256_ctx_size :: Int
+c_hs_camellia256_ctx_size = #{size struct hs_camellia256_ctx}
+c_hs_camellia256_ctx_encrypt :: Ptr Word8 -> Ptr Word8
+c_hs_camellia256_ctx_encrypt = #ptr struct hs_camellia256_ctx, encrypt
+c_hs_camellia256_ctx_decrypt :: Ptr Word8 -> Ptr Word8
+c_hs_camellia256_ctx_decrypt = #ptr struct hs_camellia256_ctx, decrypt
+foreign import ccall unsafe "hs_nettle_camellia256_init"
+	c_hs_camellia256_init :: Ptr Word8 -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_camellia256_crypt"
+	c_camellia256_crypt :: NettleCryptFunc
+foreign import ccall unsafe "&nettle_camellia256_crypt"
+	p_camellia256_crypt :: FunPtr NettleCryptFunc
 
 c_cast128_ctx_size :: Int
 c_cast128_ctx_size = #{size struct cast128_ctx}
-foreign import ccall unsafe "nettle_cast128_set_key"
-	c_cast128_set_key :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()
+-- cast128_set_key uses a 128-bit fixed size key, cast-5 supports the variable length
+foreign import ccall unsafe "nettle_cast5_set_key"
+	c_cast5_set_key :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()
 foreign import ccall unsafe "nettle_cast128_encrypt"
 	c_cast128_encrypt :: NettleCryptFunc
 foreign import ccall unsafe "&nettle_cast128_encrypt"
@@ -282,8 +415,8 @@ c_salsa20_ctx_size :: Int
 c_salsa20_ctx_size = #{size struct salsa20_ctx}
 foreign import ccall unsafe "nettle_salsa20_set_key"
 	c_salsa20_set_key :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()
-foreign import ccall unsafe "nettle_salsa20_set_iv"
-	c_salsa20_set_iv :: Ptr Word8 -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_salsa20_set_nonce"
+	c_salsa20_set_nonce :: Ptr Word8 -> Ptr Word8 -> IO ()
 foreign import ccall unsafe "nettle_salsa20_crypt"
 	c_salsa20_crypt :: NettleCryptFunc
 foreign import ccall unsafe "nettle_salsa20r12_crypt"

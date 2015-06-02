@@ -2,6 +2,12 @@
 #ifndef _HS_NETTLE_HASH_H
 #define _HS_NETTLE_HASH_H _HS_NETTLE_HASH_H
 
+#include <nettle/version.h>
+
+#if (NETTLE_VERSION_MAJOR != 3)
+#error unsupported nettle version
+#endif
+
 #include <sys/types.h>
 #include <nettle/cbc.h>
 #include <nettle/gcm.h>

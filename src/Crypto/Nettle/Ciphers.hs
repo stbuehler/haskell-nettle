@@ -125,7 +125,6 @@ instance StreamNonceCipher Typ where \
 	; streamNonceSize = witness nbsc_nonceSize \
 	}
 
-
 {-|
 'AES' is the generic cipher context for the AES cipher, supporting key sizes
 of 128, 196 and 256 bits (16, 24 and 32 bytes). The 'blockSize' is always 128 bits (16 bytes).
@@ -142,35 +141,32 @@ instance NettleCipher AES where
 	nc_Ctx           = AES
 instance NettleBlockCipher AES where
 	nbc_blockSize          = Tagged 16
-	nbc_encrypt_ctx_offset = Tagged c_hs_aes_ctx_encrypt
-	nbc_decrypt_ctx_offset = Tagged c_hs_aes_ctx_decrypt
-	nbc_ecb_encrypt        = Tagged c_aes_encrypt
-	nbc_ecb_decrypt        = Tagged c_aes_decrypt
-	nbc_fun_encrypt        = Tagged p_aes_encrypt
-	nbc_fun_decrypt        = Tagged p_aes_decrypt
+	nbc_ecb_encrypt        = Tagged c_hs_aes_encrypt
+	nbc_ecb_decrypt        = Tagged c_hs_aes_decrypt
+	nbc_fun_encrypt        = Tagged p_hs_aes_encrypt
+	nbc_fun_decrypt        = Tagged p_hs_aes_decrypt
 
 INSTANCE_BLOCKCIPHER(AES)
-
 
 {-|
 'AES128' provides the same interface as 'AES', but is restricted to 128-bit keys.
 -}
 newtype AES128 = AES128 SecureMem
 instance NettleCipher AES128 where
-	nc_cipherInit    = Tagged c_hs_aes_init
+	nc_cipherInit    = Tagged (\ctx _ key -> c_hs_aes128_init ctx key)
 	nc_cipherName    = Tagged "AES-128"
 	nc_cipherKeySize = Tagged $ KeySizeFixed 16
-	nc_ctx_size      = Tagged c_hs_aes_ctx_size
+	nc_ctx_size      = Tagged c_hs_aes128_ctx_size
 	nc_ctx (AES128 c) = c
 	nc_Ctx            = AES128
 instance NettleBlockCipher AES128 where
 	nbc_blockSize          = Tagged 16
-	nbc_encrypt_ctx_offset = Tagged c_hs_aes_ctx_encrypt
-	nbc_decrypt_ctx_offset = Tagged c_hs_aes_ctx_decrypt
-	nbc_ecb_encrypt        = Tagged c_aes_encrypt
-	nbc_ecb_decrypt        = Tagged c_aes_decrypt
-	nbc_fun_encrypt        = Tagged p_aes_encrypt
-	nbc_fun_decrypt        = Tagged p_aes_decrypt
+	nbc_encrypt_ctx_offset = Tagged c_hs_aes128_ctx_encrypt
+	nbc_decrypt_ctx_offset = Tagged c_hs_aes128_ctx_decrypt
+	nbc_ecb_encrypt        = Tagged c_aes128_encrypt
+	nbc_ecb_decrypt        = Tagged c_aes128_decrypt
+	nbc_fun_encrypt        = Tagged p_aes128_encrypt
+	nbc_fun_decrypt        = Tagged p_aes128_decrypt
 
 INSTANCE_BLOCKCIPHER(AES128)
 
@@ -180,20 +176,20 @@ INSTANCE_BLOCKCIPHER(AES128)
 -}
 newtype AES192 = AES192 SecureMem
 instance NettleCipher AES192 where
-	nc_cipherInit    = Tagged c_hs_aes_init
+	nc_cipherInit    = Tagged (\ctx _ key -> c_hs_aes192_init ctx key)
 	nc_cipherName    = Tagged "AES-192"
 	nc_cipherKeySize = Tagged $ KeySizeFixed 24
-	nc_ctx_size      = Tagged c_hs_aes_ctx_size
+	nc_ctx_size      = Tagged c_hs_aes192_ctx_size
 	nc_ctx  (AES192 c) = c
 	nc_Ctx             = AES192
 instance NettleBlockCipher AES192 where
 	nbc_blockSize          = Tagged 16
-	nbc_encrypt_ctx_offset = Tagged c_hs_aes_ctx_encrypt
-	nbc_decrypt_ctx_offset = Tagged c_hs_aes_ctx_decrypt
-	nbc_ecb_encrypt        = Tagged c_aes_encrypt
-	nbc_ecb_decrypt        = Tagged c_aes_decrypt
-	nbc_fun_encrypt        = Tagged p_aes_encrypt
-	nbc_fun_decrypt        = Tagged p_aes_decrypt
+	nbc_encrypt_ctx_offset = Tagged c_hs_aes192_ctx_encrypt
+	nbc_decrypt_ctx_offset = Tagged c_hs_aes192_ctx_decrypt
+	nbc_ecb_encrypt        = Tagged c_aes192_encrypt
+	nbc_ecb_decrypt        = Tagged c_aes192_decrypt
+	nbc_fun_encrypt        = Tagged p_aes192_encrypt
+	nbc_fun_decrypt        = Tagged p_aes192_decrypt
 
 INSTANCE_BLOCKCIPHER(AES192)
 
@@ -203,20 +199,20 @@ INSTANCE_BLOCKCIPHER(AES192)
 -}
 newtype AES256 = AES256 SecureMem
 instance NettleCipher AES256 where
-	nc_cipherInit    = Tagged c_hs_aes_init
+	nc_cipherInit    = Tagged (\ctx _ key -> c_hs_aes256_init ctx key)
 	nc_cipherName    = Tagged "AES-256"
 	nc_cipherKeySize = Tagged $ KeySizeFixed 32
-	nc_ctx_size      = Tagged c_hs_aes_ctx_size
+	nc_ctx_size      = Tagged c_hs_aes256_ctx_size
 	nc_ctx  (AES256 c) = c
 	nc_Ctx             = AES256
 instance NettleBlockCipher AES256 where
 	nbc_blockSize          = Tagged 16
-	nbc_encrypt_ctx_offset = Tagged c_hs_aes_ctx_encrypt
-	nbc_decrypt_ctx_offset = Tagged c_hs_aes_ctx_decrypt
-	nbc_ecb_encrypt        = Tagged c_aes_encrypt
-	nbc_ecb_decrypt        = Tagged c_aes_decrypt
-	nbc_fun_encrypt        = Tagged p_aes_encrypt
-	nbc_fun_decrypt        = Tagged p_aes_decrypt
+	nbc_encrypt_ctx_offset = Tagged c_hs_aes256_ctx_encrypt
+	nbc_decrypt_ctx_offset = Tagged c_hs_aes256_ctx_decrypt
+	nbc_ecb_encrypt        = Tagged c_aes256_encrypt
+	nbc_ecb_decrypt        = Tagged c_aes256_decrypt
+	nbc_fun_encrypt        = Tagged p_aes256_encrypt
+	nbc_fun_decrypt        = Tagged p_aes256_decrypt
 
 INSTANCE_BLOCKCIPHER(AES256)
 
@@ -297,12 +293,10 @@ instance NettleCipher Camellia where
 	nc_Ctx             = Camellia
 instance NettleBlockCipher Camellia where
 	nbc_blockSize          = Tagged 16
-	nbc_encrypt_ctx_offset = Tagged c_hs_camellia_ctx_encrypt
-	nbc_decrypt_ctx_offset = Tagged c_hs_camellia_ctx_decrypt
-	nbc_ecb_encrypt        = Tagged c_camellia_crypt
-	nbc_ecb_decrypt        = Tagged c_camellia_crypt
-	nbc_fun_encrypt        = Tagged p_camellia_crypt
-	nbc_fun_decrypt        = Tagged p_camellia_crypt
+	nbc_ecb_encrypt        = Tagged c_hs_camellia_encrypt
+	nbc_ecb_decrypt        = Tagged c_hs_camellia_decrypt
+	nbc_fun_encrypt        = Tagged p_hs_camellia_encrypt
+	nbc_fun_decrypt        = Tagged p_hs_camellia_decrypt
 
 INSTANCE_BLOCKCIPHER(Camellia)
 
@@ -311,20 +305,20 @@ INSTANCE_BLOCKCIPHER(Camellia)
 -}
 newtype Camellia128 = Camellia128 SecureMem
 instance NettleCipher Camellia128 where
-	nc_cipherInit    = Tagged c_hs_camellia_init
+	nc_cipherInit    = Tagged (\ctx _ key -> c_hs_camellia128_init ctx key)
 	nc_cipherName    = Tagged "Camellia-128"
 	nc_cipherKeySize = Tagged $ KeySizeFixed 16
-	nc_ctx_size      = Tagged c_hs_camellia_ctx_size
+	nc_ctx_size      = Tagged c_hs_camellia128_ctx_size
 	nc_ctx  (Camellia128 c) = c
 	nc_Ctx             = Camellia128
 instance NettleBlockCipher Camellia128 where
 	nbc_blockSize          = Tagged 16
-	nbc_encrypt_ctx_offset = Tagged c_hs_camellia_ctx_encrypt
-	nbc_decrypt_ctx_offset = Tagged c_hs_camellia_ctx_decrypt
-	nbc_ecb_encrypt        = Tagged c_camellia_crypt
-	nbc_ecb_decrypt        = Tagged c_camellia_crypt
-	nbc_fun_encrypt        = Tagged p_camellia_crypt
-	nbc_fun_decrypt        = Tagged p_camellia_crypt
+	nbc_encrypt_ctx_offset = Tagged c_hs_camellia128_ctx_encrypt
+	nbc_decrypt_ctx_offset = Tagged c_hs_camellia128_ctx_decrypt
+	nbc_ecb_encrypt        = Tagged c_camellia128_crypt
+	nbc_ecb_decrypt        = Tagged c_camellia128_crypt
+	nbc_fun_encrypt        = Tagged p_camellia128_crypt
+	nbc_fun_decrypt        = Tagged p_camellia128_crypt
 
 INSTANCE_BLOCKCIPHER(Camellia128)
 
@@ -333,20 +327,20 @@ INSTANCE_BLOCKCIPHER(Camellia128)
 -}
 newtype Camellia192 = Camellia192 SecureMem
 instance NettleCipher Camellia192 where
-	nc_cipherInit    = Tagged c_hs_camellia_init
+	nc_cipherInit    = Tagged (\ctx _ key -> c_hs_camellia192_init ctx key)
 	nc_cipherName    = Tagged "Camellia-192"
 	nc_cipherKeySize = Tagged $ KeySizeFixed 24
-	nc_ctx_size      = Tagged c_hs_camellia_ctx_size
+	nc_ctx_size      = Tagged c_hs_camellia192_ctx_size
 	nc_ctx  (Camellia192 c) = c
 	nc_Ctx             = Camellia192
 instance NettleBlockCipher Camellia192 where
 	nbc_blockSize          = Tagged 16
-	nbc_encrypt_ctx_offset = Tagged c_hs_camellia_ctx_encrypt
-	nbc_decrypt_ctx_offset = Tagged c_hs_camellia_ctx_decrypt
-	nbc_ecb_encrypt        = Tagged c_camellia_crypt
-	nbc_ecb_decrypt        = Tagged c_camellia_crypt
-	nbc_fun_encrypt        = Tagged p_camellia_crypt
-	nbc_fun_decrypt        = Tagged p_camellia_crypt
+	nbc_encrypt_ctx_offset = Tagged c_hs_camellia192_ctx_encrypt
+	nbc_decrypt_ctx_offset = Tagged c_hs_camellia192_ctx_decrypt
+	nbc_ecb_encrypt        = Tagged c_camellia192_crypt
+	nbc_ecb_decrypt        = Tagged c_camellia192_crypt
+	nbc_fun_encrypt        = Tagged p_camellia192_crypt
+	nbc_fun_decrypt        = Tagged p_camellia192_crypt
 
 INSTANCE_BLOCKCIPHER(Camellia192)
 
@@ -355,20 +349,20 @@ INSTANCE_BLOCKCIPHER(Camellia192)
 -}
 newtype Camellia256 = Camellia256 SecureMem
 instance NettleCipher Camellia256 where
-	nc_cipherInit    = Tagged c_hs_camellia_init
+	nc_cipherInit    = Tagged (\ctx _ key -> c_hs_camellia256_init ctx key)
 	nc_cipherName    = Tagged "Camellia-256"
 	nc_cipherKeySize = Tagged $ KeySizeFixed 32
-	nc_ctx_size      = Tagged c_hs_camellia_ctx_size
+	nc_ctx_size      = Tagged c_hs_camellia256_ctx_size
 	nc_ctx  (Camellia256 c) = c
 	nc_Ctx             = Camellia256
 instance NettleBlockCipher Camellia256 where
 	nbc_blockSize          = Tagged 16
-	nbc_encrypt_ctx_offset = Tagged c_hs_camellia_ctx_encrypt
-	nbc_decrypt_ctx_offset = Tagged c_hs_camellia_ctx_decrypt
-	nbc_ecb_encrypt        = Tagged c_camellia_crypt
-	nbc_ecb_decrypt        = Tagged c_camellia_crypt
-	nbc_fun_encrypt        = Tagged p_camellia_crypt
-	nbc_fun_decrypt        = Tagged p_camellia_crypt
+	nbc_encrypt_ctx_offset = Tagged c_hs_camellia256_ctx_encrypt
+	nbc_decrypt_ctx_offset = Tagged c_hs_camellia256_ctx_decrypt
+	nbc_ecb_encrypt        = Tagged c_camellia256_crypt
+	nbc_ecb_decrypt        = Tagged c_camellia256_crypt
+	nbc_fun_encrypt        = Tagged p_camellia256_crypt
+	nbc_fun_decrypt        = Tagged p_camellia256_crypt
 
 INSTANCE_BLOCKCIPHER(Camellia256)
 
@@ -378,7 +372,7 @@ and a variable key size of 40 up to 128 bits (5 to 16 bytes).
 -}
 newtype CAST128 = CAST128 SecureMem
 instance NettleCipher CAST128 where
-	nc_cipherInit    = Tagged c_cast128_set_key
+	nc_cipherInit    = Tagged c_cast5_set_key
 	nc_cipherName    = Tagged "CAST-128"
 	nc_cipherKeySize = Tagged $ KeySizeRange 5 16
 	nc_ctx_size      = Tagged c_cast128_ctx_size
@@ -533,11 +527,11 @@ wrap_salsa20_set_key :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()
 wrap_salsa20_set_key ctxptr keylen keyptr = do
 	c_salsa20_set_key ctxptr keylen keyptr
 	withByteStringPtr (B.replicate 8 0) $ \_ nonceptr ->
-		c_salsa20_set_iv ctxptr nonceptr
+		c_salsa20_set_nonce ctxptr nonceptr
 
 -- check nonce length
-wrap_salsa20_set_iv :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()
-wrap_salsa20_set_iv ctxptr ivlen ivptr = if ivlen == 8 then c_salsa20_set_iv ctxptr ivptr else fail "Invalid nonce length"
+wrap_salsa20_set_nonce :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()
+wrap_salsa20_set_nonce ctxptr ivlen ivptr = if ivlen == 8 then c_salsa20_set_nonce ctxptr ivptr else fail "Invalid nonce length"
 
 {-|
 'SALSA20' is a fairly recent stream cipher designed by D. J. Bernstein.
@@ -566,7 +560,7 @@ instance NettleBlockedStreamCipher SALSA20 where
 	nbsc_incompleteState (SALSA20 (_, inc)) = inc
 	nbsc_streamCombine = Tagged c_salsa20_crypt
 	nbsc_nonceSize     = Tagged $ KeySizeFixed 8
-	nbsc_setNonce      = Tagged $ Just wrap_salsa20_set_iv
+	nbsc_setNonce      = Tagged $ Just wrap_salsa20_set_nonce
 INSTANCE_BLOCKEDSTREAMNONCECIPHER(SALSA20)
 
 
@@ -587,5 +581,5 @@ instance NettleBlockedStreamCipher ESTREAM_SALSA20 where
 	nbsc_incompleteState (ESTREAM_SALSA20 (_, inc)) = inc
 	nbsc_streamCombine = Tagged c_salsa20r12_crypt
 	nbsc_nonceSize     = Tagged $ KeySizeFixed 8
-	nbsc_setNonce      = Tagged $ Just wrap_salsa20_set_iv
+	nbsc_setNonce      = Tagged $ Just wrap_salsa20_set_nonce
 INSTANCE_BLOCKEDSTREAMNONCECIPHER(ESTREAM_SALSA20)
