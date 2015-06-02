@@ -1,6 +1,6 @@
 # haskell-nettle
 
-This is the source repository for the "nettle" cabal package, which is a safe binding to the [nettle](http://www.lysator.liu.se/~nisse/nettle/nettle.html) library (tested with 2.7.1, might work with 2.5, does NOT WORK with 3.0).
+This is the source repository for the "nettle" cabal package, which is a safe binding to the [nettle](http://www.lysator.liu.se/~nisse/nettle/nettle.html) library (tested with 3.1.1, might work with 3.0, does NOT WORK with 2.x).
 
 The binding supports all hash functions, cipher functions, cipher modes and keyed hash functions (apart from Poly1305-AES) included in nettle (additionally the AEAD-CCM cipher mode is implemented in pure haskell).
 
