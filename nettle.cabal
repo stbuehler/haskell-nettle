@@ -44,7 +44,7 @@ Library
                      Crypto.Nettle.Hash.ForeignImports
                      Crypto.Nettle.Hash.Types
                      Nettle.Utils
-  ghc-options:       -Wall -optc-O3 -fno-cse
+  ghc-options:       -Wall -optc-O3 -fno-cse -fno-warn-tabs
   include-dirs:      src
   C-sources:         src/nettle-ciphers.c
   if flag(UsePkgConfig)
@@ -65,6 +65,7 @@ Test-Suite test-ciphers
                    , crypto-cipher-types
                    , crypto-cipher-tests
                    , nettle
+  ghc-options: -fno-warn-tabs
 
 Test-Suite test-hashes
   type:              exitcode-stdio-1.0
@@ -78,6 +79,7 @@ Test-Suite test-hashes
                    , HUnit
                    , test-framework-hunit
                    , nettle
+  ghc-options: -fno-warn-tabs
 
 Test-Suite test-hmac
   type:              exitcode-stdio-1.0
@@ -91,6 +93,7 @@ Test-Suite test-hmac
                    , HUnit
                    , test-framework-hunit
                    , nettle
+  ghc-options: -fno-warn-tabs
 
 Test-Suite test-umac
   type:              exitcode-stdio-1.0
@@ -104,6 +107,7 @@ Test-Suite test-umac
                    , HUnit
                    , test-framework-hunit
                    , nettle
+  ghc-options: -fno-warn-tabs
 
 source-repository head
   type:     git
