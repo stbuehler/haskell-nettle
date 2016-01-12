@@ -3,7 +3,7 @@ Version:             0.1.1
 Synopsis:            safe nettle binding
 Description:
   safe binding for the nettle (<http://www.lysator.liu.se/~nisse/nettle/nettle.html>) library.
-  Tested with nettle-2.7.1, might work with 2.5, does NOT WORK with 3.0.
+  Tested with 3.1.1, might work with 3.0, does NOT WORK with 2.x.
 License:             MIT
 License-file:        COPYING
 Copyright:           Stefan Bühler <stbuehler@web.de>
