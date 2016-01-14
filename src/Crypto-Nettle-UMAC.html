@@ -159,7 +159,7 @@
 <a name="line-150"></a>			<span class='hs-varid'>return</span> <span class='hs-layout'>(</span><span class='hs-varid'>dig</span><span class='hs-layout'>,</span> <span class='hs-varid'>nu_Ctx</span> <span class='hs-varid'>ctx'</span><span class='hs-layout'>)</span>
 <a name="line-151"></a>
 <a name="line-152"></a><span class='hs-cpp'>#define INSTANCE_UMAC(Typ) \</span>
-<a name="line-153"></a><span class='hs-keyword'>instance</span> <span class='hs-conid'>UMAC</span> <span class='hs-conid'>Typ</span> <span class='hs-keyword'>where</span> <span class='hs-keyglyph'>\</span>
+<a name="line-153"></a><a name="instance%20UMAC%20Typ"></a><span class='hs-keyword'>instance</span> <span class='hs-conid'>UMAC</span> <span class='hs-conid'>Typ</span> <span class='hs-keyword'>where</span> <span class='hs-keyglyph'>\</span>
 <a name="line-154"></a>	<span class='hs-layout'>{</span> <span class='hs-varid'>umacDigestSize</span> <span class='hs-keyglyph'>=</span> <span class='hs-varid'>nettleUmacDigestSize</span> <span class='hs-keyglyph'>\</span>
 <a name="line-155"></a>	<span class='hs-layout'>;</span> <span class='hs-varid'>umacInit</span>       <span class='hs-keyglyph'>=</span> <span class='hs-varid'>nettleUmacInit</span> <span class='hs-keyglyph'>\</span>
 <a name="line-156"></a>	<span class='hs-layout'>;</span> <span class='hs-varid'>umacSetNonce</span>   <span class='hs-keyglyph'>=</span> <span class='hs-varid'>nettleUmacSetNonce</span> <span class='hs-keyglyph'>\</span>
@@ -167,7 +167,7 @@
 <a name="line-158"></a>	<span class='hs-layout'>;</span> <span class='hs-varid'>umacUpdateLazy</span> <span class='hs-keyglyph'>=</span> <span class='hs-varid'>nettleUmacUpdateLazy</span> <span class='hs-keyglyph'>\</span>
 <a name="line-159"></a>	<span class='hs-layout'>;</span> <span class='hs-varid'>umacFinalize</span>   <span class='hs-keyglyph'>=</span> <span class='hs-varid'>nettleUmacFinalize</span> <span class='hs-keyglyph'>\</span>
 <a name="line-160"></a>	<span class='hs-layout'>}</span> <span class='hs-layout'>;</span> <span class='hs-keyglyph'>\</span>
-<a name="line-161"></a><span class='hs-keyword'>instance</span> <span class='hs-conid'>KeyedHashAlgorithm</span> <span class='hs-conid'>Typ</span> <span class='hs-keyword'>where</span> <span class='hs-keyglyph'>\</span>
+<a name="line-161"></a><a name="instance%20KeyedHashAlgorithm%20Typ"></a><span class='hs-keyword'>instance</span> <span class='hs-conid'>KeyedHashAlgorithm</span> <span class='hs-conid'>Typ</span> <span class='hs-keyword'>where</span> <span class='hs-keyglyph'>\</span>
 <a name="line-162"></a>	<span class='hs-layout'>{</span> <span class='hs-varid'>implKeyedHashDigestSize</span> <span class='hs-keyglyph'>=</span> <span class='hs-varid'>umacKHDigestSize</span> <span class='hs-keyglyph'>\</span>
 <a name="line-163"></a>	<span class='hs-layout'>;</span> <span class='hs-varid'>implKeyedHashName</span>       <span class='hs-keyglyph'>=</span> <span class='hs-varid'>umacKHName</span> <span class='hs-keyglyph'>\</span>
 <a name="line-164"></a>	<span class='hs-layout'>;</span> <span class='hs-varid'>implKeyedHashInit</span>       <span class='hs-keyglyph'>=</span> <span class='hs-varid'>umacKHInit</span> <span class='hs-keyglyph'>\</span>
@@ -180,7 +180,7 @@
 <a name="line-171"></a>'UMAC32' is the 32-bit (4 byte) digest variant. See 'umacInitKeyedHash' for the 'KeyedHashAlgorithm' instance.
 <a name="line-172"></a>-}</span>
 <a name="line-173"></a><a name="UMAC32"></a><span class='hs-keyword'>newtype</span> <span class='hs-conid'>UMAC32</span> <span class='hs-keyglyph'>=</span> <span class='hs-conid'>UMAC32</span> <span class='hs-layout'>{</span> <span class='hs-varid'>umac32_ctx</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>SecureMem</span> <span class='hs-layout'>}</span>
-<a name="line-174"></a><span class='hs-keyword'>instance</span> <span class='hs-conid'>NettleUMAC</span> <span class='hs-conid'>UMAC32</span> <span class='hs-keyword'>where</span>
+<a name="line-174"></a><a name="instance%20NettleUMAC%20UMAC32"></a><span class='hs-keyword'>instance</span> <span class='hs-conid'>NettleUMAC</span> <span class='hs-conid'>UMAC32</span> <span class='hs-keyword'>where</span>
 <a name="line-175"></a>	<span class='hs-varid'>nu_ctx_size</span>    <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Tagged</span> <span class='hs-varid'>c_umac32_ctx_size</span>
 <a name="line-176"></a>	<span class='hs-varid'>nu_digest_size</span> <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Tagged</span> <span class='hs-varid'>c_umac32_digest_size</span>
 <a name="line-177"></a>	<span class='hs-varid'>nu_set_key</span>     <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Tagged</span> <span class='hs-varid'>c_umac32_set_key</span>
@@ -195,7 +195,7 @@
 <a name="line-186"></a>'UMAC64' is the 32-bit (4 byte) digest variant. See 'umacInitKeyedHash' for the 'KeyedHashAlgorithm' instance.
 <a name="line-187"></a>-}</span>
 <a name="line-188"></a><a name="UMAC64"></a><span class='hs-keyword'>newtype</span> <span class='hs-conid'>UMAC64</span> <span class='hs-keyglyph'>=</span> <span class='hs-conid'>UMAC64</span> <span class='hs-layout'>{</span> <span class='hs-varid'>umac64_ctx</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>SecureMem</span> <span class='hs-layout'>}</span>
-<a name="line-189"></a><span class='hs-keyword'>instance</span> <span class='hs-conid'>NettleUMAC</span> <span class='hs-conid'>UMAC64</span> <span class='hs-keyword'>where</span>
+<a name="line-189"></a><a name="instance%20NettleUMAC%20UMAC64"></a><span class='hs-keyword'>instance</span> <span class='hs-conid'>NettleUMAC</span> <span class='hs-conid'>UMAC64</span> <span class='hs-keyword'>where</span>
 <a name="line-190"></a>	<span class='hs-varid'>nu_ctx_size</span>    <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Tagged</span> <span class='hs-varid'>c_umac64_ctx_size</span>
 <a name="line-191"></a>	<span class='hs-varid'>nu_digest_size</span> <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Tagged</span> <span class='hs-varid'>c_umac64_digest_size</span>
 <a name="line-192"></a>	<span class='hs-varid'>nu_set_key</span>     <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Tagged</span> <span class='hs-varid'>c_umac64_set_key</span>
@@ -210,7 +210,7 @@
 <a name="line-201"></a>'UMAC96' is the 32-bit (4 byte) digest variant. See 'umacInitKeyedHash' for the 'KeyedHashAlgorithm' instance.
 <a name="line-202"></a>-}</span>
 <a name="line-203"></a><a name="UMAC96"></a><span class='hs-keyword'>newtype</span> <span class='hs-conid'>UMAC96</span> <span class='hs-keyglyph'>=</span> <span class='hs-conid'>UMAC96</span> <span class='hs-layout'>{</span> <span class='hs-varid'>umac96_ctx</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>SecureMem</span> <span class='hs-layout'>}</span>
-<a name="line-204"></a><span class='hs-keyword'>instance</span> <span class='hs-conid'>NettleUMAC</span> <span class='hs-conid'>UMAC96</span> <span class='hs-keyword'>where</span>
+<a name="line-204"></a><a name="instance%20NettleUMAC%20UMAC96"></a><span class='hs-keyword'>instance</span> <span class='hs-conid'>NettleUMAC</span> <span class='hs-conid'>UMAC96</span> <span class='hs-keyword'>where</span>
 <a name="line-205"></a>	<span class='hs-varid'>nu_ctx_size</span>    <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Tagged</span> <span class='hs-varid'>c_umac96_ctx_size</span>
 <a name="line-206"></a>	<span class='hs-varid'>nu_digest_size</span> <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Tagged</span> <span class='hs-varid'>c_umac96_digest_size</span>
 <a name="line-207"></a>	<span class='hs-varid'>nu_set_key</span>     <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Tagged</span> <span class='hs-varid'>c_umac96_set_key</span>
@@ -225,7 +225,7 @@
 <a name="line-216"></a>'UMAC128' is the 32-bit (4 byte) digest variant. See 'umacInitKeyedHash' for the 'KeyedHashAlgorithm' instance.
 <a name="line-217"></a>-}</span>
 <a name="line-218"></a><a name="UMAC128"></a><span class='hs-keyword'>newtype</span> <span class='hs-conid'>UMAC128</span> <span class='hs-keyglyph'>=</span> <span class='hs-conid'>UMAC128</span> <span class='hs-layout'>{</span> <span class='hs-varid'>umac128_ctx</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>SecureMem</span> <span class='hs-layout'>}</span>
-<a name="line-219"></a><span class='hs-keyword'>instance</span> <span class='hs-conid'>NettleUMAC</span> <span class='hs-conid'>UMAC128</span> <span class='hs-keyword'>where</span>
+<a name="line-219"></a><a name="instance%20NettleUMAC%20UMAC128"></a><span class='hs-keyword'>instance</span> <span class='hs-conid'>NettleUMAC</span> <span class='hs-conid'>UMAC128</span> <span class='hs-keyword'>where</span>
 <a name="line-220"></a>	<span class='hs-varid'>nu_ctx_size</span>    <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Tagged</span> <span class='hs-varid'>c_umac128_ctx_size</span>
 <a name="line-221"></a>	<span class='hs-varid'>nu_digest_size</span> <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Tagged</span> <span class='hs-varid'>c_umac128_digest_size</span>
 <a name="line-222"></a>	<span class='hs-varid'>nu_set_key</span>     <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Tagged</span> <span class='hs-varid'>c_umac128_set_key</span>

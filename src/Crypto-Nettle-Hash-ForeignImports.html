@@ -156,7 +156,7 @@
 <a name="line-147"></a><a name="NettleHashDigest"></a><span class='hs-keyword'>type</span> <span class='hs-conid'>NettleHashDigest</span> <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Ptr</span> <span class='hs-conid'>Word8</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-conid'>Word</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-conid'>Ptr</span> <span class='hs-conid'>Word8</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-conid'>IO</span> <span class='hs-conid'>()</span>
 <a name="line-148"></a>
 <a name="line-149"></a><a name="c_sha256_ctx_size"></a><span class='hs-definition'>c_sha256_ctx_size</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Int</span>
-<a name="line-150"></a><span class='hs-definition'>c_sha256_ctx_size</span> <span class='hs-keyglyph'>=</span> <span class='hs-layout'>(</span><span class='hs-num'>108</span><span class='hs-layout'>)</span>
+<a name="line-150"></a><span class='hs-definition'>c_sha256_ctx_size</span> <span class='hs-keyglyph'>=</span> <span class='hs-layout'>(</span><span class='hs-num'>112</span><span class='hs-layout'>)</span>
 <a name="line-151"></a><a name="c_sha256_digest_size"></a><span class='hs-comment'>{-# LINE 148 "src/Crypto/Nettle/Hash/ForeignImports.hsc" #-}</span>
 <a name="line-152"></a><span class='hs-definition'>c_sha256_digest_size</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Int</span>
 <a name="line-153"></a><span class='hs-definition'>c_sha256_digest_size</span> <span class='hs-keyglyph'>=</span> <span class='hs-num'>32</span>
@@ -172,7 +172,7 @@
 <a name="line-163"></a>	<span class='hs-varid'>c_sha256_digest</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>NettleHashDigest</span>
 <a name="line-164"></a>
 <a name="line-165"></a><a name="c_sha224_ctx_size"></a><span class='hs-definition'>c_sha224_ctx_size</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Int</span>
-<a name="line-166"></a><span class='hs-definition'>c_sha224_ctx_size</span> <span class='hs-keyglyph'>=</span> <span class='hs-layout'>(</span><span class='hs-num'>108</span><span class='hs-layout'>)</span>
+<a name="line-166"></a><span class='hs-definition'>c_sha224_ctx_size</span> <span class='hs-keyglyph'>=</span> <span class='hs-layout'>(</span><span class='hs-num'>112</span><span class='hs-layout'>)</span>
 <a name="line-167"></a><a name="c_sha224_digest_size"></a><span class='hs-comment'>{-# LINE 161 "src/Crypto/Nettle/Hash/ForeignImports.hsc" #-}</span>
 <a name="line-168"></a><span class='hs-definition'>c_sha224_digest_size</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Int</span>
 <a name="line-169"></a><span class='hs-definition'>c_sha224_digest_size</span> <span class='hs-keyglyph'>=</span> <span class='hs-num'>28</span>
@@ -284,7 +284,7 @@
 <a name="line-275"></a>	<span class='hs-varid'>c_sha3_512_digest</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>NettleHashDigest</span>
 <a name="line-276"></a>
 <a name="line-277"></a><a name="c_md5_ctx_size"></a><span class='hs-definition'>c_md5_ctx_size</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Int</span>
-<a name="line-278"></a><span class='hs-definition'>c_md5_ctx_size</span> <span class='hs-keyglyph'>=</span> <span class='hs-layout'>(</span><span class='hs-num'>92</span><span class='hs-layout'>)</span>
+<a name="line-278"></a><span class='hs-definition'>c_md5_ctx_size</span> <span class='hs-keyglyph'>=</span> <span class='hs-layout'>(</span><span class='hs-num'>96</span><span class='hs-layout'>)</span>
 <a name="line-279"></a><a name="c_md5_digest_size"></a><span class='hs-comment'>{-# LINE 252 "src/Crypto/Nettle/Hash/ForeignImports.hsc" #-}</span>
 <a name="line-280"></a><span class='hs-definition'>c_md5_digest_size</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Int</span>
 <a name="line-281"></a><span class='hs-definition'>c_md5_digest_size</span> <span class='hs-keyglyph'>=</span> <span class='hs-num'>16</span>
@@ -316,7 +316,7 @@
 <a name="line-307"></a>	<span class='hs-varid'>c_md2_digest</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>NettleHashDigest</span>
 <a name="line-308"></a>
 <a name="line-309"></a><a name="c_md4_ctx_size"></a><span class='hs-definition'>c_md4_ctx_size</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Int</span>
-<a name="line-310"></a><span class='hs-definition'>c_md4_ctx_size</span> <span class='hs-keyglyph'>=</span> <span class='hs-layout'>(</span><span class='hs-num'>92</span><span class='hs-layout'>)</span>
+<a name="line-310"></a><span class='hs-definition'>c_md4_ctx_size</span> <span class='hs-keyglyph'>=</span> <span class='hs-layout'>(</span><span class='hs-num'>96</span><span class='hs-layout'>)</span>
 <a name="line-311"></a><a name="c_md4_digest_size"></a><span class='hs-comment'>{-# LINE 278 "src/Crypto/Nettle/Hash/ForeignImports.hsc" #-}</span>
 <a name="line-312"></a><span class='hs-definition'>c_md4_digest_size</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Int</span>
 <a name="line-313"></a><span class='hs-definition'>c_md4_digest_size</span> <span class='hs-keyglyph'>=</span> <span class='hs-num'>16</span>
@@ -332,7 +332,7 @@
 <a name="line-323"></a>	<span class='hs-varid'>c_md4_digest</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>NettleHashDigest</span>
 <a name="line-324"></a>
 <a name="line-325"></a><a name="c_ripemd160_ctx_size"></a><span class='hs-definition'>c_ripemd160_ctx_size</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Int</span>
-<a name="line-326"></a><span class='hs-definition'>c_ripemd160_ctx_size</span> <span class='hs-keyglyph'>=</span> <span class='hs-layout'>(</span><span class='hs-num'>96</span><span class='hs-layout'>)</span>
+<a name="line-326"></a><span class='hs-definition'>c_ripemd160_ctx_size</span> <span class='hs-keyglyph'>=</span> <span class='hs-layout'>(</span><span class='hs-num'>104</span><span class='hs-layout'>)</span>
 <a name="line-327"></a><a name="c_ripemd160_digest_size"></a><span class='hs-comment'>{-# LINE 291 "src/Crypto/Nettle/Hash/ForeignImports.hsc" #-}</span>
 <a name="line-328"></a><span class='hs-definition'>c_ripemd160_digest_size</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Int</span>
 <a name="line-329"></a><span class='hs-definition'>c_ripemd160_digest_size</span> <span class='hs-keyglyph'>=</span> <span class='hs-num'>20</span>
@@ -348,7 +348,7 @@
 <a name="line-339"></a>	<span class='hs-varid'>c_ripemd160_digest</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>NettleHashDigest</span>
 <a name="line-340"></a>
 <a name="line-341"></a><a name="c_sha1_ctx_size"></a><span class='hs-definition'>c_sha1_ctx_size</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Int</span>
-<a name="line-342"></a><span class='hs-definition'>c_sha1_ctx_size</span> <span class='hs-keyglyph'>=</span> <span class='hs-layout'>(</span><span class='hs-num'>96</span><span class='hs-layout'>)</span>
+<a name="line-342"></a><span class='hs-definition'>c_sha1_ctx_size</span> <span class='hs-keyglyph'>=</span> <span class='hs-layout'>(</span><span class='hs-num'>104</span><span class='hs-layout'>)</span>
 <a name="line-343"></a><a name="c_sha1_digest_size"></a><span class='hs-comment'>{-# LINE 304 "src/Crypto/Nettle/Hash/ForeignImports.hsc" #-}</span>
 <a name="line-344"></a><span class='hs-definition'>c_sha1_digest_size</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Int</span>
 <a name="line-345"></a><span class='hs-definition'>c_sha1_digest_size</span> <span class='hs-keyglyph'>=</span> <span class='hs-num'>20</span>
@@ -381,7 +381,7 @@
 <a name="line-372"></a>
 <a name="line-373"></a>
 <a name="line-374"></a><a name="c_umac32_ctx_size"></a><span class='hs-definition'>c_umac32_ctx_size</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Int</span>
-<a name="line-375"></a><span class='hs-definition'>c_umac32_ctx_size</span> <span class='hs-keyglyph'>=</span> <span class='hs-layout'>(</span><span class='hs-num'>2456</span><span class='hs-layout'>)</span>
+<a name="line-375"></a><span class='hs-definition'>c_umac32_ctx_size</span> <span class='hs-keyglyph'>=</span> <span class='hs-layout'>(</span><span class='hs-num'>2392</span><span class='hs-layout'>)</span>
 <a name="line-376"></a><a name="c_umac32_digest_size"></a><span class='hs-comment'>{-# LINE 331 "src/Crypto/Nettle/Hash/ForeignImports.hsc" #-}</span>
 <a name="line-377"></a><span class='hs-definition'>c_umac32_digest_size</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Int</span>
 <a name="line-378"></a><span class='hs-definition'>c_umac32_digest_size</span> <span class='hs-keyglyph'>=</span> <span class='hs-num'>4</span>
@@ -396,7 +396,7 @@
 <a name="line-387"></a>	<span class='hs-varid'>c_umac32_digest</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Ptr</span> <span class='hs-conid'>Word8</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-conid'>Word</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-conid'>Ptr</span> <span class='hs-conid'>Word8</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-conid'>IO</span> <span class='hs-conid'>()</span>
 <a name="line-388"></a>
 <a name="line-389"></a><a name="c_umac64_ctx_size"></a><span class='hs-definition'>c_umac64_ctx_size</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Int</span>
-<a name="line-390"></a><span class='hs-definition'>c_umac64_ctx_size</span> <span class='hs-keyglyph'>=</span> <span class='hs-layout'>(</span><span class='hs-num'>2592</span><span class='hs-layout'>)</span>
+<a name="line-390"></a><span class='hs-definition'>c_umac64_ctx_size</span> <span class='hs-keyglyph'>=</span> <span class='hs-layout'>(</span><span class='hs-num'>2520</span><span class='hs-layout'>)</span>
 <a name="line-391"></a><a name="c_umac64_digest_size"></a><span class='hs-comment'>{-# LINE 344 "src/Crypto/Nettle/Hash/ForeignImports.hsc" #-}</span>
 <a name="line-392"></a><span class='hs-definition'>c_umac64_digest_size</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Int</span>
 <a name="line-393"></a><span class='hs-definition'>c_umac64_digest_size</span> <span class='hs-keyglyph'>=</span> <span class='hs-num'>8</span>
@@ -411,7 +411,7 @@
 <a name="line-402"></a>	<span class='hs-varid'>c_umac64_digest</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Ptr</span> <span class='hs-conid'>Word8</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-conid'>Word</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-conid'>Ptr</span> <span class='hs-conid'>Word8</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-conid'>IO</span> <span class='hs-conid'>()</span>
 <a name="line-403"></a>
 <a name="line-404"></a><a name="c_umac96_ctx_size"></a><span class='hs-definition'>c_umac96_ctx_size</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Int</span>
-<a name="line-405"></a><span class='hs-definition'>c_umac96_ctx_size</span> <span class='hs-keyglyph'>=</span> <span class='hs-layout'>(</span><span class='hs-num'>2704</span><span class='hs-layout'>)</span>
+<a name="line-405"></a><span class='hs-definition'>c_umac96_ctx_size</span> <span class='hs-keyglyph'>=</span> <span class='hs-layout'>(</span><span class='hs-num'>2640</span><span class='hs-layout'>)</span>
 <a name="line-406"></a><a name="c_umac96_digest_size"></a><span class='hs-comment'>{-# LINE 357 "src/Crypto/Nettle/Hash/ForeignImports.hsc" #-}</span>
 <a name="line-407"></a><span class='hs-definition'>c_umac96_digest_size</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Int</span>
 <a name="line-408"></a><span class='hs-definition'>c_umac96_digest_size</span> <span class='hs-keyglyph'>=</span> <span class='hs-num'>12</span>
@@ -426,7 +426,7 @@
 <a name="line-417"></a>	<span class='hs-varid'>c_umac96_digest</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Ptr</span> <span class='hs-conid'>Word8</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-conid'>Word</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-conid'>Ptr</span> <span class='hs-conid'>Word8</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-conid'>IO</span> <span class='hs-conid'>()</span>
 <a name="line-418"></a>
 <a name="line-419"></a><a name="c_umac128_ctx_size"></a><span class='hs-definition'>c_umac128_ctx_size</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Int</span>
-<a name="line-420"></a><span class='hs-definition'>c_umac128_ctx_size</span> <span class='hs-keyglyph'>=</span> <span class='hs-layout'>(</span><span class='hs-num'>2840</span><span class='hs-layout'>)</span>
+<a name="line-420"></a><span class='hs-definition'>c_umac128_ctx_size</span> <span class='hs-keyglyph'>=</span> <span class='hs-layout'>(</span><span class='hs-num'>2768</span><span class='hs-layout'>)</span>
 <a name="line-421"></a><a name="c_umac128_digest_size"></a><span class='hs-comment'>{-# LINE 370 "src/Crypto/Nettle/Hash/ForeignImports.hsc" #-}</span>
 <a name="line-422"></a><span class='hs-definition'>c_umac128_digest_size</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Int</span>
 <a name="line-423"></a><span class='hs-definition'>c_umac128_digest_size</span> <span class='hs-keyglyph'>=</span> <span class='hs-num'>16</span>
