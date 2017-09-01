@@ -38,7 +38,7 @@ import Nettle.Utils
 {-|
 Encrypt plain text and create a verification tag for the encrypted text and some additional data.
 @key@ and @nonce@ must not be reused together.
-The returned tag is 16 bytes long, but may be shortened for verification (loosing security).
+The returned tag is 16 bytes long, but may be shortened for verification (losing security).
 -}
 chaChaPoly1305Encrypt
 	:: B.ByteString                 -- ^ @key@ (must be 32 bytes)
