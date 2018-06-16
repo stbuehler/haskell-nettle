@@ -27,10 +27,10 @@ Flag UsePkgConfig
 Library
   hs-source-dirs:    src
   Build-Depends:     base >= 4 && < 5
-                   , bytestring
-                   , byteable
-                   , tagged
-                   , securemem >= 0.1.2
+                   , bytestring >= 0.10.8 && < 0.11
+                   , byteable >= 0.1.1 && < 0.2
+                   , tagged >= 0.8.5 && < 0.9
+                   , securemem >= 0.1.9 && < 0.2
                    , crypto-cipher-types >= 0.0.3 && < 0.1
   Exposed-modules:   Crypto.Nettle.ChaChaPoly1305
                      Crypto.Nettle.Ciphers
@@ -57,13 +57,13 @@ Test-Suite test-ciphers
   hs-source-dirs:    src/Tests
   Main-Is:           Ciphers.hs
   Build-depends:     base >= 4 && < 5
-                   , bytestring
-                   , QuickCheck >= 2
-                   , array
-                   , test-framework >= 0.3.3
+                   , bytestring >= 0.10.8 && < 0.11
+                   , QuickCheck >= 2 && < 3
+                   , array >= 0.5.1 && < 0.6
+                   , test-framework >= 0.3.3 && > 0.4
                    , test-framework-quickcheck2 >= 0.2.9
-                   , crypto-cipher-types
-                   , crypto-cipher-tests
+                   , crypto-cipher-types >= 0.0.3 && < 0.1
+                   , crypto-cipher-tests >= 0.0.11 && < 0.1
                    , nettle
   ghc-options: -fno-warn-tabs
 
@@ -72,12 +72,12 @@ Test-Suite test-hashes
   hs-source-dirs:    src/Tests
   Main-Is:           Hash.hs
   Build-depends:     base >= 4 && < 5
-                   , bytestring
-                   , tagged
-                   , array
-                   , test-framework >= 0.3.3
-                   , HUnit
-                   , test-framework-hunit
+                   , bytestring >= 0.10.8 && < 0.11
+                   , tagged >= 0.8.5 && < 0.9
+                   , array >= 0.5.1 && < 0.6
+                   , test-framework >= 0.3.3 && > 0.4
+                   , HUnit >= 1.5.0 && < 1.6
+                   , test-framework-hunit >= 0.3.0 && < 0.4
                    , nettle
   ghc-options: -fno-warn-tabs
 
@@ -86,12 +86,12 @@ Test-Suite test-hmac
   hs-source-dirs:    src/Tests
   Main-Is:           HMAC.hs
   Build-depends:     base >= 4 && < 5
-                   , bytestring
-                   , tagged
-                   , array
-                   , test-framework >= 0.3.3
-                   , HUnit
-                   , test-framework-hunit
+                   , bytestring >= 0.10.8 && < 0.11
+                   , tagged >= 0.8.5 && < 0.9
+                   , array >= 0.5.1 && < 0.6
+                   , test-framework >= 0.3.3 && > 0.4
+                   , HUnit >= 1.5.0 && < 1.6
+                   , test-framework-hunit >= 0.3.0 && < 0.4
                    , nettle
   ghc-options: -fno-warn-tabs
 
@@ -100,12 +100,12 @@ Test-Suite test-umac
   hs-source-dirs:    src/Tests
   Main-Is:           UMAC.hs
   Build-depends:     base >= 4 && < 5
-                   , bytestring
-                   , tagged
-                   , array
-                   , test-framework >= 0.3.3
-                   , HUnit
-                   , test-framework-hunit
+                   , bytestring >= 0.10.8 && < 0.11
+                   , tagged >= 0.8.5 && < 0.9
+                   , array >= 0.5.1 && < 0.6
+                   , test-framework >= 0.3.3 && > 0.4
+                   , HUnit >= 1.5.0 && < 1.6
+                   , test-framework-hunit >= 0.3.0 && < 0.4
                    , nettle
   ghc-options: -fno-warn-tabs
 
