@@ -76,7 +76,7 @@ Test-Suite test-hashes
                    , tagged >= 0.8.5 && < 0.9
                    , array >= 0.5.1 && < 0.6
                    , test-framework >= 0.3.3 && > 0.4
-                   , HUnit >= 1.5.0 && < 1.6
+                   , HUnit >= 1.6.0 && < 1.7
                    , test-framework-hunit >= 0.3.0 && < 0.4
                    , nettle
   ghc-options: -fno-warn-tabs
@@ -90,7 +90,7 @@ Test-Suite test-hmac
                    , tagged >= 0.8.5 && < 0.9
                    , array >= 0.5.1 && < 0.6
                    , test-framework >= 0.3.3 && > 0.4
-                   , HUnit >= 1.5.0 && < 1.6
+                   , HUnit >= 1.6.0 && < 1.7
                    , test-framework-hunit >= 0.3.0 && < 0.4
                    , nettle
   ghc-options: -fno-warn-tabs
@@ -104,7 +104,7 @@ Test-Suite test-umac
                    , tagged >= 0.8.5 && < 0.9
                    , array >= 0.5.1 && < 0.6
                    , test-framework >= 0.3.3 && > 0.4
-                   , HUnit >= 1.5.0 && < 1.6
+                   , HUnit >= 1.6.0 && < 1.7
                    , test-framework-hunit >= 0.3.0 && < 0.4
                    , nettle
   ghc-options: -fno-warn-tabs
