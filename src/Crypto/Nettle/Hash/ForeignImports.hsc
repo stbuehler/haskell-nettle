@@ -1,3 +1,4 @@
+{-# OPTIONS_HADDOCK hide #-}
 {-# LANGUAGE ForeignFunctionInterface #-}
 
 module Crypto.Nettle.Hash.ForeignImports
