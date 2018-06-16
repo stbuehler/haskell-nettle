@@ -183,7 +183,7 @@ instance NettleUMAC UMAC32 where
 INSTANCE_UMAC(UMAC32)
 
 {-|
-'UMAC64' is the 32-bit (4 byte) digest variant. See 'umacInitKeyedHash' for the 'KeyedHashAlgorithm' instance.
+'UMAC64' is the 64-bit (8 byte) digest variant. See 'umacInitKeyedHash' for the 'KeyedHashAlgorithm' instance.
 -}
 newtype UMAC64 = UMAC64 { umac64_ctx :: SecureMem }
 instance NettleUMAC UMAC64 where
@@ -198,7 +198,7 @@ instance NettleUMAC UMAC64 where
 INSTANCE_UMAC(UMAC64)
 
 {-|
-'UMAC96' is the 32-bit (4 byte) digest variant. See 'umacInitKeyedHash' for the 'KeyedHashAlgorithm' instance.
+'UMAC96' is the 96-bit (12 byte) digest variant. See 'umacInitKeyedHash' for the 'KeyedHashAlgorithm' instance.
 -}
 newtype UMAC96 = UMAC96 { umac96_ctx :: SecureMem }
 instance NettleUMAC UMAC96 where
@@ -213,7 +213,7 @@ instance NettleUMAC UMAC96 where
 INSTANCE_UMAC(UMAC96)
 
 {-|
-'UMAC128' is the 32-bit (4 byte) digest variant. See 'umacInitKeyedHash' for the 'KeyedHashAlgorithm' instance.
+'UMAC128' is the 128-bit (16 byte) digest variant. See 'umacInitKeyedHash' for the 'KeyedHashAlgorithm' instance.
 -}
 newtype UMAC128 = UMAC128 { umac128_ctx :: SecureMem }
 instance NettleUMAC UMAC128 where
