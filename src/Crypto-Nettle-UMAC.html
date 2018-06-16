@@ -192,7 +192,7 @@
 <a name="line-183"></a><span class='hs-conid'>INSTANCE_UMAC</span><span class='hs-layout'>(</span><span class='hs-conid'>UMAC32</span><span class='hs-layout'>)</span>
 <a name="line-184"></a>
 <a name="line-185"></a><a name="UMAC64"></a><span class='hs-comment'>{-|
-<a name="line-186"></a>'UMAC64' is the 32-bit (4 byte) digest variant. See 'umacInitKeyedHash' for the 'KeyedHashAlgorithm' instance.
+<a name="line-186"></a>'UMAC64' is the 64-bit (8 byte) digest variant. See 'umacInitKeyedHash' for the 'KeyedHashAlgorithm' instance.
 <a name="line-187"></a>-}</span>
 <a name="line-188"></a><a name="UMAC64"></a><span class='hs-keyword'>newtype</span> <span class='hs-conid'>UMAC64</span> <span class='hs-keyglyph'>=</span> <span class='hs-conid'>UMAC64</span> <span class='hs-layout'>{</span> <span class='hs-varid'>umac64_ctx</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>SecureMem</span> <span class='hs-layout'>}</span>
 <a name="line-189"></a><a name="instance%20NettleUMAC%20UMAC64"></a><span class='hs-keyword'>instance</span> <span class='hs-conid'>NettleUMAC</span> <span class='hs-conid'>UMAC64</span> <span class='hs-keyword'>where</span>
@@ -207,7 +207,7 @@
 <a name="line-198"></a><span class='hs-conid'>INSTANCE_UMAC</span><span class='hs-layout'>(</span><span class='hs-conid'>UMAC64</span><span class='hs-layout'>)</span>
 <a name="line-199"></a>
 <a name="line-200"></a><a name="UMAC96"></a><span class='hs-comment'>{-|
-<a name="line-201"></a>'UMAC96' is the 32-bit (4 byte) digest variant. See 'umacInitKeyedHash' for the 'KeyedHashAlgorithm' instance.
+<a name="line-201"></a>'UMAC96' is the 96-bit (12 byte) digest variant. See 'umacInitKeyedHash' for the 'KeyedHashAlgorithm' instance.
 <a name="line-202"></a>-}</span>
 <a name="line-203"></a><a name="UMAC96"></a><span class='hs-keyword'>newtype</span> <span class='hs-conid'>UMAC96</span> <span class='hs-keyglyph'>=</span> <span class='hs-conid'>UMAC96</span> <span class='hs-layout'>{</span> <span class='hs-varid'>umac96_ctx</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>SecureMem</span> <span class='hs-layout'>}</span>
 <a name="line-204"></a><a name="instance%20NettleUMAC%20UMAC96"></a><span class='hs-keyword'>instance</span> <span class='hs-conid'>NettleUMAC</span> <span class='hs-conid'>UMAC96</span> <span class='hs-keyword'>where</span>
@@ -222,7 +222,7 @@
 <a name="line-213"></a><span class='hs-conid'>INSTANCE_UMAC</span><span class='hs-layout'>(</span><span class='hs-conid'>UMAC96</span><span class='hs-layout'>)</span>
 <a name="line-214"></a>
 <a name="line-215"></a><a name="UMAC128"></a><span class='hs-comment'>{-|
-<a name="line-216"></a>'UMAC128' is the 32-bit (4 byte) digest variant. See 'umacInitKeyedHash' for the 'KeyedHashAlgorithm' instance.
+<a name="line-216"></a>'UMAC128' is the 128-bit (16 byte) digest variant. See 'umacInitKeyedHash' for the 'KeyedHashAlgorithm' instance.
 <a name="line-217"></a>-}</span>
 <a name="line-218"></a><a name="UMAC128"></a><span class='hs-keyword'>newtype</span> <span class='hs-conid'>UMAC128</span> <span class='hs-keyglyph'>=</span> <span class='hs-conid'>UMAC128</span> <span class='hs-layout'>{</span> <span class='hs-varid'>umac128_ctx</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>SecureMem</span> <span class='hs-layout'>}</span>
 <a name="line-219"></a><a name="instance%20NettleUMAC%20UMAC128"></a><span class='hs-keyword'>instance</span> <span class='hs-conid'>NettleUMAC</span> <span class='hs-conid'>UMAC128</span> <span class='hs-keyword'>where</span>
