@@ -7,6 +7,9 @@
 #if (NETTLE_VERSION_MAJOR != 3)
 #error unsupported nettle version
 #endif
+#if (NETTLE_VERSION_MAJOR == 3 && NETTLE_VERSION_MINOR >= 2)
+#error unsupported nettle version (broke SHA3 compat)
+#endif
 
 #include <sys/types.h>
 #include <nettle/cbc.h>
