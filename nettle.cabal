@@ -47,6 +47,7 @@ Library
   ghc-options:       -Wall -optc-O3 -fno-cse -fno-warn-tabs
   include-dirs:      src
   C-sources:         src/nettle-ciphers.c
+                     src/nettle-hash.c
   if flag(UsePkgConfig)
     PkgConfig-Depends: nettle
   else

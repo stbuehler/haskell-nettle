@@ -7,9 +7,6 @@
 #if (NETTLE_VERSION_MAJOR != 3)
 #error unsupported nettle version
 #endif
-#if (NETTLE_VERSION_MAJOR == 3 && NETTLE_VERSION_MINOR >= 2)
-#error unsupported nettle version (broke SHA3 compat)
-#endif
 
 #include <sys/types.h>
 #include <nettle/cbc.h>
@@ -27,5 +24,10 @@
 #include <nettle/sha3.h>
 
 #include <nettle/umac.h>
+
+void hs_nettle_sha3_224_digest(struct sha3_224_ctx *ctx, size_t length, uint8_t *digest);
+void hs_nettle_sha3_256_digest(struct sha3_256_ctx *ctx, size_t length, uint8_t *digest);
+void hs_nettle_sha3_384_digest(struct sha3_384_ctx *ctx, size_t length, uint8_t *digest);
+void hs_nettle_sha3_512_digest(struct sha3_512_ctx *ctx, size_t length, uint8_t *digest);
 
 #endif

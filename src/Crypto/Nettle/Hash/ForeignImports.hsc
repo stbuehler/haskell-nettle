@@ -205,7 +205,7 @@ foreign import ccall unsafe "nettle_sha3_224_init"
 	c_sha3_224_init :: NettleHashInit
 foreign import ccall unsafe "nettle_sha3_224_update"
 	c_sha3_224_update :: NettleHashUpdate
-foreign import ccall unsafe "nettle_sha3_224_digest"
+foreign import ccall unsafe "hs_nettle_sha3_224_digest"
 	c_sha3_224_digest :: NettleHashDigest
 
 c_sha3_256_ctx_size :: Int
@@ -218,7 +218,7 @@ foreign import ccall unsafe "nettle_sha3_256_init"
 	c_sha3_256_init :: NettleHashInit
 foreign import ccall unsafe "nettle_sha3_256_update"
 	c_sha3_256_update :: NettleHashUpdate
-foreign import ccall unsafe "nettle_sha3_256_digest"
+foreign import ccall unsafe "hs_nettle_sha3_256_digest"
 	c_sha3_256_digest :: NettleHashDigest
 
 c_sha3_384_ctx_size :: Int
@@ -231,7 +231,7 @@ foreign import ccall unsafe "nettle_sha3_384_init"
 	c_sha3_384_init :: NettleHashInit
 foreign import ccall unsafe "nettle_sha3_384_update"
 	c_sha3_384_update :: NettleHashUpdate
-foreign import ccall unsafe "nettle_sha3_384_digest"
+foreign import ccall unsafe "hs_nettle_sha3_384_digest"
 	c_sha3_384_digest :: NettleHashDigest
 
 c_sha3_512_ctx_size :: Int
@@ -244,7 +244,7 @@ foreign import ccall unsafe "nettle_sha3_512_init"
 	c_sha3_512_init :: NettleHashInit
 foreign import ccall unsafe "nettle_sha3_512_update"
 	c_sha3_512_update :: NettleHashUpdate
-foreign import ccall unsafe "nettle_sha3_512_digest"
+foreign import ccall unsafe "hs_nettle_sha3_512_digest"
 	c_sha3_512_digest :: NettleHashDigest
 
 c_md5_ctx_size :: Int
