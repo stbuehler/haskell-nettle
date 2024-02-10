@@ -19,6 +19,7 @@ Extra-source-files:  README.md
                    , src/nettle-hash.h
                    , src/Tests/*.hs
                    , src/Tests/KAT/*.hs
+Tested-With:    GHC ==9.8.1 || ==9.6.4 || ==9.4.8 || ==9.2.8 || ==9.0.2 || ==8.10.7 || ==8.8.4
 
 Flag UsePkgConfig
   Description: Use pkg-config to check for library dependences
