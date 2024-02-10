@@ -1199,5 +1199,5 @@ hashTestVectors =
 
 findHashTestVectors :: Monad m => String -> m [(B.ByteString, String)]
 findHashTestVectors key = case filter ((key == ) . fst) hashTestVectors of
-	[] -> fail $ "unknown Hash: " ++ key
+	[] -> error $ "unknown Hash: " ++ key
 	l -> return $ concatMap snd l

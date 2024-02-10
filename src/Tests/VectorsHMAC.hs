@@ -171,5 +171,5 @@ hmacTestVectors =
 
 findHmacTestVectors :: Monad m => String -> m [(B.ByteString, B.ByteString, String)]
 findHmacTestVectors key = case filter ((key == ) . fst) hmacTestVectors of
-	[] -> fail $ "unknown HMAC: " ++ key
+	[] -> error $ "unknown HMAC: " ++ key
 	l -> return $ concatMap snd l

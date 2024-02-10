@@ -533,7 +533,7 @@ wrap_chacha_set_key ctxptr _ keyptr = do
 
 -- check nonce length
 wrap_chacha_set_nonce :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()
-wrap_chacha_set_nonce ctxptr ivlen ivptr = if ivlen == 8 then c_chacha_set_nonce ctxptr ivptr else fail "Invalid nonce length"
+wrap_chacha_set_nonce ctxptr ivlen ivptr = if ivlen == 8 then c_chacha_set_nonce ctxptr ivptr else error "Invalid nonce length"
 
 {-|
 'CHACHA' is a variant of the 'SALSA20' stream cipher, both designed by D. J. Bernstein.
@@ -576,7 +576,7 @@ wrap_salsa20_set_key ctxptr keylen keyptr = do
 
 -- check nonce length
 wrap_salsa20_set_nonce :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()
-wrap_salsa20_set_nonce ctxptr ivlen ivptr = if ivlen == 8 then c_salsa20_set_nonce ctxptr ivptr else fail "Invalid nonce length"
+wrap_salsa20_set_nonce ctxptr ivlen ivptr = if ivlen == 8 then c_salsa20_set_nonce ctxptr ivptr else error "Invalid nonce length"
 
 {-|
 'SALSA20' is a fairly recent stream cipher designed by D. J. Bernstein.

@@ -23,11 +23,11 @@ genByteString :: Int -> Gen B.ByteString
 genByteString len = liftM B.pack $ vectorOf len (choose (0,255))
 
 runEither :: (Monad m, Show e) => Either e x -> m x
-runEither (Left e) = fail $ show e
+runEither (Left e) = error $ show e
 runEither (Right x) = return x
 
 runMaybe :: (Monad m) => Maybe x -> m x
-runMaybe Nothing = fail "got nothing"
+runMaybe Nothing = error "got nothing"
 runMaybe (Just x) = return x
 
 genKey' :: KeySizeSpecifier -> Gen B.ByteString

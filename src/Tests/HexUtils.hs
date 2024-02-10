@@ -26,10 +26,10 @@ readHex' (a:' ':xs) = readHex' $ a:xs
 readHex' (a:b:xs) = do
 	n <- case N.readHex [a,b] of
 		(n, ""):_ -> return n
-		_ -> fail "invalid hex encoding"
+		_ -> error "invalid hex encoding"
 	xn <- readHex' xs
 	return $ n:xn
-readHex' _ = fail "invalid hex encoding"
+readHex' _ = error "invalid hex encoding"
 
 readHex :: String -> [Word8]
 readHex s = let Just r = readHex' s in r
