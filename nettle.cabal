@@ -1,6 +1,6 @@
-Cabal-Version:       3.4
+Cabal-Version:       2.0
 Name:                nettle
-Version:             0.3.1
+Version:             0.3.1.1
 Synopsis:            safe nettle binding
 Description:
   safe binding for the nettle (<http://www.lysator.liu.se/~nisse/nettle/nettle.html>) library.
@@ -26,6 +26,7 @@ Flag UsePkgConfig
   Default: True
 
 Library
+  Default-Language:  Haskell2010
   hs-source-dirs:    src
   Build-Depends:     base >= 4 && < 5
                    , bytestring >= 0.10.8 && < 0.13
@@ -54,6 +55,7 @@ Library
     Extra-libraries: nettle
 
 Test-Suite test-ciphers
+  Default-Language:  Haskell2010
   type:              exitcode-stdio-1.0
   hs-source-dirs:    src/Tests
   Main-Is:           Ciphers.hs
@@ -69,6 +71,7 @@ Test-Suite test-ciphers
   ghc-options: -fno-warn-tabs
 
 Test-Suite test-hashes
+  Default-Language:  Haskell2010
   type:              exitcode-stdio-1.0
   hs-source-dirs:    src/Tests
   Main-Is:           Hash.hs
@@ -83,6 +86,7 @@ Test-Suite test-hashes
   ghc-options: -fno-warn-tabs
 
 Test-Suite test-hmac
+  Default-Language:  Haskell2010
   type:              exitcode-stdio-1.0
   hs-source-dirs:    src/Tests
   Main-Is:           HMAC.hs
@@ -97,6 +101,7 @@ Test-Suite test-hmac
   ghc-options: -fno-warn-tabs
 
 Test-Suite test-umac
+  Default-Language:  Haskell2010
   type:              exitcode-stdio-1.0
   hs-source-dirs:    src/Tests
   Main-Is:           UMAC.hs
