@@ -1,5 +1,5 @@
 {-# OPTIONS_HADDOCK hide #-}
-{-# LANGUAGE ForeignFunctionInterface #-}
+{-# LANGUAGE ForeignFunctionInterface, CPP #-}
 
 module Crypto.Nettle.Hash.ForeignImports
 	( NettleHashInit
@@ -34,31 +34,43 @@ module Crypto.Nettle.Hash.ForeignImports
 	, c_sha384_update
 	, c_sha384_digest
 
+#if (NETTLE_VERSION_MAJOR > 3)
+        , c_sha3_init
+#endif
+
 	, c_sha3_224_ctx_size
 	, c_sha3_224_digest_size
 	, c_sha3_224_block_size
+#if (NETTLE_VERSION_MAJOR < 4)
 	, c_sha3_224_init
+#endif
 	, c_sha3_224_update
 	, c_sha3_224_digest
 
 	, c_sha3_256_ctx_size
 	, c_sha3_256_digest_size
 	, c_sha3_256_block_size
+#if (NETTLE_VERSION_MAJOR < 4)
 	, c_sha3_256_init
+#endif
 	, c_sha3_256_update
 	, c_sha3_256_digest
 
 	, c_sha3_384_ctx_size
 	, c_sha3_384_digest_size
 	, c_sha3_384_block_size
+#if (NETTLE_VERSION_MAJOR < 4)
 	, c_sha3_384_init
+#endif
 	, c_sha3_384_update
 	, c_sha3_384_digest
 
 	, c_sha3_512_ctx_size
 	, c_sha3_512_digest_size
 	, c_sha3_512_block_size
+#if (NETTLE_VERSION_MAJOR < 4)
 	, c_sha3_512_init
+#endif
 	, c_sha3_512_update
 	, c_sha3_512_digest
 
@@ -142,7 +154,11 @@ import Nettle.Utils
 
 type NettleHashInit = Ptr Word8 -> IO ()
 type NettleHashUpdate = Ptr Word8 -> Word -> Ptr Word8 -> IO ()
+#if (NETTLE_VERSION_MAJOR > 3)
+type NettleHashDigest = Ptr Word8 -> Ptr Word8 -> IO ()
+#else
 type NettleHashDigest = Ptr Word8 -> Word -> Ptr Word8 -> IO ()
+#endif
 
 c_sha256_ctx_size :: Int
 c_sha256_ctx_size = #{size struct sha256_ctx}
@@ -196,14 +212,21 @@ foreign import ccall unsafe "nettle_sha512_update"
 foreign import ccall unsafe "nettle_sha384_digest"
 	c_sha384_digest :: NettleHashDigest
 
+#if (NETTLE_VERSION_MAJOR > 3)
+foreign import ccall unsafe "nettle_sha3_init"
+	c_sha3_init :: NettleHashInit
+#endif
+
 c_sha3_224_ctx_size :: Int
 c_sha3_224_ctx_size = #{size struct sha3_224_ctx}
 c_sha3_224_digest_size :: Int
 c_sha3_224_digest_size = #{const SHA3_224_DIGEST_SIZE}
 c_sha3_224_block_size :: Int
 c_sha3_224_block_size = #{const SHA3_224_BLOCK_SIZE}
+#if (NETTLE_VERSION_MAJOR < 4)
 foreign import ccall unsafe "nettle_sha3_224_init"
 	c_sha3_224_init :: NettleHashInit
+#endif
 foreign import ccall unsafe "nettle_sha3_224_update"
 	c_sha3_224_update :: NettleHashUpdate
 foreign import ccall unsafe "nettle_sha3_224_digest"
@@ -215,8 +238,10 @@ c_sha3_256_digest_size :: Int
 c_sha3_256_digest_size = #{const SHA3_256_DIGEST_SIZE}
 c_sha3_256_block_size :: Int
 c_sha3_256_block_size = #{const SHA3_256_BLOCK_SIZE}
+#if (NETTLE_VERSION_MAJOR < 4)
 foreign import ccall unsafe "nettle_sha3_256_init"
 	c_sha3_256_init :: NettleHashInit
+#endif
 foreign import ccall unsafe "nettle_sha3_256_update"
 	c_sha3_256_update :: NettleHashUpdate
 foreign import ccall unsafe "nettle_sha3_256_digest"
@@ -228,8 +253,10 @@ c_sha3_384_digest_size :: Int
 c_sha3_384_digest_size = #{const SHA3_384_DIGEST_SIZE}
 c_sha3_384_block_size :: Int
 c_sha3_384_block_size = #{const SHA3_384_BLOCK_SIZE}
+#if (NETTLE_VERSION_MAJOR < 4)
 foreign import ccall unsafe "nettle_sha3_384_init"
 	c_sha3_384_init :: NettleHashInit
+#endif
 foreign import ccall unsafe "nettle_sha3_384_update"
 	c_sha3_384_update :: NettleHashUpdate
 foreign import ccall unsafe "nettle_sha3_384_digest"
@@ -241,8 +268,10 @@ c_sha3_512_digest_size :: Int
 c_sha3_512_digest_size = #{const SHA3_512_DIGEST_SIZE}
 c_sha3_512_block_size :: Int
 c_sha3_512_block_size = #{const SHA3_512_BLOCK_SIZE}
+#if (NETTLE_VERSION_MAJOR < 4)
 foreign import ccall unsafe "nettle_sha3_512_init"
 	c_sha3_512_init :: NettleHashInit
+#endif
 foreign import ccall unsafe "nettle_sha3_512_update"
 	c_sha3_512_update :: NettleHashUpdate
 foreign import ccall unsafe "nettle_sha3_512_digest"
@@ -338,7 +367,7 @@ foreign import ccall unsafe "nettle_umac32_set_nonce"
 foreign import ccall unsafe "nettle_umac32_update"
 	c_umac32_update :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()
 foreign import ccall unsafe "nettle_umac32_digest"
-	c_umac32_digest :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()
+	c_umac32_digest :: NettleHashDigest
 
 c_umac64_ctx_size :: Int
 c_umac64_ctx_size = #{size struct umac64_ctx}
@@ -351,7 +380,7 @@ foreign import ccall unsafe "nettle_umac64_set_nonce"
 foreign import ccall unsafe "nettle_umac64_update"
 	c_umac64_update :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()
 foreign import ccall unsafe "nettle_umac64_digest"
-	c_umac64_digest :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()
+	c_umac64_digest :: NettleHashDigest
 
 c_umac96_ctx_size :: Int
 c_umac96_ctx_size = #{size struct umac96_ctx}
@@ -364,7 +393,7 @@ foreign import ccall unsafe "nettle_umac96_set_nonce"
 foreign import ccall unsafe "nettle_umac96_update"
 	c_umac96_update :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()
 foreign import ccall unsafe "nettle_umac96_digest"
-	c_umac96_digest :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()
+	c_umac96_digest :: NettleHashDigest
 
 c_umac128_ctx_size :: Int
 c_umac128_ctx_size = #{size struct umac128_ctx}
@@ -377,4 +406,4 @@ foreign import ccall unsafe "nettle_umac128_set_nonce"
 foreign import ccall unsafe "nettle_umac128_update"
 	c_umac128_update :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()
 foreign import ccall unsafe "nettle_umac128_digest"
-	c_umac128_digest :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()
+	c_umac128_digest :: NettleHashDigest
