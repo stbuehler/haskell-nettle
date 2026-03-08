@@ -149,7 +149,7 @@ c_sha256_ctx_size = #{size struct sha256_ctx}
 c_sha256_digest_size :: Int
 c_sha256_digest_size = #{const SHA256_DIGEST_SIZE}
 c_sha256_block_size :: Int
-c_sha256_block_size = #{const SHA256_DATA_SIZE}
+c_sha256_block_size = #{const SHA256_BLOCK_SIZE}
 foreign import ccall unsafe "nettle_sha256_init"
 	c_sha256_init :: NettleHashInit
 foreign import ccall unsafe "nettle_sha256_update"
@@ -162,7 +162,7 @@ c_sha224_ctx_size = #{size struct sha224_ctx}
 c_sha224_digest_size :: Int
 c_sha224_digest_size = #{const SHA224_DIGEST_SIZE}
 c_sha224_block_size :: Int
-c_sha224_block_size = #{const SHA224_DATA_SIZE}
+c_sha224_block_size = #{const SHA224_BLOCK_SIZE}
 foreign import ccall unsafe "nettle_sha224_init"
 	c_sha224_init :: NettleHashInit
 foreign import ccall unsafe "nettle_sha256_update"
@@ -175,7 +175,7 @@ c_sha512_ctx_size = #{size struct sha512_ctx}
 c_sha512_digest_size :: Int
 c_sha512_digest_size = #{const SHA512_DIGEST_SIZE}
 c_sha512_block_size :: Int
-c_sha512_block_size = #{const SHA512_DATA_SIZE}
+c_sha512_block_size = #{const SHA512_BLOCK_SIZE}
 foreign import ccall unsafe "nettle_sha512_init"
 	c_sha512_init :: NettleHashInit
 foreign import ccall unsafe "nettle_sha512_update"
@@ -188,7 +188,7 @@ c_sha384_ctx_size = #{size struct sha384_ctx}
 c_sha384_digest_size :: Int
 c_sha384_digest_size = #{const SHA384_DIGEST_SIZE}
 c_sha384_block_size :: Int
-c_sha384_block_size = #{const SHA384_DATA_SIZE}
+c_sha384_block_size = #{const SHA384_BLOCK_SIZE}
 foreign import ccall unsafe "nettle_sha384_init"
 	c_sha384_init :: NettleHashInit
 foreign import ccall unsafe "nettle_sha512_update"
@@ -201,7 +201,7 @@ c_sha3_224_ctx_size = #{size struct sha3_224_ctx}
 c_sha3_224_digest_size :: Int
 c_sha3_224_digest_size = #{const SHA3_224_DIGEST_SIZE}
 c_sha3_224_block_size :: Int
-c_sha3_224_block_size = #{const SHA3_224_DATA_SIZE}
+c_sha3_224_block_size = #{const SHA3_224_BLOCK_SIZE}
 foreign import ccall unsafe "nettle_sha3_224_init"
 	c_sha3_224_init :: NettleHashInit
 foreign import ccall unsafe "nettle_sha3_224_update"
@@ -214,7 +214,7 @@ c_sha3_256_ctx_size = #{size struct sha3_256_ctx}
 c_sha3_256_digest_size :: Int
 c_sha3_256_digest_size = #{const SHA3_256_DIGEST_SIZE}
 c_sha3_256_block_size :: Int
-c_sha3_256_block_size = #{const SHA3_256_DATA_SIZE}
+c_sha3_256_block_size = #{const SHA3_256_BLOCK_SIZE}
 foreign import ccall unsafe "nettle_sha3_256_init"
 	c_sha3_256_init :: NettleHashInit
 foreign import ccall unsafe "nettle_sha3_256_update"
@@ -227,7 +227,7 @@ c_sha3_384_ctx_size = #{size struct sha3_384_ctx}
 c_sha3_384_digest_size :: Int
 c_sha3_384_digest_size = #{const SHA3_384_DIGEST_SIZE}
 c_sha3_384_block_size :: Int
-c_sha3_384_block_size = #{const SHA3_384_DATA_SIZE}
+c_sha3_384_block_size = #{const SHA3_384_BLOCK_SIZE}
 foreign import ccall unsafe "nettle_sha3_384_init"
 	c_sha3_384_init :: NettleHashInit
 foreign import ccall unsafe "nettle_sha3_384_update"
@@ -240,7 +240,7 @@ c_sha3_512_ctx_size = #{size struct sha3_512_ctx}
 c_sha3_512_digest_size :: Int
 c_sha3_512_digest_size = #{const SHA3_512_DIGEST_SIZE}
 c_sha3_512_block_size :: Int
-c_sha3_512_block_size = #{const SHA3_512_DATA_SIZE}
+c_sha3_512_block_size = #{const SHA3_512_BLOCK_SIZE}
 foreign import ccall unsafe "nettle_sha3_512_init"
 	c_sha3_512_init :: NettleHashInit
 foreign import ccall unsafe "nettle_sha3_512_update"
@@ -253,7 +253,7 @@ c_md5_ctx_size = #{size struct md5_ctx}
 c_md5_digest_size :: Int
 c_md5_digest_size = #{const MD5_DIGEST_SIZE}
 c_md5_block_size :: Int
-c_md5_block_size = #{const MD5_DATA_SIZE}
+c_md5_block_size = #{const MD5_BLOCK_SIZE}
 foreign import ccall unsafe "nettle_md5_init"
 	c_md5_init :: NettleHashInit
 foreign import ccall unsafe "nettle_md5_update"
@@ -266,7 +266,7 @@ c_md2_ctx_size = #{size struct md2_ctx}
 c_md2_digest_size :: Int
 c_md2_digest_size = #{const MD2_DIGEST_SIZE}
 c_md2_block_size :: Int
-c_md2_block_size = #{const MD2_DATA_SIZE}
+c_md2_block_size = #{const MD2_BLOCK_SIZE}
 foreign import ccall unsafe "nettle_md2_init"
 	c_md2_init :: NettleHashInit
 foreign import ccall unsafe "nettle_md2_update"
@@ -279,7 +279,7 @@ c_md4_ctx_size = #{size struct md4_ctx}
 c_md4_digest_size :: Int
 c_md4_digest_size = #{const MD4_DIGEST_SIZE}
 c_md4_block_size :: Int
-c_md4_block_size = #{const MD4_DATA_SIZE}
+c_md4_block_size = #{const MD4_BLOCK_SIZE}
 foreign import ccall unsafe "nettle_md4_init"
 	c_md4_init :: NettleHashInit
 foreign import ccall unsafe "nettle_md4_update"
@@ -292,7 +292,7 @@ c_ripemd160_ctx_size = #{size struct ripemd160_ctx}
 c_ripemd160_digest_size :: Int
 c_ripemd160_digest_size = #{const RIPEMD160_DIGEST_SIZE}
 c_ripemd160_block_size :: Int
-c_ripemd160_block_size = #{const RIPEMD160_DATA_SIZE}
+c_ripemd160_block_size = #{const RIPEMD160_BLOCK_SIZE}
 foreign import ccall unsafe "nettle_ripemd160_init"
 	c_ripemd160_init :: NettleHashInit
 foreign import ccall unsafe "nettle_ripemd160_update"
@@ -305,7 +305,7 @@ c_sha1_ctx_size = #{size struct sha1_ctx}
 c_sha1_digest_size :: Int
 c_sha1_digest_size = #{const SHA1_DIGEST_SIZE}
 c_sha1_block_size :: Int
-c_sha1_block_size = #{const SHA1_DATA_SIZE}
+c_sha1_block_size = #{const SHA1_BLOCK_SIZE}
 foreign import ccall unsafe "nettle_sha1_init"
 	c_sha1_init :: NettleHashInit
 foreign import ccall unsafe "nettle_sha1_update"
@@ -318,7 +318,7 @@ c_gosthash94_ctx_size = #{size struct gosthash94_ctx}
 c_gosthash94_digest_size :: Int
 c_gosthash94_digest_size = #{const GOSTHASH94_DIGEST_SIZE}
 c_gosthash94_block_size :: Int
-c_gosthash94_block_size = #{const GOSTHASH94_DATA_SIZE}
+c_gosthash94_block_size = #{const GOSTHASH94_BLOCK_SIZE}
 foreign import ccall unsafe "nettle_gosthash94_init"
 	c_gosthash94_init :: NettleHashInit
 foreign import ccall unsafe "nettle_gosthash94_update"
