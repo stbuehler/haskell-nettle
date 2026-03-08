@@ -42,6 +42,7 @@ module Crypto.Nettle.CCM
 import Crypto.Cipher.Types
 import qualified Data.ByteString as B
 import Data.Byteable
+import Data.Maybe (fromJust)
 
 import Nettle.Utils
 
@@ -103,7 +104,7 @@ pad_zero :: Int -> B.ByteString -> B.ByteString
 pad_zero l s = B.append s $ B.replicate (l - 1 - (B.length s - 1) `mod` l) 0
 
 _makeIV :: BlockCipher cipher => B.ByteString -> IV cipher
-_makeIV iv = let Just iv' = makeIV iv in iv'
+_makeIV = fromJust . makeIV
 
 ccm_start_iv :: BlockCipher cipher => (Int, Int, B.ByteString) -> IV cipher
 ccm_start_iv (_, q, nonce) = _makeIV $ B.concat [B.singleton $ fromIntegral $ q - 1, nonce, B.replicate (q - 1) 0, B.singleton 1]

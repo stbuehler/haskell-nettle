@@ -15,6 +15,7 @@ module HexUtils
 
 import qualified Numeric as N
 
+import Data.Maybe (fromJust)
 import Data.Word (Word8)
 import qualified Data.ByteString as B
 import qualified Data.Array.IArray as A
@@ -32,7 +33,7 @@ readHex' (a:b:xs) = do
 readHex' _ = error "invalid hex encoding"
 
 readHex :: String -> [Word8]
-readHex s = let Just r = readHex' s in r
+readHex = fromJust . readHex'
 
 toString :: [Word8] -> String
 toString = map (toEnum . fromIntegral)

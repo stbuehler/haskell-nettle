@@ -95,7 +95,7 @@ genStreamNonceTest :: StreamNonceCipher c => c -> Test
 genStreamNonceTest c' = testProperty ("generated " ++ cipherName c' ++ " stream cipher with nonce test") $ do
 	c'' <- genCipher c'
 	nonce <- genKey' (streamNonceSize c')
-	let Just c = streamSetNonce c'' nonce
+	let c = fromJust $ streamSetNonce c'' nonce
 	let run i = fst $ streamCombine c i
 	let run2 (i1, i2) = fst $ let (o1, c') = streamCombine c i1; (o2, c'') = streamCombine c' i2 in (B.append o1 o2, c'')
 	input1 <- choose (1, 256) >>= genByteString
@@ -109,7 +109,7 @@ genStreamNonceWord64Test :: StreamNonceCipher c => c -> Test
 genStreamNonceWord64Test c' = testProperty ("generated " ++ cipherName c' ++ " stream cipher with word64 nonce test") $ do
 	c'' <- genCipher c'
 	nonce <- choose (minBound,maxBound)
-	let Just c = streamSetNonceWord64 c'' nonce
+	let c = fromJust $ streamSetNonceWord64 c'' nonce
 	let run i = fst $ streamCombine c i
 	let run2 (i1, i2) = fst $ let (o1, c') = streamCombine c i1; (o2, c'') = streamCombine c' i2 in (B.append o1 o2, c'')
 	input1 <- choose (1, 256) >>= genByteString
