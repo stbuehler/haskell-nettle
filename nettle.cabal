@@ -25,6 +25,10 @@ Flag UsePkgConfig
   Description: Use pkg-config to check for library dependences
   Default: True
 
+Flag Nettle4
+  Description: Use the code path for nettle 4.x
+  Default: False
+
 Library
   Default-Language:  Haskell2010
   hs-source-dirs:    src
@@ -53,6 +57,9 @@ Library
     PkgConfig-Depends: nettle
   else
     Extra-libraries: nettle
+
+  if flag(Nettle4)
+    cpp-options: -DNETTLE_VERSION_MAJOR=4
 
 Test-Suite test-ciphers
   Default-Language:  Haskell2010
