@@ -97,7 +97,11 @@ nettleHashFinalize c = flip witness c $ do
 	return $ unsafeDupablePerformIO $
 		B.create digestSize $ \digestptr -> do
 			_ <- withSecureMemCopy (nha_ctx c) $ \ctxptr ->
+#if (NETTLE_VERSION_MAJOR >= 4)
+				digestfun ctxptr digestptr
+#else
 				digestfun ctxptr (fromIntegral digestSize) digestptr
+#endif
 			return ()
 
 class NettleHashAlgorithm a where
@@ -274,7 +278,11 @@ instance NettleHashAlgorithm SHA3_224 where
 	nha_block_size  = Tagged c_sha3_224_block_size
 	nha_digest_size = Tagged c_sha3_224_digest_size
 	nha_name        = Tagged "SHA3-224"
+#if (NETTLE_VERSION_MAJOR >= 4)
+	nha_init        = Tagged c_sha3_init
+#else
 	nha_init        = Tagged c_sha3_224_init
+#endif
 	nha_update      = Tagged c_sha3_224_update
 	nha_digest      = Tagged c_sha3_224_digest
 	nha_ctx         = sha3_224_ctx
@@ -288,7 +296,11 @@ instance NettleHashAlgorithm SHA3_256 where
 	nha_block_size  = Tagged c_sha3_256_block_size
 	nha_digest_size = Tagged c_sha3_256_digest_size
 	nha_name        = Tagged "SHA3-256"
+#if (NETTLE_VERSION_MAJOR >= 4)
+	nha_init        = Tagged c_sha3_init
+#else
 	nha_init        = Tagged c_sha3_256_init
+#endif
 	nha_update      = Tagged c_sha3_256_update
 	nha_digest      = Tagged c_sha3_256_digest
 	nha_ctx         = sha3_256_ctx
@@ -302,7 +314,11 @@ instance NettleHashAlgorithm SHA3_384 where
 	nha_block_size  = Tagged c_sha3_384_block_size
 	nha_digest_size = Tagged c_sha3_384_digest_size
 	nha_name        = Tagged "SHA3-384"
+#if (NETTLE_VERSION_MAJOR >= 4)
+	nha_init        = Tagged c_sha3_init
+#else
 	nha_init        = Tagged c_sha3_384_init
+#endif
 	nha_update      = Tagged c_sha3_384_update
 	nha_digest      = Tagged c_sha3_384_digest
 	nha_ctx         = sha3_384_ctx
@@ -316,7 +332,11 @@ instance NettleHashAlgorithm SHA3_512 where
 	nha_block_size  = Tagged c_sha3_512_block_size
 	nha_digest_size = Tagged c_sha3_512_digest_size
 	nha_name        = Tagged "SHA3-512"
+#if (NETTLE_VERSION_MAJOR >= 4)
+	nha_init        = Tagged c_sha3_init
+#else
 	nha_init        = Tagged c_sha3_512_init
+#endif
 	nha_update      = Tagged c_sha3_512_update
 	nha_digest      = Tagged c_sha3_512_digest
 	nha_ctx         = sha3_512_ctx

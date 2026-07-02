@@ -93,7 +93,7 @@ class NettleUMAC u where
 	nu_set_key :: Tagged u (Ptr Word8 -> Ptr Word8 -> IO ())
 	nu_set_nonce :: Tagged u (Ptr Word8 -> Word -> Ptr Word8 -> IO ())
 	nu_update :: Tagged u (Ptr Word8 -> Word -> Ptr Word8 -> IO ())
-	nu_digest :: Tagged u (Ptr Word8 -> Word -> Ptr Word8 -> IO ())
+	nu_digest :: Tagged u NettleHashDigest
 	nu_ctx :: u -> SecureMem
 	nu_Ctx :: SecureMem -> u
 
@@ -146,7 +146,11 @@ nettleUmacFinalize c = untag $ go c where
 			ctx' <- secureMemCopy (nu_ctx ctx)
 			dig <- withSecureMemPtr ctx' $ \ctxptr ->
 				B.create digestSize $ \digestptr ->
+#if (NETTLE_VERSION_MAJOR >= 4)
+				digest ctxptr digestptr
+#else
 				digest ctxptr (fromIntegral digestSize) digestptr
+#endif
 			return (dig, nu_Ctx ctx')
 
 #define INSTANCE_UMAC(Typ) \

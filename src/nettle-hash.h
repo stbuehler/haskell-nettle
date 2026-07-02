@@ -4,7 +4,7 @@
 
 #include <nettle/version.h>
 
-#if (NETTLE_VERSION_MAJOR != 3)
+#if (NETTLE_VERSION_MAJOR < 3 || NETTLE_VERSION_MAJOR > 4)
 #error unsupported nettle version
 #endif
 #if (NETTLE_VERSION_MAJOR == 3 && NETTLE_VERSION_MINOR < 2)
