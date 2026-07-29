@@ -25,8 +25,8 @@ module Crypto.Nettle.UMAC (
 	, umacInitKeyedHash
 	) where
 
-import Data.SecureMem
 import Data.Tagged
+import qualified Data.ByteArray as BA
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Internal as B
 import qualified Data.ByteString.Lazy as L
@@ -94,8 +94,8 @@ class NettleUMAC u where
 	nu_set_nonce :: Tagged u (Ptr Word8 -> Word -> Ptr Word8 -> IO ())
 	nu_update :: Tagged u (Ptr Word8 -> Word -> Ptr Word8 -> IO ())
 	nu_digest :: Tagged u NettleHashDigest
-	nu_ctx :: u -> SecureMem
-	nu_Ctx :: SecureMem -> u
+	nu_ctx :: u -> BA.ScrubbedBytes
+	nu_Ctx :: BA.ScrubbedBytes -> u
 
 nettleUmacDigestSize :: NettleUMAC u => Tagged u Int
 nettleUmacDigestSize = nu_digest_size
@@ -105,7 +105,7 @@ nettleUmacInit key = if B.length key /= 16 then error "wrong key length" else un
 	go = do
 		size <- nu_ctx_size
 		set_key <- nu_set_key
-		return $ nu_Ctx $ unsafeCreateSecureMem size $ \ctxptr ->
+		return $ nu_Ctx $ BA.unsafeCreate size $ \ctxptr ->
 			withByteStringPtr key $ \_ keyptr ->
 			set_key ctxptr keyptr
 nettleUmacSetNonce :: NettleUMAC u => u -> B.ByteString -> u
@@ -114,7 +114,7 @@ nettleUmacSetNonce c nonce = if B.length nonce < 1 || B.length nonce > 16 then e
 	go ctx = do
 		set_nonce <- nu_set_nonce
 		return $ nu_Ctx $ unsafeDupablePerformIO $
-			withSecureMemCopy (nu_ctx ctx) $ \ctxptr ->
+			BA.copy (nu_ctx ctx) $ \ctxptr ->
 			withByteStringPtr nonce $ \noncelen nonceptr ->
 				set_nonce ctxptr noncelen nonceptr
 nettleUmacUpdate :: NettleUMAC u => u -> B.ByteString -> u
@@ -123,7 +123,7 @@ nettleUmacUpdate c msg = untag $ go c where
 	go ctx = do
 		update <- nu_update
 		return $ nu_Ctx $ unsafeDupablePerformIO $
-			withSecureMemCopy (nu_ctx ctx) $ \ctxptr ->
+			BA.copy (nu_ctx ctx) $ \ctxptr ->
 			withByteStringPtr msg $ \msglen msgptr ->
 				update ctxptr msglen msgptr
 nettleUmacUpdateLazy :: NettleUMAC u => u -> L.ByteString -> u
@@ -132,7 +132,7 @@ nettleUmacUpdateLazy c msg = untag $ go c where
 	go ctx = do
 		update <- nu_update
 		return $ nu_Ctx $ unsafeDupablePerformIO $
-			withSecureMemCopy (nu_ctx ctx) $ \ctxptr ->
+			BA.copy (nu_ctx ctx) $ \ctxptr ->
 			forM_ (L.toChunks msg) $ \chunk ->
 			withByteStringPtr chunk $ \chunklen chunkptr ->
 				update ctxptr chunklen chunkptr
@@ -143,8 +143,8 @@ nettleUmacFinalize c = untag $ go c where
 		digestSize <- nu_digest_size
 		digest <- nu_digest
 		return $ unsafeDupablePerformIO $ do
-			ctx' <- secureMemCopy (nu_ctx ctx)
-			dig <- withSecureMemPtr ctx' $ \ctxptr ->
+			let ctx' = copyScrubbedBytes (nu_ctx ctx)
+			dig <- BA.withByteArray ctx' $ \ctxptr ->
 				B.create digestSize $ \digestptr ->
 #if (NETTLE_VERSION_MAJOR >= 4)
 				digest ctxptr digestptr
@@ -174,7 +174,7 @@ instance KeyedHashAlgorithm Typ where \
 {-|
 'UMAC32' is the 32-bit (4 byte) digest variant. See 'umacInitKeyedHash' for the 'KeyedHashAlgorithm' instance.
 -}
-newtype UMAC32 = UMAC32 { umac32_ctx :: SecureMem }
+newtype UMAC32 = UMAC32 { umac32_ctx :: BA.ScrubbedBytes }
 instance NettleUMAC UMAC32 where
 	nu_ctx_size    = Tagged c_umac32_ctx_size
 	nu_digest_size = Tagged c_umac32_digest_size
@@ -189,7 +189,7 @@ INSTANCE_UMAC(UMAC32)
 {-|
 'UMAC64' is the 64-bit (8 byte) digest variant. See 'umacInitKeyedHash' for the 'KeyedHashAlgorithm' instance.
 -}
-newtype UMAC64 = UMAC64 { umac64_ctx :: SecureMem }
+newtype UMAC64 = UMAC64 { umac64_ctx :: BA.ScrubbedBytes }
 instance NettleUMAC UMAC64 where
 	nu_ctx_size    = Tagged c_umac64_ctx_size
 	nu_digest_size = Tagged c_umac64_digest_size
@@ -204,7 +204,7 @@ INSTANCE_UMAC(UMAC64)
 {-|
 'UMAC96' is the 96-bit (12 byte) digest variant. See 'umacInitKeyedHash' for the 'KeyedHashAlgorithm' instance.
 -}
-newtype UMAC96 = UMAC96 { umac96_ctx :: SecureMem }
+newtype UMAC96 = UMAC96 { umac96_ctx :: BA.ScrubbedBytes }
 instance NettleUMAC UMAC96 where
 	nu_ctx_size    = Tagged c_umac96_ctx_size
 	nu_digest_size = Tagged c_umac96_digest_size
@@ -219,7 +219,7 @@ INSTANCE_UMAC(UMAC96)
 {-|
 'UMAC128' is the 128-bit (16 byte) digest variant. See 'umacInitKeyedHash' for the 'KeyedHashAlgorithm' instance.
 -}
-newtype UMAC128 = UMAC128 { umac128_ctx :: SecureMem }
+newtype UMAC128 = UMAC128 { umac128_ctx :: BA.ScrubbedBytes }
 instance NettleUMAC UMAC128 where
 	nu_ctx_size    = Tagged c_umac128_ctx_size
 	nu_digest_size = Tagged c_umac128_digest_size

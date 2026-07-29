@@ -64,7 +64,7 @@ import Crypto.Nettle.Hash.ForeignImports
 import Crypto.Nettle.Hash.Types
 import Nettle.Utils
 
-import Data.SecureMem
+import qualified Data.ByteArray as BA
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Internal as B
 
@@ -81,22 +81,22 @@ nettleHashInit       :: NettleHashAlgorithm a => a
 nettleHashInit = untagSelf $ do
 		size <- nha_ctx_size
 		initfun <- nha_init
-		return $ nha_Ctx $ unsafeCreateSecureMem size $ \ctxptr ->
+		return $ nha_Ctx $ BA.unsafeCreate size $ \ctxptr ->
 			initfun ctxptr
 nettleHashUpdate     :: NettleHashAlgorithm a => a -> B.ByteString -> a
 nettleHashUpdate c msg = untagSelf $ do
 	updatefun <- nha_update
-	return $ nha_Ctx $ unsafeDupablePerformIO $
-		withSecureMemCopy (nha_ctx c) $ \ctxptr ->
+	return $ nha_Ctx $ BA.copyAndFreeze (nha_ctx c) $ \ctxptr ->
 		withByteStringPtr msg $ \msglen msgptr ->
 			updatefun ctxptr msglen msgptr
 nettleHashFinalize   :: NettleHashAlgorithm a => a -> B.ByteString
 nettleHashFinalize c = flip witness c $ do
+	let ctx = copyScrubbedBytes (nha_ctx c)
 	digestSize <- nha_digest_size
 	digestfun <- nha_digest
 	return $ unsafeDupablePerformIO $
 		B.create digestSize $ \digestptr -> do
-			_ <- withSecureMemCopy (nha_ctx c) $ \ctxptr ->
+			_ <- BA.withByteArray ctx $ \ctxptr ->
 #if (NETTLE_VERSION_MAJOR >= 4)
 				digestfun ctxptr digestptr
 #else
@@ -112,8 +112,8 @@ class NettleHashAlgorithm a where
 	nha_init        :: Tagged a NettleHashInit
 	nha_update      :: Tagged a NettleHashUpdate
 	nha_digest      :: Tagged a NettleHashDigest
-	nha_ctx         :: a -> SecureMem
-	nha_Ctx         :: SecureMem -> a
+	nha_ctx         :: a -> BA.ScrubbedBytes
+	nha_Ctx         :: BA.ScrubbedBytes -> a
 
 #define INSTANCE_HASH(Typ) \
 instance HashAlgorithm Typ where \
@@ -127,7 +127,7 @@ instance HashAlgorithm Typ where \
 
 -- | The GOST94 or GOST R 34.11-94 hash algorithm is a Soviet-era algorithm used in Russian government standards (see RFC 4357).
 --   It outputs message digests of 32 bytes (256 bits).
-data GOSTHASH94 = GOSTHASH94 { gosthash94_ctx :: SecureMem }
+data GOSTHASH94 = GOSTHASH94 { gosthash94_ctx :: BA.ScrubbedBytes }
 instance NettleHashAlgorithm GOSTHASH94 where
 	nha_ctx_size    = Tagged c_gosthash94_ctx_size
 	nha_block_size  = Tagged c_gosthash94_block_size
@@ -143,7 +143,7 @@ INSTANCE_HASH(GOSTHASH94)
 
 
 -- | 'MD2' is a hash function of Ronald Rivest's, described in RFC 1319. It outputs message digests of 16 bytes (128 bits).
-data MD2 = MD2 { md2_ctx :: SecureMem }
+data MD2 = MD2 { md2_ctx :: BA.ScrubbedBytes }
 instance NettleHashAlgorithm MD2 where
 	nha_ctx_size    = Tagged c_md2_ctx_size
 	nha_block_size  = Tagged c_md2_block_size
@@ -157,7 +157,7 @@ instance NettleHashAlgorithm MD2 where
 INSTANCE_HASH(MD2)
 
 -- | 'MD4' is a hash function of Ronald Rivest's, described in RFC 1320. It outputs message digests of 16 bytes (128 bits).
-data MD4 = MD4 { md4_ctx :: SecureMem }
+data MD4 = MD4 { md4_ctx :: BA.ScrubbedBytes }
 instance NettleHashAlgorithm MD4 where
 	nha_ctx_size    = Tagged c_md4_ctx_size
 	nha_block_size  = Tagged c_md4_block_size
@@ -171,7 +171,7 @@ instance NettleHashAlgorithm MD4 where
 INSTANCE_HASH(MD4)
 
 -- | 'MD5' is a hash function of Ronald Rivest's, described in RFC 1321. It outputs message digests of 16 bytes (128 bits).
-data MD5 = MD5 { md5_ctx :: SecureMem }
+data MD5 = MD5 { md5_ctx :: BA.ScrubbedBytes }
 instance NettleHashAlgorithm MD5 where
 	nha_ctx_size    = Tagged c_md5_ctx_size
 	nha_block_size  = Tagged c_md5_block_size
@@ -186,7 +186,7 @@ INSTANCE_HASH(MD5)
 
 -- | 'RIPEMD160' is a hash function designed by Hans Dobbertin, Antoon Bosselaers, and Bart Preneel, as a strengthened version of RIPEMD.
 --   It produces message digests of 20 bytes (160 bits).
-data RIPEMD160 = RIPEMD160 { ripemd160_ctx :: SecureMem }
+data RIPEMD160 = RIPEMD160 { ripemd160_ctx :: BA.ScrubbedBytes }
 instance NettleHashAlgorithm RIPEMD160 where
 	nha_ctx_size    = Tagged c_ripemd160_ctx_size
 	nha_block_size  = Tagged c_ripemd160_block_size
@@ -202,7 +202,7 @@ INSTANCE_HASH(RIPEMD160)
 
 -- | 'SHA1' is a hash function specified by NIST (The U.S. National Institute for Standards and Technology).
 --   It produces message digests of 20 bytes (160 bits).
-data SHA1 = SHA1 { sha1_ctx :: SecureMem }
+data SHA1 = SHA1 { sha1_ctx :: BA.ScrubbedBytes }
 instance NettleHashAlgorithm SHA1 where
 	nha_ctx_size    = Tagged c_sha1_ctx_size
 	nha_block_size  = Tagged c_sha1_block_size
@@ -216,7 +216,7 @@ instance NettleHashAlgorithm SHA1 where
 INSTANCE_HASH(SHA1)
 
 -- | 'SHA224' is a member of the SHA2 family which outputs messages digests of 28 bytes (224 bits).
-data SHA224 = SHA224 { sha224_ctx :: SecureMem }
+data SHA224 = SHA224 { sha224_ctx :: BA.ScrubbedBytes }
 instance NettleHashAlgorithm SHA224 where
 	nha_ctx_size    = Tagged c_sha224_ctx_size
 	nha_block_size  = Tagged c_sha224_block_size
@@ -230,7 +230,7 @@ instance NettleHashAlgorithm SHA224 where
 INSTANCE_HASH(SHA224)
 
 -- | 'SHA256' is a member of the SHA2 family which outputs messages digests of 32 bytes (256 bits).
-data SHA256 = SHA256 { sha256_ctx :: SecureMem }
+data SHA256 = SHA256 { sha256_ctx :: BA.ScrubbedBytes }
 instance NettleHashAlgorithm SHA256 where
 	nha_ctx_size    = Tagged c_sha256_ctx_size
 	nha_block_size  = Tagged c_sha256_block_size
@@ -244,7 +244,7 @@ instance NettleHashAlgorithm SHA256 where
 INSTANCE_HASH(SHA256)
 
 -- | 'SHA384' is a member of the SHA2 family which outputs messages digests of 48 bytes (384 bits).
-data SHA384 = SHA384 { sha384_ctx :: SecureMem }
+data SHA384 = SHA384 { sha384_ctx :: BA.ScrubbedBytes }
 instance NettleHashAlgorithm SHA384 where
 	nha_ctx_size    = Tagged c_sha384_ctx_size
 	nha_block_size  = Tagged c_sha384_block_size
@@ -258,7 +258,7 @@ instance NettleHashAlgorithm SHA384 where
 INSTANCE_HASH(SHA384)
 
 -- | 'SHA512' is a member of the SHA2 family which outputs messages digests of 64 bytes (512 bits).
-data SHA512 = SHA512 { sha512_ctx :: SecureMem }
+data SHA512 = SHA512 { sha512_ctx :: BA.ScrubbedBytes }
 instance NettleHashAlgorithm SHA512 where
 	nha_ctx_size    = Tagged c_sha512_ctx_size
 	nha_block_size  = Tagged c_sha512_block_size
@@ -272,7 +272,7 @@ instance NettleHashAlgorithm SHA512 where
 INSTANCE_HASH(SHA512)
 
 -- | 'SHA3_224' is a member of the SHA3 family which outputs messages digests of 28 bytes (224 bits).
-data SHA3_224 = SHA3_224 { sha3_224_ctx :: SecureMem }
+data SHA3_224 = SHA3_224 { sha3_224_ctx :: BA.ScrubbedBytes }
 instance NettleHashAlgorithm SHA3_224 where
 	nha_ctx_size    = Tagged c_sha3_224_ctx_size
 	nha_block_size  = Tagged c_sha3_224_block_size
@@ -290,7 +290,7 @@ instance NettleHashAlgorithm SHA3_224 where
 INSTANCE_HASH(SHA3_224)
 
 -- | 'SHA3_256' is a member of the SHA3 family which outputs messages digests of 32 bytes (256 bits).
-data SHA3_256 = SHA3_256 { sha3_256_ctx :: SecureMem }
+data SHA3_256 = SHA3_256 { sha3_256_ctx :: BA.ScrubbedBytes }
 instance NettleHashAlgorithm SHA3_256 where
 	nha_ctx_size    = Tagged c_sha3_256_ctx_size
 	nha_block_size  = Tagged c_sha3_256_block_size
@@ -308,7 +308,7 @@ instance NettleHashAlgorithm SHA3_256 where
 INSTANCE_HASH(SHA3_256)
 
 -- | 'SHA3_384' is a member of the SHA3 family which outputs messages digests of 48 bytes (384 bits).
-data SHA3_384 = SHA3_384 { sha3_384_ctx :: SecureMem }
+data SHA3_384 = SHA3_384 { sha3_384_ctx :: BA.ScrubbedBytes }
 instance NettleHashAlgorithm SHA3_384 where
 	nha_ctx_size    = Tagged c_sha3_384_ctx_size
 	nha_block_size  = Tagged c_sha3_384_block_size
@@ -326,7 +326,7 @@ instance NettleHashAlgorithm SHA3_384 where
 INSTANCE_HASH(SHA3_384)
 
 -- | 'SHA3_512' is a member of the SHA3 family which outputs messages digests of 64 bytes (512 bits).
-data SHA3_512 = SHA3_512 { sha3_512_ctx :: SecureMem }
+data SHA3_512 = SHA3_512 { sha3_512_ctx :: BA.ScrubbedBytes }
 instance NettleHashAlgorithm SHA3_512 where
 	nha_ctx_size    = Tagged c_sha3_512_ctx_size
 	nha_block_size  = Tagged c_sha3_512_block_size

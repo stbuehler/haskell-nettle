@@ -61,15 +61,15 @@ module Crypto.Nettle.Ciphers (
 	, ESTREAM_SALSA20
 	) where
 
-import Crypto.Cipher.Types
-import Crypto.Nettle.CCM
-
-import Data.SecureMem
-import qualified Data.ByteString as B
-import Data.Word (Word64)
+import qualified Crypto.Cipher.Types as CCT
+import Crypto.Error
 import Data.Bits
+import qualified Data.ByteArray as BA
+import qualified Data.ByteString as B
 import Data.Tagged
+import Data.Word (Word64)
 
+import Crypto.Nettle.CCM
 import Crypto.Nettle.Ciphers.Internal
 import Crypto.Nettle.Ciphers.ForeignImports
 import Nettle.Utils
@@ -78,14 +78,14 @@ import Nettle.Utils
 {-# ANN module "HLint: ignore Use camelCase" #-}
 
 #define INSTANCE_CIPHER(Typ) \
-instance Cipher Typ where \
+instance CCT.Cipher Typ where \
 	{ cipherInit = nettle_cipherInit \
 	; cipherName = witness nc_cipherName \
 	; cipherKeySize = witness nc_cipherKeySize \
 	}
 #define INSTANCE_BLOCKCIPHER(Typ) \
 INSTANCE_CIPHER(Typ); \
-instance BlockCipher Typ where \
+instance CCT.BlockCipher Typ where \
 	{ blockSize = witness nbc_blockSize \
 	; ecbEncrypt = nettle_ecbEncrypt \
 	; ecbDecrypt = nettle_ecbDecrypt \
@@ -94,19 +94,20 @@ instance BlockCipher Typ where \
 	; cfbEncrypt = nettle_cfbEncrypt \
 	; cfbDecrypt = nettle_cfbDecrypt \
 	; ctrCombine = nettle_ctrCombine \
-	; aeadInit AEAD_GCM = nettle_gcm_aeadInit \
-	; aeadInit AEAD_CCM = ccmInitTLS \
-	; aeadInit _        = \_ _ -> Nothing \
+	; aeadInit CCT.AEAD_GCM = nettle_gcm_aeadInit \
+	; aeadInit (CCT.AEAD_CCM 0 CCT.CCM_M16 CCT.CCM_L2) = ccmInitTLS \
+	; aeadInit _        = \_ _ -> CryptoFailed CryptoError_AEADModeNotSupported \
 	} ; \
-instance AEADModeImpl Typ NettleGCM where \
-	{ aeadStateAppendHeader = nettle_gcm_aeadStateAppendHeader \
-	; aeadStateEncrypt      = nettle_gcm_aeadStateEncrypt \
-	; aeadStateDecrypt      = nettle_gcm_aeadStateDecrypt \
-	; aeadStateFinalize     = nettle_gcm_aeadStateFinalize \
+instance NettleAeadModeImpl Typ NettleGCM where \
+	nettle_aead_mode_impl c = CCT.AEADModeImpl { \
+	  CCT.aeadImplAppendHeader = nettle_gcm_aeadStateAppendHeader c \
+	, CCT.aeadImplEncrypt      = nettle_gcm_aeadStateEncrypt c \
+	, CCT.aeadImplDecrypt      = nettle_gcm_aeadStateDecrypt c \
+	, CCT.aeadImplFinalize     = nettle_gcm_aeadStateFinalize c \
 	}
 #define INSTANCE_STREAMCIPHER(Typ) \
 INSTANCE_CIPHER(Typ); \
-instance StreamCipher Typ where \
+instance CCT.StreamCipher Typ where \
 	{ streamCombine = nettle_streamCombine \
 	}
 #define INSTANCE_STREAMNONCECIPHER(Typ) \
@@ -117,7 +118,7 @@ instance StreamNonceCipher Typ where \
 	}
 #define INSTANCE_BLOCKEDSTREAMCIPHER(Typ) \
 INSTANCE_CIPHER(Typ); \
-instance StreamCipher Typ where \
+instance CCT.StreamCipher Typ where \
 	{ streamCombine = nettle_blockedStreamCombine \
 	}
 #define INSTANCE_BLOCKEDSTREAMNONCECIPHER(Typ) \
@@ -133,11 +134,11 @@ of 128, 196 and 256 bits (16, 24 and 32 bytes). The 'blockSize' is always 128 bi
 
 'aeadInit' only supports the 'AEAD_GCM' mode for now.
 -}
-newtype AES = AES SecureMem
+newtype AES = AES BA.ScrubbedBytes
 instance NettleCipher AES where
 	nc_cipherInit    = Tagged c_hs_aes_init
 	nc_cipherName    = Tagged "AES"
-	nc_cipherKeySize = Tagged $ KeySizeEnum [16,24,32]
+	nc_cipherKeySize = Tagged $ CCT.KeySizeEnum [16,24,32]
 	nc_ctx_size      = Tagged c_hs_aes_ctx_size
 	nc_ctx   (AES c) = c
 	nc_Ctx           = AES
@@ -153,11 +154,11 @@ INSTANCE_BLOCKCIPHER(AES)
 {-|
 'AES128' provides the same interface as 'AES', but is restricted to 128-bit keys.
 -}
-newtype AES128 = AES128 SecureMem
+newtype AES128 = AES128 BA.ScrubbedBytes
 instance NettleCipher AES128 where
 	nc_cipherInit    = Tagged (\ctx _ key -> c_hs_aes128_init ctx key)
 	nc_cipherName    = Tagged "AES-128"
-	nc_cipherKeySize = Tagged $ KeySizeFixed 16
+	nc_cipherKeySize = Tagged $ CCT.KeySizeFixed 16
 	nc_ctx_size      = Tagged c_hs_aes128_ctx_size
 	nc_ctx (AES128 c) = c
 	nc_Ctx            = AES128
@@ -176,11 +177,11 @@ INSTANCE_BLOCKCIPHER(AES128)
 {-|
 'AES192' provides the same interface as 'AES', but is restricted to 192-bit keys.
 -}
-newtype AES192 = AES192 SecureMem
+newtype AES192 = AES192 BA.ScrubbedBytes
 instance NettleCipher AES192 where
 	nc_cipherInit    = Tagged (\ctx _ key -> c_hs_aes192_init ctx key)
 	nc_cipherName    = Tagged "AES-192"
-	nc_cipherKeySize = Tagged $ KeySizeFixed 24
+	nc_cipherKeySize = Tagged $ CCT.KeySizeFixed 24
 	nc_ctx_size      = Tagged c_hs_aes192_ctx_size
 	nc_ctx  (AES192 c) = c
 	nc_Ctx             = AES192
@@ -199,11 +200,11 @@ INSTANCE_BLOCKCIPHER(AES192)
 {-|
 'AES256' provides the same interface as 'AES', but is restricted to 256-bit keys.
 -}
-newtype AES256 = AES256 SecureMem
+newtype AES256 = AES256 BA.ScrubbedBytes
 instance NettleCipher AES256 where
 	nc_cipherInit    = Tagged (\ctx _ key -> c_hs_aes256_init ctx key)
 	nc_cipherName    = Tagged "AES-256"
-	nc_cipherKeySize = Tagged $ KeySizeFixed 32
+	nc_cipherKeySize = Tagged $ CCT.KeySizeFixed 32
 	nc_ctx_size      = Tagged c_hs_aes256_ctx_size
 	nc_ctx  (AES256 c) = c
 	nc_Ctx             = AES256
@@ -227,11 +228,11 @@ The default 'cipherInit' uses @ekb = bit-length of the key@; 'arctwoInitEKB' all
 
 'ARCTWO' uses keysizes from 1 to 128 bytes, and uses a 'blockSize' of 64 bits (8 bytes).
 -}
-newtype ARCTWO = ARCTWO SecureMem
+newtype ARCTWO = ARCTWO BA.ScrubbedBytes
 instance NettleCipher ARCTWO where
 	nc_cipherInit    = Tagged c_arctwo_set_key
 	nc_cipherName    = Tagged "ARCTWO"
-	nc_cipherKeySize = Tagged $ KeySizeRange 1 128
+	nc_cipherKeySize = Tagged $ CCT.KeySizeRange 1 128
 	nc_ctx_size      = Tagged c_arctwo_ctx_size
 	nc_ctx  (ARCTWO c) = c
 	nc_Ctx             = ARCTWO
@@ -245,13 +246,13 @@ INSTANCE_BLOCKCIPHER(ARCTWO)
 {-|
 Initialize cipher with an explicit @ekb@ value (valid values from 1 to 1024, 0 meaning the same as 1024).
 -}
-arctwoInitEKB :: Key ARCTWO -> Word -> ARCTWO
+arctwoInitEKB :: BA.ByteArray key => key -> Word -> CryptoFailable ARCTWO
 arctwoInitEKB k ekb = nettle_cipherInit' initfun k where
 	initfun ctxptr ksize ptr = c_arctwo_set_key_ekb ctxptr ksize ptr ekb
 {-|
 Initialize cipher with @ekb = 1024@.
 -}
-arctwoInitGutmann :: Key ARCTWO -> ARCTWO
+arctwoInitGutmann :: BA.ByteArray key => key -> CryptoFailable ARCTWO
 arctwoInitGutmann = nettle_cipherInit' c_arctwo_set_key_gutmann
 
 
@@ -259,11 +260,11 @@ arctwoInitGutmann = nettle_cipherInit' c_arctwo_set_key_gutmann
 'BLOWFISH' is a block cipher designed by Bruce Schneier.
 It uses a 'blockSize' of 64 bits (8 bytes), and a variable key size from 64 to 448 bits (8 to 56 bytes).
 -}
-newtype BLOWFISH = BLOWFISH SecureMem
+newtype BLOWFISH = BLOWFISH BA.ScrubbedBytes
 instance NettleCipher BLOWFISH where
 	nc_cipherInit    = Tagged c_blowfish_set_key
 	nc_cipherName    = Tagged "BLOWFISH"
-	nc_cipherKeySize = Tagged $ KeySizeRange 1 128
+	nc_cipherKeySize = Tagged $ CCT.KeySizeRange 1 128
 	nc_ctx_size      = Tagged c_blowfish_ctx_size
 	nc_ctx  (BLOWFISH c) = c
 	nc_Ctx             = BLOWFISH
@@ -285,11 +286,11 @@ Camellia uses a the same 'blockSize' and key sizes as 'AES'.
 
 'aeadInit' only supports the 'AEAD_GCM' mode for now.
 -}
-newtype Camellia = Camellia SecureMem
+newtype Camellia = Camellia BA.ScrubbedBytes
 instance NettleCipher Camellia where
 	nc_cipherInit    = Tagged c_hs_camellia_init
 	nc_cipherName    = Tagged "Camellia"
-	nc_cipherKeySize = Tagged $ KeySizeEnum [16,24,32]
+	nc_cipherKeySize = Tagged $ CCT.KeySizeEnum [16,24,32]
 	nc_ctx_size      = Tagged c_hs_camellia_ctx_size
 	nc_ctx     (Camellia c) = c
 	nc_Ctx             = Camellia
@@ -305,11 +306,11 @@ INSTANCE_BLOCKCIPHER(Camellia)
 {-|
 'Camellia128' provides the same interface as 'Camellia', but is restricted to 128-bit keys.
 -}
-newtype Camellia128 = Camellia128 SecureMem
+newtype Camellia128 = Camellia128 BA.ScrubbedBytes
 instance NettleCipher Camellia128 where
 	nc_cipherInit    = Tagged (\ctx _ key -> c_hs_camellia128_init ctx key)
 	nc_cipherName    = Tagged "Camellia-128"
-	nc_cipherKeySize = Tagged $ KeySizeFixed 16
+	nc_cipherKeySize = Tagged $ CCT.KeySizeFixed 16
 	nc_ctx_size      = Tagged c_hs_camellia128_ctx_size
 	nc_ctx  (Camellia128 c) = c
 	nc_Ctx             = Camellia128
@@ -327,11 +328,11 @@ INSTANCE_BLOCKCIPHER(Camellia128)
 {-|
 'Camellia192' provides the same interface as 'Camellia', but is restricted to 192-bit keys.
 -}
-newtype Camellia192 = Camellia192 SecureMem
+newtype Camellia192 = Camellia192 BA.ScrubbedBytes
 instance NettleCipher Camellia192 where
 	nc_cipherInit    = Tagged (\ctx _ key -> c_hs_camellia192_init ctx key)
 	nc_cipherName    = Tagged "Camellia-192"
-	nc_cipherKeySize = Tagged $ KeySizeFixed 24
+	nc_cipherKeySize = Tagged $ CCT.KeySizeFixed 24
 	nc_ctx_size      = Tagged c_hs_camellia192_ctx_size
 	nc_ctx  (Camellia192 c) = c
 	nc_Ctx             = Camellia192
@@ -349,11 +350,11 @@ INSTANCE_BLOCKCIPHER(Camellia192)
 {-|
 'Camellia256' provides the same interface as 'Camellia', but is restricted to 256-bit keys.
 -}
-newtype Camellia256 = Camellia256 SecureMem
+newtype Camellia256 = Camellia256 BA.ScrubbedBytes
 instance NettleCipher Camellia256 where
 	nc_cipherInit    = Tagged (\ctx _ key -> c_hs_camellia256_init ctx key)
 	nc_cipherName    = Tagged "Camellia-256"
-	nc_cipherKeySize = Tagged $ KeySizeFixed 32
+	nc_cipherKeySize = Tagged $ CCT.KeySizeFixed 32
 	nc_ctx_size      = Tagged c_hs_camellia256_ctx_size
 	nc_ctx  (Camellia256 c) = c
 	nc_Ctx             = Camellia256
@@ -372,11 +373,11 @@ INSTANCE_BLOCKCIPHER(Camellia256)
 'CAST128' is a block cipher specified in RFC 2144. It uses a 64 bit (8 bytes) 'blockSize',
 and a variable key size of 40 up to 128 bits (5 to 16 bytes).
 -}
-newtype CAST128 = CAST128 SecureMem
+newtype CAST128 = CAST128 BA.ScrubbedBytes
 instance NettleCipher CAST128 where
 	nc_cipherInit    = Tagged c_cast5_set_key
 	nc_cipherName    = Tagged "CAST-128"
-	nc_cipherKeySize = Tagged $ KeySizeRange 5 16
+	nc_cipherKeySize = Tagged $ CCT.KeySizeRange 5 16
 	nc_ctx_size      = Tagged c_cast128_ctx_size
 	nc_ctx  (CAST128 c) = c
 	nc_Ctx             = CAST128
@@ -396,11 +397,11 @@ It uses a 'blockSize' of 64 bits (8 bytes), and a key size of 56 bits.
 The key is given as 8 bytes, as one bit per byte is used as a parity bit.
 The parity bit is ignored by this implementation.
 -}
-newtype DES = DES SecureMem
+newtype DES = DES BA.ScrubbedBytes
 instance NettleCipher DES where
 	nc_cipherInit    = Tagged $ \ctxptr _ -> c_des_set_key ctxptr
 	nc_cipherName    = Tagged "DES"
-	nc_cipherKeySize = Tagged $ KeySizeFixed 8
+	nc_cipherKeySize = Tagged $ CCT.KeySizeFixed 8
 	nc_ctx_size      = Tagged c_des_ctx_size
 	nc_ctx  (DES c) = c
 	nc_Ctx             = DES
@@ -420,11 +421,11 @@ Encryption first encrypts with k1, then decrypts with k2, then encrypts with k3.
 The 'blockSize' is the same as for 'DES': 64 bits (8 bytes),
 and the keys are simply concatenated, forming a 24 byte key string (with 168 bits actually getting used).
 -}
-newtype DES_EDE3 = DES_EDE3 SecureMem
+newtype DES_EDE3 = DES_EDE3 BA.ScrubbedBytes
 instance NettleCipher DES_EDE3 where
 	nc_cipherInit    = Tagged $ \ctxptr _ -> c_des3_set_key ctxptr
 	nc_cipherName    = Tagged "DES-EDE3"
-	nc_cipherKeySize = Tagged $ KeySizeFixed 24
+	nc_cipherKeySize = Tagged $ CCT.KeySizeFixed 24
 	nc_ctx_size      = Tagged c_des3_ctx_size
 	nc_ctx  (DES_EDE3 c) = c
 	nc_Ctx             = DES_EDE3
@@ -445,11 +446,11 @@ although smaller bits are just padded with zeroes.
 
 'aeadInit' only supports the 'AEAD_GCM' mode for now.
 -}
-newtype SERPENT = SERPENT SecureMem
+newtype SERPENT = SERPENT BA.ScrubbedBytes
 instance NettleCipher SERPENT where
 	nc_cipherInit    = Tagged c_serpent_set_key
 	nc_cipherName    = Tagged "SERPENT"
-	nc_cipherKeySize = Tagged $ KeySizeRange 16 32
+	nc_cipherKeySize = Tagged $ CCT.KeySizeRange 16 32
 	nc_ctx_size      = Tagged c_serpent_ctx_size
 	nc_ctx  (SERPENT c) = c
 	nc_Ctx             = SERPENT
@@ -468,11 +469,11 @@ INSTANCE_BLOCKCIPHER(SERPENT)
 
 'aeadInit' only supports the 'AEAD_GCM' mode for now.
 -}
-newtype TWOFISH = TWOFISH SecureMem
+newtype TWOFISH = TWOFISH BA.ScrubbedBytes
 instance NettleCipher TWOFISH where
 	nc_cipherInit    = Tagged c_twofish_set_key
 	nc_cipherName    = Tagged "TWOFISH"
-	nc_cipherKeySize = Tagged $ KeySizeEnum [16,24,32]
+	nc_cipherKeySize = Tagged $ CCT.KeySizeEnum [16,24,32]
 	nc_ctx_size      = Tagged c_twofish_ctx_size
 	nc_ctx  (TWOFISH c) = c
 	nc_Ctx             = TWOFISH
@@ -490,11 +491,11 @@ INSTANCE_BLOCKCIPHER(TWOFISH)
 
 Valid key sizes are from 1 to 256 bytes.
 -}
-newtype ARCFOUR = ARCFOUR SecureMem
+newtype ARCFOUR = ARCFOUR BA.ScrubbedBytes
 instance NettleCipher ARCFOUR where
 	nc_cipherInit    = Tagged c_arcfour_set_key
 	nc_cipherName    = Tagged "ARCFOUR"
-	nc_cipherKeySize = Tagged $ KeySizeEnum [16,24,32]
+	nc_cipherKeySize = Tagged $ CCT.KeySizeEnum [16,24,32]
 	nc_ctx_size      = Tagged c_arcfour_ctx_size
 	nc_ctx  (ARCFOUR c) = c
 	nc_Ctx             = ARCFOUR
@@ -509,8 +510,8 @@ setting a nonce restarts the cipher.
 
 A good value for the nonce is a message/packet counter. Usually a nonce should not be reused with the same key.
 -}
-class StreamCipher cipher => StreamNonceCipher cipher where
-	streamNonceSize :: cipher -> KeySizeSpecifier
+class CCT.StreamCipher cipher => StreamNonceCipher cipher where
+	streamNonceSize :: cipher -> CCT.KeySizeSpecifier
 	streamSetNonce  :: cipher -> B.ByteString -> Maybe cipher
 
 word64BE :: Word64 -> B.ByteString
@@ -550,11 +551,11 @@ Don't reuse a nonce with the same key.
 
 Setting a nonce also resets the remaining padding data.
 -}
-newtype CHACHA = CHACHA (SecureMem, B.ByteString)
+newtype CHACHA = CHACHA (BA.ScrubbedBytes, B.ByteString)
 instance NettleCipher CHACHA where
 	nc_cipherInit    = Tagged wrap_chacha_set_key
 	nc_cipherName    = Tagged "ChaCha"
-	nc_cipherKeySize = Tagged $ KeySizeFixed 32
+	nc_cipherKeySize = Tagged $ CCT.KeySizeFixed 32
 	nc_ctx_size      = Tagged c_chacha_ctx_size
 	nc_ctx (CHACHA (c, _)) = c
 	nc_Ctx c           = CHACHA (c, B.empty)
@@ -563,7 +564,7 @@ instance NettleBlockedStreamCipher CHACHA where
 	nbsc_IncompleteState (CHACHA (c, _)) inc = CHACHA (c, inc)
 	nbsc_incompleteState (CHACHA (_, inc)) = inc
 	nbsc_streamCombine = Tagged c_chacha_crypt
-	nbsc_nonceSize     = Tagged $ KeySizeFixed 8
+	nbsc_nonceSize     = Tagged $ CCT.KeySizeFixed 8
 	nbsc_setNonce      = Tagged $ Just wrap_chacha_set_nonce
 INSTANCE_BLOCKEDSTREAMNONCECIPHER(CHACHA)
 
@@ -591,11 +592,11 @@ Don't reuse a nonce with the same key.
 
 Setting a nonce also resets the remaining padding data.
 -}
-newtype SALSA20 = SALSA20 (SecureMem, B.ByteString)
+newtype SALSA20 = SALSA20 (BA.ScrubbedBytes, B.ByteString)
 instance NettleCipher SALSA20 where
 	nc_cipherInit    = Tagged wrap_salsa20_set_key
 	nc_cipherName    = Tagged "Salsa20"
-	nc_cipherKeySize = Tagged $ KeySizeEnum [16,32]
+	nc_cipherKeySize = Tagged $ CCT.KeySizeEnum [16,32]
 	nc_ctx_size      = Tagged c_salsa20_ctx_size
 	nc_ctx (SALSA20 (c, _)) = c
 	nc_Ctx c           = SALSA20 (c, B.empty)
@@ -604,7 +605,7 @@ instance NettleBlockedStreamCipher SALSA20 where
 	nbsc_IncompleteState (SALSA20 (c, _)) inc = SALSA20 (c, inc)
 	nbsc_incompleteState (SALSA20 (_, inc)) = inc
 	nbsc_streamCombine = Tagged c_salsa20_crypt
-	nbsc_nonceSize     = Tagged $ KeySizeFixed 8
+	nbsc_nonceSize     = Tagged $ CCT.KeySizeFixed 8
 	nbsc_setNonce      = Tagged $ Just wrap_salsa20_set_nonce
 INSTANCE_BLOCKEDSTREAMNONCECIPHER(SALSA20)
 
@@ -612,11 +613,11 @@ INSTANCE_BLOCKEDSTREAMNONCECIPHER(SALSA20)
 {-|
 'ESTREAM_SALSA20' is the same as 'SALSA20', but uses only 12 instead of 20 rounds in mixing.
 -}
-newtype ESTREAM_SALSA20 = ESTREAM_SALSA20 (SecureMem, B.ByteString)
+newtype ESTREAM_SALSA20 = ESTREAM_SALSA20 (BA.ScrubbedBytes, B.ByteString)
 instance NettleCipher ESTREAM_SALSA20 where
 	nc_cipherInit    = Tagged wrap_salsa20_set_key
 	nc_cipherName    = Tagged "eSTREAM-Salsa20"
-	nc_cipherKeySize = Tagged $ KeySizeEnum [16,32]
+	nc_cipherKeySize = Tagged $ CCT.KeySizeEnum [16,32]
 	nc_ctx_size      = Tagged c_salsa20_ctx_size
 	nc_ctx (ESTREAM_SALSA20 (c, _)) = c
 	nc_Ctx c           = ESTREAM_SALSA20 (c, B.empty)
@@ -625,6 +626,6 @@ instance NettleBlockedStreamCipher ESTREAM_SALSA20 where
 	nbsc_IncompleteState (ESTREAM_SALSA20 (c, _)) inc = ESTREAM_SALSA20 (c, inc)
 	nbsc_incompleteState (ESTREAM_SALSA20 (_, inc)) = inc
 	nbsc_streamCombine = Tagged c_salsa20r12_crypt
-	nbsc_nonceSize     = Tagged $ KeySizeFixed 8
+	nbsc_nonceSize     = Tagged $ CCT.KeySizeFixed 8
 	nbsc_setNonce      = Tagged $ Just wrap_salsa20_set_nonce
 INSTANCE_BLOCKEDSTREAMNONCECIPHER(ESTREAM_SALSA20)

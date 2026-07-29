@@ -1,52 +1,20 @@
 
 import Test.Framework (defaultMain, testGroup, Test(..))
 import Test.Framework.Providers.QuickCheck2 (testProperty)
-import Test.QuickCheck (Gen(..), elements, choose, vectorOf, label, conjoin)
+import Test.QuickCheck (Gen(..), choose, label, conjoin)
 
 import Crypto.Nettle.Ciphers
 import Crypto.Cipher.Types
-import Crypto.Cipher.Tests
 
 import qualified Data.ByteString as B
 import Data.Word (Word8)
 import qualified Numeric as N
 import Data.Maybe (fromJust)
-import Control.Monad (liftM)
 
+import Ciphers.PropertyTests
+import Ciphers.Utils
 import KAT.AES
-
-fromRight :: Either a b -> b
-fromRight (Right x) = x
-fromRight _ = error "expected Right"
-
-genByteString :: Int -> Gen B.ByteString
-genByteString len = liftM B.pack $ vectorOf len (choose (0,255))
-
-runEither :: (Monad m, Show e) => Either e x -> m x
-runEither (Left e) = error $ show e
-runEither (Right x) = return x
-
-runMaybe :: (Monad m) => Maybe x -> m x
-runMaybe Nothing = error "got nothing"
-runMaybe (Just x) = return x
-
-genKey' :: KeySizeSpecifier -> Gen B.ByteString
-genKey' spec = case spec of
-	KeySizeRange bot top -> choose (bot, top) >>= genByteString
-	KeySizeEnum list     -> elements list >>= genByteString
-	KeySizeFixed f       -> genByteString f
-
-genKey :: Cipher c => c -> Gen (Key c)
-genKey c = genKey' (cipherKeySize c) >>= runEither . makeKey
-
-genCipher :: Cipher c => c -> Gen c
-genCipher c = liftM cipherInit $ genKey c
-
-genIV :: BlockCipher c => c -> Gen (IV c)
-genIV c = genByteString (blockSize c) >>= runMaybe . makeIV
-
-genBlockCipherInput :: BlockCipher c => c -> Int -> Gen B.ByteString
-genBlockCipherInput c blocks = genByteString (blockSize c * blocks)
+import KAT.Utils
 
 genBlockTest :: BlockCipher c => c -> Test
 genBlockTest = genBlockTest' . genCipher
@@ -123,12 +91,12 @@ genArctwoInitEKB :: Gen ARCTWO
 genArctwoInitEKB = do
 	k <- genKey (undefined :: ARCTWO)
 	ekb <- choose (0, 1024)
-	return $ arctwoInitEKB k ekb
+	return $ runCryptoFailable $ arctwoInitEKB k ekb
 
 genArctwoInitGutmann :: Gen ARCTWO
 genArctwoInitGutmann = do
 	k <- genKey (undefined :: ARCTWO)
-	return $ arctwoInitGutmann k
+	return $ runCryptoFailable $ arctwoInitGutmann k
 
 main = defaultMain
 -- own KATs + generated tests (from crypto-cipher-tests)
