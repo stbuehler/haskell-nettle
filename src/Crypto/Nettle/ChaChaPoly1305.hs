@@ -28,9 +28,9 @@ module Crypto.Nettle.ChaChaPoly1305 (
 	, chaChaPoly1305Decrypt
 	) where
 
+import qualified Data.ByteArray as BA
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Internal as B
-import Data.SecureMem
 
 import Crypto.Nettle.Ciphers.ForeignImports
 import Nettle.Utils
@@ -47,16 +47,17 @@ chaChaPoly1305Encrypt
 	-> B.ByteString                 -- ^ @plain@ data to encrypt
 	-> (B.ByteString, B.ByteString) -- ^ returns (@cipher@, @tag@) ciphertext and verification tag
 chaChaPoly1305Encrypt key nonce aad plain = unsafeDupablePerformIO $ do
-	ctx <- allocateSecureMem c_chacha_poly1305_ctx_size
+	let k = copyAndConvertToScrubbedBytes key
+	    n = copyAndConvertToScrubbedBytes nonce
 	tag <- B.create 16 (\_ -> return ())
 	cipher <- B.create (B.length plain) (\_ -> return ())
-	withByteStringPtr plain $ \psize pptr ->
+	_ <- withByteStringPtr plain $ \psize pptr ->
 		withByteStringPtr aad $ \aadsize aadptr ->
 		withByteStringPtr cipher $ \_ cipherptr ->
 		withByteStringPtr tag $ \_ tagptr ->
-		withSecureMemPtr ctx $ \ctxptr ->
-		withSecureMemPtrSz (toSecureMem key) $ \ksize kptr -> if ksize /= 32 then error "Invalid key length" else
-		withSecureMemPtrSz (toSecureMem nonce) $ \nsize nptr -> if nsize /= 12 then error "Invalid nonce length" else do
+		createScrubbedBytes c_chacha_poly1305_ctx_size $ \ctxptr ->
+		BA.withByteArray k $ \kptr -> if (BA.length k) /= 32 then error "Invalid key length" else
+		BA.withByteArray n $ \nptr -> if (BA.length n) /= 12 then error "Invalid nonce length" else do
 		c_chacha_poly1305_set_key ctxptr kptr
 		c_chacha_poly1305_set_nonce ctxptr nptr
 		c_chacha_poly1305_update ctxptr aadsize aadptr
@@ -70,16 +71,17 @@ Decrypt cipher text and verify a (possible shortened) tag for the encrypted text
 -}
 chaChaPoly1305Decrypt :: B.ByteString -> B.ByteString -> B.ByteString -> B.ByteString -> B.ByteString -> Maybe B.ByteString
 chaChaPoly1305Decrypt key nonce aad cipher verifytag = unsafeDupablePerformIO $ do
-	ctx <- allocateSecureMem c_chacha_poly1305_ctx_size
+	let k = copyAndConvertToScrubbedBytes key
+	    n = copyAndConvertToScrubbedBytes nonce
 	tag <- B.create 16 (\_ -> return ())
 	plain <- B.create (B.length cipher) (\_ -> return ())
-	withByteStringPtr cipher $ \psize pptr ->
+	_ <- withByteStringPtr cipher $ \psize pptr ->
 		withByteStringPtr aad $ \aadsize aadptr ->
 		withByteStringPtr plain $ \_ plainptr ->
 		withByteStringPtr tag $ \_ tagptr ->
-		withSecureMemPtr ctx $ \ctxptr ->
-		withSecureMemPtrSz (toSecureMem key) $ \ksize kptr -> if ksize /= 32 then error "Invalid key length" else
-		withSecureMemPtrSz (toSecureMem nonce) $ \nsize nptr -> if nsize /= 12 then error "Invalid nonce length" else do
+		createScrubbedBytes c_chacha_poly1305_ctx_size $ \ctxptr ->
+		BA.withByteArray k $ \kptr -> if (BA.length k) /= 32 then error "Invalid key length" else
+		BA.withByteArray n $ \nptr -> if (BA.length n) /= 12 then error "Invalid nonce length" else do
 		c_chacha_poly1305_set_key ctxptr kptr
 		c_chacha_poly1305_set_nonce ctxptr nptr
 		c_chacha_poly1305_update ctxptr aadsize aadptr
