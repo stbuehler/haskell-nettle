@@ -146,11 +146,7 @@ nettleUmacFinalize c = untag $ go c where
 			let ctx' = copyScrubbedBytes (nu_ctx ctx)
 			dig <- BA.withByteArray ctx' $ \ctxptr ->
 				B.create digestSize $ \digestptr ->
-#if (NETTLE_VERSION_MAJOR >= 4)
-				digest ctxptr digestptr
-#else
-				digest ctxptr (fromIntegral digestSize) digestptr
-#endif
+					callNettleHashDigest digest digestSize ctxptr digestptr
 			return (dig, nu_Ctx ctx')
 
 #define INSTANCE_UMAC(Typ) \

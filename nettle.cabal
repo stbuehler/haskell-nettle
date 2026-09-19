@@ -4,7 +4,7 @@ Version:             0.3.1.1
 Synopsis:            safe nettle binding
 Description:
   safe binding for the nettle (<http://www.lysator.liu.se/~nisse/nettle/nettle.html>) library.
-  Tested with 3.4, might work with 3.2 (but not earlier).
+  Tested with 3.10.2, might work with 4.x.
 License:             MIT
 License-file:        COPYING
 Copyright:           Stefan Bühler <stbuehler@web.de>
@@ -24,10 +24,6 @@ Tested-With:    GHC ==9.14.1 || ==9.12.4 || ==9.10.3 || ==9.8.1 || ==9.6.4 || ==
 Flag UsePkgConfig
   Description: Use pkg-config to check for library dependences
   Default: True
-
-Flag Nettle4
-  Description: Use the code path for nettle 4.x
-  Default: False
 
 Library
   Default-Language:  Haskell2010
@@ -56,9 +52,6 @@ Library
     PkgConfig-Depends: nettle
   else
     Extra-libraries: nettle
-
-  if flag(Nettle4)
-    cpp-options: -DNETTLE_VERSION_MAJOR=4
 
 Test-Suite test-ciphers
   Default-Language:  Haskell2010

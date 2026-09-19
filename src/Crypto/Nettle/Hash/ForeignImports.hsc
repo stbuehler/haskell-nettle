@@ -6,6 +6,8 @@ module Crypto.Nettle.Hash.ForeignImports
 	, NettleHashUpdate
 	, NettleHashDigest
 
+	, callNettleHashDigest
+
 	, c_sha256_ctx_size
 	, c_sha256_digest_size
 	, c_sha256_block_size
@@ -41,36 +43,28 @@ module Crypto.Nettle.Hash.ForeignImports
 	, c_sha3_224_ctx_size
 	, c_sha3_224_digest_size
 	, c_sha3_224_block_size
-#if (NETTLE_VERSION_MAJOR < 4)
 	, c_sha3_224_init
-#endif
 	, c_sha3_224_update
 	, c_sha3_224_digest
 
 	, c_sha3_256_ctx_size
 	, c_sha3_256_digest_size
 	, c_sha3_256_block_size
-#if (NETTLE_VERSION_MAJOR < 4)
 	, c_sha3_256_init
-#endif
 	, c_sha3_256_update
 	, c_sha3_256_digest
 
 	, c_sha3_384_ctx_size
 	, c_sha3_384_digest_size
 	, c_sha3_384_block_size
-#if (NETTLE_VERSION_MAJOR < 4)
 	, c_sha3_384_init
-#endif
 	, c_sha3_384_update
 	, c_sha3_384_digest
 
 	, c_sha3_512_ctx_size
 	, c_sha3_512_digest_size
 	, c_sha3_512_block_size
-#if (NETTLE_VERSION_MAJOR < 4)
 	, c_sha3_512_init
-#endif
 	, c_sha3_512_update
 	, c_sha3_512_digest
 
@@ -160,6 +154,17 @@ type NettleHashDigest = Ptr Word8 -> Ptr Word8 -> IO ()
 type NettleHashDigest = Ptr Word8 -> Word -> Ptr Word8 -> IO ()
 #endif
 
+-- | Call a nettle @*_digest@ function, adapting to the Nettle API.
+--   Nettle 4 dropped the @digest_size@ argument; the @digestSize@ argument
+--   is only used on Nettle 3.x.
+callNettleHashDigest :: NettleHashDigest -> Int -> Ptr Word8 -> Ptr Word8 -> IO ()
+#if (NETTLE_VERSION_MAJOR > 3)
+callNettleHashDigest digestfun _digestSize ctxptr digestptr = digestfun ctxptr digestptr
+#else
+callNettleHashDigest digestfun digestSize ctxptr digestptr = digestfun ctxptr (fromIntegral digestSize) digestptr
+#endif
+
+
 c_sha256_ctx_size :: Int
 c_sha256_ctx_size = #{size struct sha256_ctx}
 c_sha256_digest_size :: Int
@@ -212,20 +217,34 @@ foreign import ccall unsafe "nettle_sha512_update"
 foreign import ccall unsafe "nettle_sha384_digest"
 	c_sha384_digest :: NettleHashDigest
 
-#if (NETTLE_VERSION_MAJOR > 3)
-foreign import ccall unsafe "nettle_sha3_init"
-	c_sha3_init :: NettleHashInit
-#endif
-
 c_sha3_224_ctx_size :: Int
 c_sha3_224_ctx_size = #{size struct sha3_224_ctx}
 c_sha3_224_digest_size :: Int
 c_sha3_224_digest_size = #{const SHA3_224_DIGEST_SIZE}
 c_sha3_224_block_size :: Int
 c_sha3_224_block_size = #{const SHA3_224_BLOCK_SIZE}
-#if (NETTLE_VERSION_MAJOR < 4)
+#if (NETTLE_VERSION_MAJOR > 3)
+foreign import ccall unsafe "nettle_sha3_init"
+	c_sha3_init :: NettleHashInit
+
+-- Nettle 4 uses one context struct and init function for all SHA3 variants
+c_sha3_224_init :: NettleHashInit
+c_sha3_224_init = c_sha3_init
+c_sha3_256_init :: NettleHashInit
+c_sha3_256_init = c_sha3_init
+c_sha3_384_init :: NettleHashInit
+c_sha3_384_init = c_sha3_init
+c_sha3_512_init :: NettleHashInit
+c_sha3_512_init = c_sha3_init
+#else
 foreign import ccall unsafe "nettle_sha3_224_init"
 	c_sha3_224_init :: NettleHashInit
+foreign import ccall unsafe "nettle_sha3_256_init"
+	c_sha3_256_init :: NettleHashInit
+foreign import ccall unsafe "nettle_sha3_384_init"
+	c_sha3_384_init :: NettleHashInit
+foreign import ccall unsafe "nettle_sha3_512_init"
+	c_sha3_512_init :: NettleHashInit
 #endif
 foreign import ccall unsafe "nettle_sha3_224_update"
 	c_sha3_224_update :: NettleHashUpdate
@@ -238,10 +257,6 @@ c_sha3_256_digest_size :: Int
 c_sha3_256_digest_size = #{const SHA3_256_DIGEST_SIZE}
 c_sha3_256_block_size :: Int
 c_sha3_256_block_size = #{const SHA3_256_BLOCK_SIZE}
-#if (NETTLE_VERSION_MAJOR < 4)
-foreign import ccall unsafe "nettle_sha3_256_init"
-	c_sha3_256_init :: NettleHashInit
-#endif
 foreign import ccall unsafe "nettle_sha3_256_update"
 	c_sha3_256_update :: NettleHashUpdate
 foreign import ccall unsafe "nettle_sha3_256_digest"
@@ -253,10 +268,6 @@ c_sha3_384_digest_size :: Int
 c_sha3_384_digest_size = #{const SHA3_384_DIGEST_SIZE}
 c_sha3_384_block_size :: Int
 c_sha3_384_block_size = #{const SHA3_384_BLOCK_SIZE}
-#if (NETTLE_VERSION_MAJOR < 4)
-foreign import ccall unsafe "nettle_sha3_384_init"
-	c_sha3_384_init :: NettleHashInit
-#endif
 foreign import ccall unsafe "nettle_sha3_384_update"
 	c_sha3_384_update :: NettleHashUpdate
 foreign import ccall unsafe "nettle_sha3_384_digest"
@@ -268,10 +279,6 @@ c_sha3_512_digest_size :: Int
 c_sha3_512_digest_size = #{const SHA3_512_DIGEST_SIZE}
 c_sha3_512_block_size :: Int
 c_sha3_512_block_size = #{const SHA3_512_BLOCK_SIZE}
-#if (NETTLE_VERSION_MAJOR < 4)
-foreign import ccall unsafe "nettle_sha3_512_init"
-	c_sha3_512_init :: NettleHashInit
-#endif
 foreign import ccall unsafe "nettle_sha3_512_update"
 	c_sha3_512_update :: NettleHashUpdate
 foreign import ccall unsafe "nettle_sha3_512_digest"
