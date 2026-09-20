@@ -6,6 +6,7 @@ import qualified Data.ByteString.Char8 as BC
 
 import Crypto.Nettle.XOF
 import TestUtils
+import Shake128 (shake128Tests)
 
 assertShake
     :: XOF a => (B.ByteString, String, Int) -> Tagged a Assertion
@@ -20,19 +21,6 @@ testShake = do
     return $ testCases ("testing XOF " ++ name) results
 
 xofTestVectors :: String -> [(B.ByteString, String, Int)]
-xofTestVectors "SHAKE128" =
-    [
-        ( ""
-        , "7f9c2ba4e88f827d616045507605853ed73b8093f6efbc88eb1a6eacfa66ef26"
-        , 32
-        )
-    ,
-        ( "abc"
-        , "5881092dd818bf5cf8a3ddb793fbcba74097d5c526a6d35f97b83351940f2cc8"
-        , 32
-        )
-    , ("abc", "5881092dd818bf5cf8a3ddb793fbcba7", 16)
-    ]
 xofTestVectors "SHAKE256" =
     [
         ( ""
@@ -64,8 +52,8 @@ testIncremental = do
 
 main =
     defaultMain
-        [ testShake `witness` (undefined :: SHAKE128)
-        , testShake `witness` (undefined :: SHAKE256)
-        , testIncremental `witness` (undefined :: SHAKE128)
-        , testIncremental `witness` (undefined :: SHAKE256)
-        ]
+        (shake128Tests
+            ++ [ testShake `witness` (undefined :: SHAKE256)
+               , testIncremental `witness` (undefined :: SHAKE256)
+               ]
+        )

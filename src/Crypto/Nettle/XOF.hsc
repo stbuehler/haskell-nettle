@@ -3,6 +3,8 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 
+#include <nettle/version.h>
+
 -----------------------------------------------------------------------------
 
 -----------------------------------------------------------------------------
@@ -26,7 +28,9 @@ module Crypto.Nettle.XOF
     , shake'
 
       -- * XOF algorithms
+#if (NETTLE_VERSION_MAJOR > 3 || (NETTLE_VERSION_MAJOR == 3 && NETTLE_VERSION_MINOR >= 10))
     , SHAKE128
+#endif
     , SHAKE256
     ) where
 
@@ -92,13 +96,9 @@ class NettleXOF a where
     xof_ctx :: a -> BA.ScrubbedBytes
     xof_Ctx :: BA.ScrubbedBytes -> a
 
-#define INSTANCE_XOF(Typ) \
-instance XOF Typ where \
-	{ xofName     = nettleXOFName \
-	; xofInit     = nettleXOFInit \
-	; xofUpdate   = nettleXOFUpdate \
-	; xofFinalize = nettleXOFFinalize \
-	}
+-----------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------
 
 {- |
 Helper to run an XOF over a single (strict) 'B.ByteString', producing @outlen@ bytes.
@@ -128,8 +128,10 @@ Example:
 shake' :: XOF a => a -> B.ByteString -> Int -> B.ByteString
 shake' a msg outlen = shake msg outlen `witness` a
 
+#if (NETTLE_VERSION_MAJOR > 3 || (NETTLE_VERSION_MAJOR == 3 && NETTLE_VERSION_MINOR >= 10))
 {- | 'SHAKE128' is an extendable-output function based on the Keccak permutation.
   It produces arbitrary-length output with a security strength of 128 bits.
+  It is only available with Nettle >= 3.10.
 -}
 data SHAKE128 = SHAKE128 {shake128_ctx :: BA.ScrubbedBytes}
 
@@ -141,7 +143,13 @@ instance NettleXOF SHAKE128 where
     xof_shake = Tagged c_sha3_128_shake
     xof_ctx = shake128_ctx
     xof_Ctx = SHAKE128
-INSTANCE_XOF (SHAKE128)
+
+instance XOF SHAKE128 where
+    xofName     = nettleXOFName
+    xofInit     = nettleXOFInit
+    xofUpdate   = nettleXOFUpdate
+    xofFinalize = nettleXOFFinalize
+#endif
 
 {- | 'SHAKE256' is an extendable-output function based on the Keccak permutation.
   It produces arbitrary-length output with a security strength of 256 bits.
@@ -156,4 +164,9 @@ instance NettleXOF SHAKE256 where
     xof_shake = Tagged c_sha3_256_shake
     xof_ctx = shake256_ctx
     xof_Ctx = SHAKE256
-INSTANCE_XOF (SHAKE256)
+
+instance XOF SHAKE256 where
+    xofName     = nettleXOFName
+    xofInit     = nettleXOFInit
+    xofUpdate   = nettleXOFUpdate
+    xofFinalize = nettleXOFFinalize

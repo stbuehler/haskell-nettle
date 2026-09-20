@@ -158,6 +158,7 @@ Test-Suite test-shake
                    , nettle
   Other-modules:
     HexUtils
+    Shake128
     TestUtils
   ghc-options: -fno-warn-tabs
 

@@ -89,10 +89,12 @@ module Crypto.Nettle.Hash.ForeignImports
 	, c_streebog256_update
 	, c_streebog256_digest
 
+#if (NETTLE_VERSION_MAJOR > 3 || (NETTLE_VERSION_MAJOR == 3 && NETTLE_VERSION_MINOR >= 10))
 	, c_sha3_128_ctx_size
 	, c_sha3_128_init
 	, c_sha3_128_update
 	, c_sha3_128_shake
+#endif
 	, c_sha3_256_shake
 
 	, c_md5_ctx_size
@@ -372,9 +374,9 @@ foreign import ccall unsafe "nettle_streebog512_update"
 foreign import ccall unsafe "nettle_streebog256_digest"
 	c_streebog256_digest :: NettleHashDigest
 
--- SHAKE (XOF) uses the SHA-3 context; the SHAKE128 context type and init
--- function differ between Nettle 3.x and 4.x.  SHAKE256 reuses the SHA3-256
--- context and update function from above.
+-- SHAKE128 was added in Nettle 3.10 and is not available in 3.9.x.
+-- SHAKE256 reuses the SHA3-256 context and update function from above.
+#if (NETTLE_VERSION_MAJOR > 3 || (NETTLE_VERSION_MAJOR == 3 && NETTLE_VERSION_MINOR >= 10))
 c_sha3_128_ctx_size :: Int
 c_sha3_128_ctx_size = #{size struct sha3_128_ctx}
 #if (NETTLE_VERSION_MAJOR > 3)
@@ -388,6 +390,7 @@ foreign import ccall unsafe "nettle_sha3_128_update"
 	c_sha3_128_update :: NettleHashUpdate
 foreign import ccall unsafe "nettle_sha3_128_shake"
 	c_sha3_128_shake :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()
+#endif
 foreign import ccall unsafe "nettle_sha3_256_shake"
 	c_sha3_256_shake :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()
 
