@@ -68,6 +68,33 @@ module Crypto.Nettle.Hash.ForeignImports
 	, c_sha3_512_update
 	, c_sha3_512_digest
 
+	, c_sm3_ctx_size
+	, c_sm3_digest_size
+	, c_sm3_block_size
+	, c_sm3_init
+	, c_sm3_update
+	, c_sm3_digest
+
+	, c_streebog512_ctx_size
+	, c_streebog512_digest_size
+	, c_streebog512_block_size
+	, c_streebog512_init
+	, c_streebog512_update
+	, c_streebog512_digest
+
+	, c_streebog256_ctx_size
+	, c_streebog256_digest_size
+	, c_streebog256_block_size
+	, c_streebog256_init
+	, c_streebog256_update
+	, c_streebog256_digest
+
+	, c_sha3_128_ctx_size
+	, c_sha3_128_init
+	, c_sha3_128_update
+	, c_sha3_128_shake
+	, c_sha3_256_shake
+
 	, c_md5_ctx_size
 	, c_md5_digest_size
 	, c_md5_block_size
@@ -137,6 +164,28 @@ module Crypto.Nettle.Hash.ForeignImports
 	, c_umac128_set_nonce
 	, c_umac128_update
 	, c_umac128_digest
+
+	, c_cmac_aes128_ctx_size
+	, c_cmac_aes128_set_key
+	, c_cmac_aes128_update
+	, c_cmac_aes128_digest
+
+	, c_cmac_aes256_ctx_size
+	, c_cmac_aes256_set_key
+	, c_cmac_aes256_update
+	, c_cmac_aes256_digest
+
+	, c_cmac_des3_ctx_size
+	, c_cmac_des3_set_key
+	, c_cmac_des3_update
+	, c_cmac_des3_digest
+
+	, c_poly1305_aes_ctx_size
+	, c_poly1305_aes_digest_size
+	, c_poly1305_aes_set_key
+	, c_poly1305_aes_set_nonce
+	, c_poly1305_aes_update
+	, c_poly1305_aes_digest
 	) where
 
 import Nettle.Utils
@@ -284,6 +333,64 @@ foreign import ccall unsafe "nettle_sha3_512_update"
 foreign import ccall unsafe "nettle_sha3_512_digest"
 	c_sha3_512_digest :: NettleHashDigest
 
+c_sm3_ctx_size :: Int
+c_sm3_ctx_size = #{size struct sm3_ctx}
+c_sm3_digest_size :: Int
+c_sm3_digest_size = #{const SM3_DIGEST_SIZE}
+c_sm3_block_size :: Int
+c_sm3_block_size = #{const SM3_BLOCK_SIZE}
+foreign import ccall unsafe "nettle_sm3_init"
+	c_sm3_init :: NettleHashInit
+foreign import ccall unsafe "nettle_sm3_update"
+	c_sm3_update :: NettleHashUpdate
+foreign import ccall unsafe "nettle_sm3_digest"
+	c_sm3_digest :: NettleHashDigest
+
+c_streebog512_ctx_size :: Int
+c_streebog512_ctx_size = #{size struct streebog512_ctx}
+c_streebog512_digest_size :: Int
+c_streebog512_digest_size = #{const STREEBOG512_DIGEST_SIZE}
+c_streebog512_block_size :: Int
+c_streebog512_block_size = #{const STREEBOG512_BLOCK_SIZE}
+foreign import ccall unsafe "nettle_streebog512_init"
+	c_streebog512_init :: NettleHashInit
+foreign import ccall unsafe "nettle_streebog512_update"
+	c_streebog512_update :: NettleHashUpdate
+foreign import ccall unsafe "nettle_streebog512_digest"
+	c_streebog512_digest :: NettleHashDigest
+
+c_streebog256_ctx_size :: Int
+c_streebog256_ctx_size = #{size struct streebog256_ctx}
+c_streebog256_digest_size :: Int
+c_streebog256_digest_size = #{const STREEBOG256_DIGEST_SIZE}
+c_streebog256_block_size :: Int
+c_streebog256_block_size = #{const STREEBOG256_BLOCK_SIZE}
+foreign import ccall unsafe "nettle_streebog256_init"
+	c_streebog256_init :: NettleHashInit
+foreign import ccall unsafe "nettle_streebog512_update"
+	c_streebog256_update :: NettleHashUpdate
+foreign import ccall unsafe "nettle_streebog256_digest"
+	c_streebog256_digest :: NettleHashDigest
+
+-- SHAKE (XOF) uses the SHA-3 context; the SHAKE128 context type and init
+-- function differ between Nettle 3.x and 4.x.  SHAKE256 reuses the SHA3-256
+-- context and update function from above.
+c_sha3_128_ctx_size :: Int
+c_sha3_128_ctx_size = #{size struct sha3_128_ctx}
+#if (NETTLE_VERSION_MAJOR > 3)
+foreign import ccall unsafe "nettle_sha3_init"
+	c_sha3_128_init :: NettleHashInit
+#else
+foreign import ccall unsafe "nettle_sha3_128_init"
+	c_sha3_128_init :: NettleHashInit
+#endif
+foreign import ccall unsafe "nettle_sha3_128_update"
+	c_sha3_128_update :: NettleHashUpdate
+foreign import ccall unsafe "nettle_sha3_128_shake"
+	c_sha3_128_shake :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_sha3_256_shake"
+	c_sha3_256_shake :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()
+
 c_md5_ctx_size :: Int
 c_md5_ctx_size = #{size struct md5_ctx}
 c_md5_digest_size :: Int
@@ -414,3 +521,43 @@ foreign import ccall unsafe "nettle_umac128_update"
 	c_umac128_update :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()
 foreign import ccall unsafe "nettle_umac128_digest"
 	c_umac128_digest :: NettleHashDigest
+
+c_cmac_aes128_ctx_size :: Int
+c_cmac_aes128_ctx_size = #{size struct cmac_aes128_ctx}
+foreign import ccall unsafe "nettle_cmac_aes128_set_key"
+	c_cmac_aes128_set_key :: Ptr Word8 -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_cmac_aes128_update"
+	c_cmac_aes128_update :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_cmac_aes128_digest"
+	c_cmac_aes128_digest :: NettleHashDigest
+
+c_cmac_aes256_ctx_size :: Int
+c_cmac_aes256_ctx_size = #{size struct cmac_aes256_ctx}
+foreign import ccall unsafe "nettle_cmac_aes256_set_key"
+	c_cmac_aes256_set_key :: Ptr Word8 -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_cmac_aes256_update"
+	c_cmac_aes256_update :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_cmac_aes256_digest"
+	c_cmac_aes256_digest :: NettleHashDigest
+
+c_cmac_des3_ctx_size :: Int
+c_cmac_des3_ctx_size = #{size struct cmac_des3_ctx}
+foreign import ccall unsafe "nettle_cmac_des3_set_key"
+	c_cmac_des3_set_key :: Ptr Word8 -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_cmac_des3_update"
+	c_cmac_des3_update :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_cmac_des3_digest"
+	c_cmac_des3_digest :: NettleHashDigest
+
+c_poly1305_aes_ctx_size :: Int
+c_poly1305_aes_ctx_size = #{size struct poly1305_aes_ctx}
+c_poly1305_aes_digest_size :: Int
+c_poly1305_aes_digest_size = #{const POLY1305_AES_DIGEST_SIZE}
+foreign import ccall unsafe "nettle_poly1305_aes_set_key"
+	c_poly1305_aes_set_key :: Ptr Word8 -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_poly1305_aes_set_nonce"
+	c_poly1305_aes_set_nonce :: Ptr Word8 -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_poly1305_aes_update"
+	c_poly1305_aes_update :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_poly1305_aes_digest"
+	c_poly1305_aes_digest :: NettleHashDigest

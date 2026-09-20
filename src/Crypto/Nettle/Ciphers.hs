@@ -38,6 +38,8 @@ module Crypto.Nettle.Ciphers (
 	, Camellia128
 	, Camellia192
 	, Camellia256
+	-- ** SM4
+	, SM4
 	-- ** CAST-128
 	, CAST128
 	-- ** DES
@@ -368,6 +370,29 @@ instance NettleBlockCipher Camellia256 where
 	nbc_fun_decrypt        = Tagged p_camellia256_crypt
 
 INSTANCE_BLOCKCIPHER(Camellia256)
+
+{-|
+'SM4' is a block cipher specified in GB/T 32907-2016. It uses a 128 bit (16 bytes) key
+and a 128 bit (16 bytes) 'blockSize'.
+-}
+newtype SM4 = SM4 BA.ScrubbedBytes
+instance NettleCipher SM4 where
+	nc_cipherInit    = Tagged (\ctx _ key -> c_hs_sm4_init ctx key)
+	nc_cipherName    = Tagged "SM4"
+	nc_cipherKeySize = Tagged $ CCT.KeySizeFixed 16
+	nc_ctx_size      = Tagged c_hs_sm4_ctx_size
+	nc_ctx  (SM4 c) = c
+	nc_Ctx           = SM4
+instance NettleBlockCipher SM4 where
+	nbc_blockSize          = Tagged 16
+	nbc_encrypt_ctx_offset = Tagged c_hs_sm4_ctx_encrypt
+	nbc_decrypt_ctx_offset = Tagged c_hs_sm4_ctx_decrypt
+	nbc_ecb_encrypt        = Tagged c_sm4_crypt
+	nbc_ecb_decrypt        = Tagged c_sm4_crypt
+	nbc_fun_encrypt        = Tagged p_sm4_crypt
+	nbc_fun_decrypt        = Tagged p_sm4_crypt
+
+INSTANCE_BLOCKCIPHER(SM4)
 
 {-|
 'CAST128' is a block cipher specified in RFC 2144. It uses a 64 bit (8 bytes) 'blockSize',

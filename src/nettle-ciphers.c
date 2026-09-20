@@ -167,3 +167,8 @@ void hs_nettle_camellia_decrypt(const struct hs_camellia_ctx *ctx, size_t length
 		break;
 	}
 }
+
+void hs_nettle_sm4_init(struct hs_sm4_ctx *ctx, const char *key) {
+	sm4_set_encrypt_key(&ctx->encrypt, key);
+	sm4_set_decrypt_key(&ctx->decrypt, key);
+}

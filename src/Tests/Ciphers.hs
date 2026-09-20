@@ -14,6 +14,7 @@ import Data.Maybe (fromJust)
 import Ciphers.PropertyTests
 import Ciphers.Utils
 import KAT.AES
+import KAT.SM4
 import KAT.Utils
 
 genBlockTest :: BlockCipher c => c -> Test
@@ -115,6 +116,7 @@ main = defaultMain
 	, testBlockCipher defaultKATs (undefined :: DES_EDE3)
 	, testBlockCipher defaultKATs (undefined :: TWOFISH)
 	, testBlockCipher defaultKATs (undefined :: SERPENT)
+	, testBlockCipher katSM4 (undefined :: SM4)
 	, testStreamCipher defaultStreamKATs (undefined :: ARCFOUR)
 	, testStreamCipher defaultStreamKATs (undefined :: CHACHA)
 	, testStreamCipher defaultStreamKATs (undefined :: SALSA20)
@@ -138,6 +140,7 @@ main = defaultMain
 	, genBlockTest (undefined :: DES_EDE3)
 	, genBlockTest (undefined :: TWOFISH)
 	, genBlockTest (undefined :: SERPENT)
+	, genBlockTest (undefined :: SM4)
 	, genStreamTest (undefined :: ARCFOUR)
 	, genStreamTest (undefined :: CHACHA)
 	, genStreamTest (undefined :: SALSA20)

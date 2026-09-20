@@ -58,6 +58,11 @@ module Crypto.Nettle.Hash (
 	, SHA3_256
 	, SHA3_384
 	, SHA3_512
+	-- ** SM3
+	, SM3
+	-- ** STREEBOG
+	, STREEBOG512
+	, STREEBOG256
 	) where
 
 import Crypto.Nettle.Hash.ForeignImports
@@ -322,3 +327,51 @@ instance NettleHashAlgorithm SHA3_512 where
 	nha_ctx         = sha3_512_ctx
 	nha_Ctx         = SHA3_512
 INSTANCE_HASH(SHA3_512)
+
+-- | 'SM3' is a Chinese national standard hash function (GB/T 32905-2016),
+--   used in the Chinese National Cryptography Standard.  It outputs message
+--   digests of 32 bytes (256 bits).
+data SM3 = SM3 { sm3_ctx :: BA.ScrubbedBytes }
+instance NettleHashAlgorithm SM3 where
+	nha_ctx_size    = Tagged c_sm3_ctx_size
+	nha_block_size  = Tagged c_sm3_block_size
+	nha_digest_size = Tagged c_sm3_digest_size
+	nha_name        = Tagged "SM3"
+	nha_init        = Tagged c_sm3_init
+	nha_update      = Tagged c_sm3_update
+	nha_digest      = Tagged c_sm3_digest
+	nha_ctx         = sm3_ctx
+	nha_Ctx         = SM3
+INSTANCE_HASH(SM3)
+
+-- | 'STREEBOG512' is the 512-bit variant of STREEBOG, the Russian national
+--   standard hash function (GOST R 34.11-2012).  It outputs message digests of
+--   64 bytes (512 bits).
+data STREEBOG512 = STREEBOG512 { streebog512_ctx :: BA.ScrubbedBytes }
+instance NettleHashAlgorithm STREEBOG512 where
+	nha_ctx_size    = Tagged c_streebog512_ctx_size
+	nha_block_size  = Tagged c_streebog512_block_size
+	nha_digest_size = Tagged c_streebog512_digest_size
+	nha_name        = Tagged "STREEBOG512"
+	nha_init        = Tagged c_streebog512_init
+	nha_update      = Tagged c_streebog512_update
+	nha_digest      = Tagged c_streebog512_digest
+	nha_ctx         = streebog512_ctx
+	nha_Ctx         = STREEBOG512
+INSTANCE_HASH(STREEBOG512)
+
+-- | 'STREEBOG256' is the 256-bit variant of STREEBOG, the Russian national
+--   standard hash function (GOST R 34.11-2012).  It outputs message digests of
+--   32 bytes (256 bits).
+data STREEBOG256 = STREEBOG256 { streebog256_ctx :: BA.ScrubbedBytes }
+instance NettleHashAlgorithm STREEBOG256 where
+	nha_ctx_size    = Tagged c_streebog256_ctx_size
+	nha_block_size  = Tagged c_streebog256_block_size
+	nha_digest_size = Tagged c_streebog256_digest_size
+	nha_name        = Tagged "STREEBOG256"
+	nha_init        = Tagged c_streebog256_init
+	nha_update      = Tagged c_streebog256_update
+	nha_digest      = Tagged c_streebog256_digest
+	nha_ctx         = streebog256_ctx
+	nha_Ctx         = STREEBOG256
+INSTANCE_HASH(STREEBOG256)

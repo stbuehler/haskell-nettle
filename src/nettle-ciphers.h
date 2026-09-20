@@ -21,6 +21,7 @@
 #include <nettle/cast128.h>
 #include <nettle/des.h>
 #include <nettle/serpent.h>
+#include <nettle/sm4.h>
 #include <nettle/twofish.h>
 
 /* stream ciphers */
@@ -30,6 +31,9 @@
 
 /* AEAD ciphers */
 #include <nettle/chacha-poly1305.h>
+#include <nettle/eax.h>
+#include <nettle/ocb.h>
+#include <nettle/siv-cmac.h>
 
 #if (CHACHA_POLY1305_NONCE_SIZE != CHACHA_NONCE96_SIZE)
 #error unsupported nettle version, require 96-bit nonce chacha-poly1305 variant
@@ -102,5 +106,10 @@ struct hs_camellia_ctx {
 void hs_nettle_camellia_init(struct hs_camellia_ctx *ctx, unsigned int key_size, const char *key);
 void hs_nettle_camellia_encrypt(const struct hs_camellia_ctx *ctx, size_t length, uint8_t *dst, const uint8_t *src);
 void hs_nettle_camellia_decrypt(const struct hs_camellia_ctx *ctx, size_t length, uint8_t *dst, const uint8_t *src);
+
+struct hs_sm4_ctx {
+	struct sm4_ctx encrypt, decrypt;
+};
+void hs_nettle_sm4_init(struct hs_sm4_ctx *ctx, const char *key);
 
 #endif

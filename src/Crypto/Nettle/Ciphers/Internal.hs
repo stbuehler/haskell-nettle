@@ -35,6 +35,9 @@ import Data.Tagged
 import qualified Data.ByteArray as BA
 import qualified Data.ByteString as B
 
+import Foreign.Ptr (alignPtr, ptrToWordPtr)
+import Foreign.Marshal.Utils (copyBytes)
+
 import Nettle.Utils
 import Crypto.Nettle.Ciphers.ForeignImports
 
@@ -206,7 +209,40 @@ blockmode_run ctxoffset mode crypt ctx iv indata = let iv' = copyAndConvertToScr
 	BA.create (BA.length indata) $ \outptr ->
 	mode (ctxoffset ctxptr) crypt (fromIntegral $ BA.length iv') ivptr (fromIntegral $ BA.length indata) outptr indataptr
 
-data NettleGCM = NettleGCM !BA.ScrubbedBytes !BA.ScrubbedBytes
+data NettleGCM = NettleGCM !Int !BA.ScrubbedBytes !Int !BA.ScrubbedBytes
+
+-- Nettle 4's GCM implementation uses 16-byte aligned accesses on its contexts,
+-- while @ram@'s 'ScrubbedBytes' only guarantees 8-byte alignment.  The GCM
+-- context buffers are therefore over-allocated with padding, and the pointer
+-- handed to C is aligned to a 16-byte boundary.  The byte offset to the aligned
+-- start of a buffer is stored alongside it; because 'copyScrubbedBytes' would
+-- not preserve the alignment of the copied data, copies re-place the context
+-- struct into the aligned region of a freshly allocated buffer.
+gcm_alignment :: Int
+gcm_alignment = 16
+
+gcm_alignedSize :: Int -> Int
+gcm_alignedSize n = n + gcm_alignment - 1
+
+gcm_alignedOffset :: BA.ScrubbedBytes -> Int
+gcm_alignedOffset ba = unsafeDupablePerformIO $
+	BA.withByteArray ba $ \p ->
+		return (fromIntegral ((fromIntegral gcm_alignment - ptrToWordPtr p `mod` fromIntegral gcm_alignment) `mod` fromIntegral gcm_alignment))
+
+-- | Copy the @size@-byte struct from @src@ (located at @srcOff@) into the
+--   aligned region of a fresh zeroed buffer.
+gcm_copyAligned
+	:: Int
+	-> BA.ScrubbedBytes
+	-> Int
+	-> IO (BA.ScrubbedBytes, Int)
+gcm_copyAligned size src srcOff = do
+	dst <- BA.create (gcm_alignedSize size) (return . const ())
+	let dstOff = gcm_alignedOffset dst
+	BA.withByteArray dst $ \dptr ->
+		BA.withByteArray src $ \sptr ->
+			copyBytes (dptr `plusPtr` dstOff) (sptr `plusPtr` srcOff) size
+	return (dst, dstOff)
 
 gcm_init
 	:: BA.ByteArrayAccess iv
@@ -216,23 +252,23 @@ gcm_init
 gcm_init encctxoffset encrypt encctx iv = unsafeDupablePerformIO $
 	BA.withByteArray iv $ \ivptr ->
 	BA.withByteArray encctx $ \encctxptr -> do
-	h <- BA.create c_gcm_key_size $ \hptr ->
-		c_gcm_set_key hptr (encctxoffset encctxptr) encrypt
-	BA.withByteArray h $ \hptr -> do
-	    ctx <- BA.create c_gcm_ctx_size $ \ctxptr ->
-		c_gcm_set_iv ctxptr hptr (fromIntegral $ BA.length iv) ivptr
-	    return (NettleGCM ctx h)
+	h <- BA.create (gcm_alignedSize c_gcm_key_size) $ \hptr ->
+		c_gcm_set_key (alignPtr hptr gcm_alignment) (encctxoffset encctxptr) encrypt
+	ctx <- BA.create (gcm_alignedSize c_gcm_ctx_size) $ \ctxptr ->
+		BA.withByteArray h $ \hptr ->
+			c_gcm_set_iv (alignPtr ctxptr gcm_alignment) (alignPtr hptr gcm_alignment) (fromIntegral $ BA.length iv) ivptr
+	return $ NettleGCM (gcm_alignedOffset ctx) ctx (gcm_alignedOffset h) h
 
 -- independent of cipher
 gcm_update
 	:: BA.ByteArrayAccess ba => NettleGCM -> ba -> NettleGCM
-gcm_update (NettleGCM ctx h) indata = let ctx' = copyScrubbedBytes ctx in
-	unsafeDupablePerformIO $
+gcm_update (NettleGCM offCtx ctx offKey h) indata = unsafeDupablePerformIO $ do
+	(ctx', offCtx') <- gcm_copyAligned c_gcm_ctx_size ctx offCtx
 	BA.withByteArray ctx' $ \ctxptr ->
-	BA.withByteArray h $ \hptr ->
-	BA.withByteArray indata $ \indataptr ->
-	c_gcm_update ctxptr hptr (fromIntegral $ BA.length indata) indataptr >>
-	return (NettleGCM ctx' h)
+		BA.withByteArray h $ \hptr ->
+			BA.withByteArray indata $ \indataptr ->
+				c_gcm_update (ctxptr `plusPtr` offCtx') (hptr `plusPtr` offKey) (fromIntegral $ BA.length indata) indataptr >>
+					return (NettleGCM offCtx' ctx' offKey h)
 
 gcm_crypt
 	:: (BA.ByteArrayAccess bin,
@@ -241,28 +277,28 @@ gcm_crypt
 	-> (Ptr Word8 -> Ptr Word8)
 	-> FunPtr NettleCryptFunc
 	-> BA.ScrubbedBytes -> NettleGCM -> bin -> (bout, NettleGCM)
-gcm_crypt mode encctxoffset encrypt encctx (NettleGCM ctx h) indata = let ctx' = copyScrubbedBytes ctx in
-	unsafeDupablePerformIO $
+gcm_crypt mode encctxoffset encrypt encctx (NettleGCM offCtx ctx offKey h) indata = unsafeDupablePerformIO $ do
+	(ctx', offCtx') <- gcm_copyAligned c_gcm_ctx_size ctx offCtx
 	BA.withByteArray ctx' $ \ctxptr ->
-	BA.withByteArray h $ \hptr ->
-	BA.withByteArray encctx $ \encctxptr ->
-	BA.withByteArray indata $ \indataptr -> do
-	outdata <- BA.create (BA.length indata) $ \outptr ->
-		mode ctxptr hptr (encctxoffset encctxptr) encrypt (fromIntegral $ BA.length indata) outptr indataptr
-	return (outdata, NettleGCM ctx' h)
+		BA.withByteArray h $ \hptr ->
+			BA.withByteArray encctx $ \encctxptr ->
+				BA.withByteArray indata $ \indataptr -> do
+					outdata <- BA.create (BA.length indata) $ \outptr ->
+						mode (ctxptr `plusPtr` offCtx') (hptr `plusPtr` offKey) (encctxoffset encctxptr) encrypt (fromIntegral $ BA.length indata) outptr indataptr
+					return (outdata, NettleGCM offCtx' ctx' offKey h)
 
 gcm_digest
 	:: (Ptr Word8 -> Ptr Word8)
 	-> FunPtr NettleCryptFunc
 	-> BA.ScrubbedBytes -> NettleGCM -> Int -> CCT.AuthTag
-gcm_digest encctxoffset encrypt encctx (NettleGCM ctx h) taglen = let ctx' = copyScrubbedBytes ctx in
-	unsafeDupablePerformIO $
+gcm_digest encctxoffset encrypt encctx (NettleGCM offCtx ctx offKey h) taglen = unsafeDupablePerformIO $ do
+	(ctx', offCtx') <- gcm_copyAligned c_gcm_ctx_size ctx offCtx
 	BA.withByteArray ctx' $ \ctxptr ->
-	BA.withByteArray h $ \hptr ->
-	BA.withByteArray encctx $ \encctxptr -> do
-	tag <- BA.create (fromIntegral taglen) $ \tagptr ->
-		c_gcm_digest ctxptr hptr (encctxoffset encctxptr) encrypt (fromIntegral taglen) tagptr
-	return $ CCT.AuthTag tag
+		BA.withByteArray h $ \hptr ->
+			BA.withByteArray encctx $ \encctxptr -> do
+				tag <- BA.create (fromIntegral taglen) $ \tagptr ->
+					callNettleGcmDigest (ctxptr `plusPtr` offCtx') (hptr `plusPtr` offKey) (encctxoffset encctxptr) encrypt (fromIntegral taglen) tagptr
+				return $ CCT.AuthTag tag
 
 stream_crypt
 	:: (BA.ByteArrayAccess bin,

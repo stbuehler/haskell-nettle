@@ -22,6 +22,7 @@ module Crypto.Nettle.Ciphers.ForeignImports
 	, c_gcm_encrypt
 	, c_gcm_decrypt
 	, c_gcm_digest
+	, callNettleGcmDigest
 
 	, c_hs_aes_ctx_size
 	, c_hs_aes_init
@@ -101,6 +102,13 @@ module Crypto.Nettle.Ciphers.ForeignImports
 	, c_camellia256_crypt
 	, p_camellia256_crypt
 
+	, c_hs_sm4_ctx_size
+	, c_hs_sm4_ctx_encrypt
+	, c_hs_sm4_ctx_decrypt
+	, c_hs_sm4_init
+	, c_sm4_crypt
+	, p_sm4_crypt
+
 	, c_cast128_ctx_size
 	, c_cast5_set_key
 	, c_cast128_encrypt
@@ -158,9 +166,53 @@ module Crypto.Nettle.Ciphers.ForeignImports
 	, c_chacha_poly1305_encrypt
 	, c_chacha_poly1305_decrypt
 	, c_chacha_poly1305_digest
+	, callNettleChaChaPoly1305Digest
+
+	, NettleHashDigest
+	, callNettleHashDigest
+
+	, c_eax_aes128_ctx_size
+	, c_eax_aes128_set_key
+	, c_eax_aes128_set_nonce
+	, c_eax_aes128_update
+	, c_eax_aes128_encrypt
+	, c_eax_aes128_decrypt
+	, c_eax_aes128_digest
+
+	, c_ocb_aes128_key_ctx_size
+	, c_aes128_ctx_size
+	, c_ocb_aes128_set_encrypt_key
+	, c_ocb_aes128_set_decrypt_key
+	, c_ocb_aes128_encrypt_message
+	, c_ocb_aes128_decrypt_message
+
+	, c_siv_cmac_aes128_ctx_size
+	, c_siv_cmac_aes256_ctx_size
+	, c_siv_cmac_aes128_set_key
+	, c_siv_cmac_aes128_encrypt_message
+	, c_siv_cmac_aes128_decrypt_message
+	, c_siv_cmac_aes256_set_key
+	, c_siv_cmac_aes256_encrypt_message
+	, c_siv_cmac_aes256_decrypt_message
+
+	, NettleOcbDigest
+	, callNettleOcbDigest
+
+	, c_ocb_aes128_ctx_size
+	, c_ocb_aes128_set_nonce
+	, c_ocb_aes128_update
+	, c_ocb_aes128_encrypt
+	, c_ocb_aes128_decrypt
+	, c_ocb_aes128_digest
 	) where
 
 import Nettle.Utils
+
+#if (NETTLE_VERSION_MAJOR > 3)
+import Foreign.Marshal.Alloc (allocaBytes)
+import Foreign.Marshal.Utils (copyBytes)
+#endif
+import Foreign.C.Types (CInt(CInt))
 
 -- internal functions are not camelCase on purpose
 {-# ANN module "HLint: ignore Use camelCase" #-}
@@ -170,6 +222,39 @@ import Nettle.Utils
 type NettleCryptFunc = Ptr Word8 -> Word -> Ptr Word8 -> Ptr Word8 -> IO ()
 type NettleBlockMode = Ptr Word8 -> FunPtr NettleCryptFunc -> Word -> Ptr Word8 -> Word -> Ptr Word8 -> Ptr Word8 -> IO ()
 type NettleGCMMode = Ptr Word8 -> Ptr Word8 -> Ptr Word8 -> FunPtr NettleCryptFunc -> Word -> Ptr Word8 -> Ptr Word8 -> IO ()
+
+-- Nettle 4 dropped the digest size argument from all *_digest functions
+#if (NETTLE_VERSION_MAJOR > 3)
+type NettleGcmDigest = Ptr Word8 -> Ptr Word8 -> Ptr Word8 -> FunPtr NettleCryptFunc -> Ptr Word8 -> IO ()
+type NettleChaChaPoly1305Digest = Ptr Word8 -> Ptr Word8 -> IO ()
+type NettleHashDigest = Ptr Word8 -> Ptr Word8 -> IO ()
+type NettleOcbDigest = Ptr Word8 -> Ptr Word8 -> Ptr Word8 -> IO ()
+#else
+type NettleGcmDigest = Ptr Word8 -> Ptr Word8 -> Ptr Word8 -> FunPtr NettleCryptFunc -> Word -> Ptr Word8 -> IO ()
+type NettleChaChaPoly1305Digest = Ptr Word8 -> Word -> Ptr Word8 -> IO ()
+type NettleHashDigest = Ptr Word8 -> Word -> Ptr Word8 -> IO ()
+type NettleOcbDigest = Ptr Word8 -> Ptr Word8 -> Word -> Ptr Word8 -> IO ()
+#endif
+
+-- | Call a @ocb_aes128_digest@ function, adapting to the Nettle API.
+--   Nettle 4 dropped the @digest_size@ argument; the @taglen@ argument
+--   is only used on Nettle 3.x.
+callNettleOcbDigest :: NettleOcbDigest -> Int -> Ptr Word8 -> Ptr Word8 -> Ptr Word8 -> IO ()
+#if (NETTLE_VERSION_MAJOR > 3)
+callNettleOcbDigest digestfun _taglen ctxptr keyptr digestptr = digestfun ctxptr keyptr digestptr
+#else
+callNettleOcbDigest digestfun taglen ctxptr keyptr digestptr = digestfun ctxptr keyptr (fromIntegral taglen) digestptr
+#endif
+
+-- | Call a nettle @*_digest@ function, adapting to the Nettle API.
+--   Nettle 4 dropped the @digest_size@ argument; the @digestSize@ argument
+--   is only used on Nettle 3.x.
+callNettleHashDigest :: NettleHashDigest -> Int -> Ptr Word8 -> Ptr Word8 -> IO ()
+#if (NETTLE_VERSION_MAJOR > 3)
+callNettleHashDigest digestfun _digestSize ctxptr digestptr = digestfun ctxptr digestptr
+#else
+callNettleHashDigest digestfun digestSize ctxptr digestptr = digestfun ctxptr (fromIntegral digestSize) digestptr
+#endif
 
 foreign import ccall unsafe "nettle_cbc_encrypt"
 	c_cbc_encrypt :: NettleBlockMode
@@ -199,7 +284,22 @@ foreign import ccall unsafe "nettle_gcm_encrypt"
 foreign import ccall unsafe "nettle_gcm_decrypt"
 	c_gcm_decrypt :: NettleGCMMode
 foreign import ccall unsafe "nettle_gcm_digest"
-	c_gcm_digest :: Ptr Word8 -> Ptr Word8 -> Ptr Word8 -> FunPtr NettleCryptFunc -> Word -> Ptr Word8 -> IO ()
+	c_gcm_digest :: NettleGcmDigest
+
+-- | Call @nettle_gcm_digest@, adapting to the Nettle API.  Nettle 4 dropped
+--   the @digest_size@ argument and always writes a full 16-byte digest, so the
+--   requested @taglen@ (at most 16) is honored by truncating in Haskell.
+callNettleGcmDigest
+	:: Ptr Word8 -> Ptr Word8 -> Ptr Word8 -> FunPtr NettleCryptFunc -> Int -> Ptr Word8 -> IO ()
+callNettleGcmDigest ctxptr keyptr cipherptr f taglen digestptr
+	| taglen < 0 || taglen > 16 = error "GCM tag length must be in the range 0..16"
+#if (NETTLE_VERSION_MAJOR > 3)
+	| otherwise = allocaBytes 16 $ \tmp -> do
+		c_gcm_digest ctxptr keyptr cipherptr f tmp
+		copyBytes digestptr tmp taglen
+#else
+	| otherwise = c_gcm_digest ctxptr keyptr cipherptr f (fromIntegral taglen) digestptr
+#endif
 
 -- block ciphers
 
@@ -350,6 +450,19 @@ foreign import ccall unsafe "nettle_camellia256_crypt"
 foreign import ccall unsafe "&nettle_camellia256_crypt"
 	p_camellia256_crypt :: FunPtr NettleCryptFunc
 
+c_hs_sm4_ctx_size :: Int
+c_hs_sm4_ctx_size = #{size struct hs_sm4_ctx}
+c_hs_sm4_ctx_encrypt :: Ptr Word8 -> Ptr Word8
+c_hs_sm4_ctx_encrypt = #ptr struct hs_sm4_ctx, encrypt
+c_hs_sm4_ctx_decrypt :: Ptr Word8 -> Ptr Word8
+c_hs_sm4_ctx_decrypt = #ptr struct hs_sm4_ctx, decrypt
+foreign import ccall unsafe "hs_nettle_sm4_init"
+	c_hs_sm4_init :: Ptr Word8 -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_sm4_crypt"
+	c_sm4_crypt :: NettleCryptFunc
+foreign import ccall unsafe "&nettle_sm4_crypt"
+	p_sm4_crypt :: FunPtr NettleCryptFunc
+
 c_cast128_ctx_size :: Int
 c_cast128_ctx_size = #{size struct cast128_ctx}
 -- cast128_set_key uses a 128-bit fixed size key, cast-5 supports the variable length
@@ -458,4 +571,80 @@ foreign import ccall unsafe "nettle_chacha_poly1305_encrypt"
 foreign import ccall unsafe "nettle_chacha_poly1305_decrypt"
 	c_chacha_poly1305_decrypt :: NettleCryptFunc
 foreign import ccall unsafe "nettle_chacha_poly1305_digest"
-	c_chacha_poly1305_digest :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()
+	c_chacha_poly1305_digest :: NettleChaChaPoly1305Digest
+
+-- | Call @nettle_chacha_poly1305_digest@, adapting to the Nettle API.
+--   Nettle 4 dropped the @digest_size@ argument; the @taglen@ argument is
+--   only used on Nettle 3.x.
+callNettleChaChaPoly1305Digest :: Ptr Word8 -> Int -> Ptr Word8 -> IO ()
+#if (NETTLE_VERSION_MAJOR > 3)
+callNettleChaChaPoly1305Digest ctxptr _taglen digestptr = c_chacha_poly1305_digest ctxptr digestptr
+#else
+callNettleChaChaPoly1305Digest ctxptr taglen digestptr = c_chacha_poly1305_digest ctxptr (fromIntegral taglen) digestptr
+#endif
+
+-- EAX
+c_eax_aes128_ctx_size :: Int
+c_eax_aes128_ctx_size = #{size struct eax_aes128_ctx}
+foreign import ccall unsafe "nettle_eax_aes128_set_key"
+	c_eax_aes128_set_key :: Ptr Word8 -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_eax_aes128_set_nonce"
+	c_eax_aes128_set_nonce :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_eax_aes128_update"
+	c_eax_aes128_update :: Ptr Word8 -> Word -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_eax_aes128_encrypt"
+	c_eax_aes128_encrypt :: NettleCryptFunc
+foreign import ccall unsafe "nettle_eax_aes128_decrypt"
+	c_eax_aes128_decrypt :: NettleCryptFunc
+foreign import ccall unsafe "nettle_eax_aes128_digest"
+	c_eax_aes128_digest :: NettleHashDigest
+
+-- OCB
+c_ocb_aes128_key_ctx_size :: Int
+c_ocb_aes128_key_ctx_size = #{size struct ocb_aes128_encrypt_key}
+c_ocb_aes128_ctx_size :: Int
+c_ocb_aes128_ctx_size = #{size struct ocb_ctx}
+c_aes128_ctx_size :: Int
+c_aes128_ctx_size = #{size struct aes128_ctx}
+foreign import ccall unsafe "nettle_ocb_aes128_set_encrypt_key"
+	c_ocb_aes128_set_encrypt_key :: Ptr Word8 -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_ocb_aes128_set_decrypt_key"
+	c_ocb_aes128_set_decrypt_key :: Ptr Word8 -> Ptr Word8 -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_ocb_aes128_set_nonce"
+	c_ocb_aes128_set_nonce :: Ptr Word8 -> Ptr Word8 -> Word -> Word -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_ocb_aes128_update"
+	c_ocb_aes128_update :: Ptr Word8 -> Ptr Word8 -> Word -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_ocb_aes128_encrypt"
+	c_ocb_aes128_encrypt :: Ptr Word8 -> Ptr Word8 -> Word -> Ptr Word8 -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_ocb_aes128_decrypt"
+	c_ocb_aes128_decrypt :: Ptr Word8 -> Ptr Word8 -> Ptr Word8 -> Word -> Ptr Word8 -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_ocb_aes128_digest"
+	c_ocb_aes128_digest :: NettleOcbDigest
+foreign import ccall unsafe "nettle_ocb_aes128_encrypt_message"
+	c_ocb_aes128_encrypt_message
+		:: Ptr Word8 -> Word -> Ptr Word8 -> Word -> Ptr Word8 -> Word -> Word -> Ptr Word8 -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_ocb_aes128_decrypt_message"
+	c_ocb_aes128_decrypt_message
+		:: Ptr Word8 -> Ptr Word8 -> Word -> Ptr Word8 -> Word -> Ptr Word8 -> Word -> Word -> Ptr Word8 -> Ptr Word8 -> IO CInt
+
+-- SIV
+c_siv_cmac_aes128_ctx_size :: Int
+c_siv_cmac_aes128_ctx_size = #{size struct siv_cmac_aes128_ctx}
+c_siv_cmac_aes256_ctx_size :: Int
+c_siv_cmac_aes256_ctx_size = #{size struct siv_cmac_aes256_ctx}
+foreign import ccall unsafe "nettle_siv_cmac_aes128_set_key"
+	c_siv_cmac_aes128_set_key :: Ptr Word8 -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_siv_cmac_aes128_encrypt_message"
+	c_siv_cmac_aes128_encrypt_message
+		:: Ptr Word8 -> Word -> Ptr Word8 -> Word -> Ptr Word8 -> Word -> Ptr Word8 -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_siv_cmac_aes128_decrypt_message"
+	c_siv_cmac_aes128_decrypt_message
+		:: Ptr Word8 -> Word -> Ptr Word8 -> Word -> Ptr Word8 -> Word -> Ptr Word8 -> Ptr Word8 -> IO CInt
+foreign import ccall unsafe "nettle_siv_cmac_aes256_set_key"
+	c_siv_cmac_aes256_set_key :: Ptr Word8 -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_siv_cmac_aes256_encrypt_message"
+	c_siv_cmac_aes256_encrypt_message
+		:: Ptr Word8 -> Word -> Ptr Word8 -> Word -> Ptr Word8 -> Word -> Ptr Word8 -> Ptr Word8 -> IO ()
+foreign import ccall unsafe "nettle_siv_cmac_aes256_decrypt_message"
+	c_siv_cmac_aes256_decrypt_message
+		:: Ptr Word8 -> Word -> Ptr Word8 -> Word -> Ptr Word8 -> Word -> Ptr Word8 -> Ptr Word8 -> IO CInt

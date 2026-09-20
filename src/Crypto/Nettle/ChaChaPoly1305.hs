@@ -55,14 +55,14 @@ chaChaPoly1305Encrypt key nonce aad plain = unsafeDupablePerformIO $ do
 		withByteStringPtr aad $ \aadsize aadptr ->
 		withByteStringPtr cipher $ \_ cipherptr ->
 		withByteStringPtr tag $ \_ tagptr ->
-		createScrubbedBytes c_chacha_poly1305_ctx_size $ \ctxptr ->
+		withAlignedContext c_chacha_poly1305_ctx_size $ \ctxptr ->
 		BA.withByteArray k $ \kptr -> if (BA.length k) /= 32 then error "Invalid key length" else
 		BA.withByteArray n $ \nptr -> if (BA.length n) /= 12 then error "Invalid nonce length" else do
 		c_chacha_poly1305_set_key ctxptr kptr
 		c_chacha_poly1305_set_nonce ctxptr nptr
 		c_chacha_poly1305_update ctxptr aadsize aadptr
 		c_chacha_poly1305_encrypt ctxptr psize cipherptr pptr
-		c_chacha_poly1305_digest ctxptr 16 tagptr
+		callNettleChaChaPoly1305Digest ctxptr 16 tagptr
 	return (cipher, tag)
 
 {-|
@@ -79,12 +79,12 @@ chaChaPoly1305Decrypt key nonce aad cipher verifytag = unsafeDupablePerformIO $ 
 		withByteStringPtr aad $ \aadsize aadptr ->
 		withByteStringPtr plain $ \_ plainptr ->
 		withByteStringPtr tag $ \_ tagptr ->
-		createScrubbedBytes c_chacha_poly1305_ctx_size $ \ctxptr ->
+		withAlignedContext c_chacha_poly1305_ctx_size $ \ctxptr ->
 		BA.withByteArray k $ \kptr -> if (BA.length k) /= 32 then error "Invalid key length" else
 		BA.withByteArray n $ \nptr -> if (BA.length n) /= 12 then error "Invalid nonce length" else do
 		c_chacha_poly1305_set_key ctxptr kptr
 		c_chacha_poly1305_set_nonce ctxptr nptr
 		c_chacha_poly1305_update ctxptr aadsize aadptr
 		c_chacha_poly1305_decrypt ctxptr psize plainptr pptr
-		c_chacha_poly1305_digest ctxptr 16 tagptr
+		callNettleChaChaPoly1305Digest ctxptr 16 tagptr
 	if B.take (B.length verifytag) tag == verifytag then return $ Just plain else return Nothing

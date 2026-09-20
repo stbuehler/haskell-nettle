@@ -25,7 +25,13 @@
 #include <nettle/sha1.h>
 #include <nettle/sha2.h>
 #include <nettle/sha3.h>
+#include <nettle/sm3.h>
+#include <nettle/streebog.h>
 
 #include <nettle/umac.h>
+
+/* message authentication codes */
+#include <nettle/cmac.h>
+#include <nettle/poly1305.h>
 
 #endif

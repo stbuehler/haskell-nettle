@@ -36,10 +36,16 @@ Library
   Exposed-modules:   Crypto.Nettle.ChaChaPoly1305
                      Crypto.Nettle.Ciphers
                      Crypto.Nettle.CCM
+                     Crypto.Nettle.CMAC
+                     Crypto.Nettle.EAX
                      Crypto.Nettle.Hash
                      Crypto.Nettle.KeyedHash
                      Crypto.Nettle.HMAC
+                     Crypto.Nettle.OCB
+                     Crypto.Nettle.Poly1305
+                     Crypto.Nettle.SIV
                      Crypto.Nettle.UMAC
+                     Crypto.Nettle.XOF
   Other-modules:     Crypto.Nettle.Ciphers.Internal
                      Crypto.Nettle.Ciphers.ForeignImports
                      Crypto.Nettle.Hash.ForeignImports
@@ -76,6 +82,7 @@ Test-Suite test-ciphers
     Ciphers.Utils
     HexUtils
     KAT.AES
+    KAT.SM4
     KAT.Utils
   ghc-options: -fno-warn-tabs
 
@@ -134,6 +141,78 @@ Test-Suite test-umac
     HexUtils
     TestUtils
     VectorsUMAC
+  ghc-options: -fno-warn-tabs
+
+Test-Suite test-shake
+  Default-Language:  Haskell2010
+  type:              exitcode-stdio-1.0
+  hs-source-dirs:    src/Tests
+  Main-Is:           Shake.hs
+  Build-depends:     base >= 4.9 && < 5
+                   , bytestring >= 0.10.8 && < 0.13
+                   , tagged >= 0.8.5 && < 0.9
+                   , array >= 0.5.1 && < 0.6
+                   , test-framework >= 0.3.3 && > 0.4
+                   , HUnit >= 1.6.0 && < 1.7
+                   , test-framework-hunit >= 0.3.0 && < 0.4
+                   , nettle
+  Other-modules:
+    HexUtils
+    TestUtils
+  ghc-options: -fno-warn-tabs
+
+Test-Suite test-mac
+  Default-Language:  Haskell2010
+  type:              exitcode-stdio-1.0
+  hs-source-dirs:    src/Tests
+  Main-Is:           MAC.hs
+  Build-depends:     base >= 4.9 && < 5
+                   , bytestring >= 0.10.8 && < 0.13
+                   , tagged >= 0.8.5 && < 0.9
+                   , array >= 0.5.1 && < 0.6
+                   , test-framework >= 0.3.3 && > 0.4
+                   , HUnit >= 1.6.0 && < 1.7
+                   , test-framework-hunit >= 0.3.0 && < 0.4
+                   , nettle
+  Other-modules:
+    HexUtils
+    TestUtils
+  ghc-options: -fno-warn-tabs
+
+Test-Suite test-aead
+  Default-Language:  Haskell2010
+  type:              exitcode-stdio-1.0
+  hs-source-dirs:    src/Tests
+  Main-Is:           AEAD.hs
+  Build-depends:     base >= 4.9 && < 5
+                   , bytestring >= 0.10.8 && < 0.13
+                   , tagged >= 0.8.5 && < 0.9
+                   , array >= 0.5.1 && < 0.6
+                   , test-framework >= 0.3.3 && > 0.4
+                   , HUnit >= 1.6.0 && < 1.7
+                   , test-framework-hunit >= 0.3.0 && < 0.4
+                   , nettle
+  Other-modules:
+    HexUtils
+    TestUtils
+  ghc-options: -fno-warn-tabs
+
+Test-Suite test-chacha-poly1305
+  Default-Language:  Haskell2010
+  type:              exitcode-stdio-1.0
+  hs-source-dirs:    src/Tests
+  Main-Is:           ChaChaPoly1305.hs
+  Build-depends:     base >= 4.9 && < 5
+                   , bytestring >= 0.10.8 && < 0.13
+                   , tagged >= 0.8.5 && < 0.9
+                   , array >= 0.5.1 && < 0.6
+                   , test-framework >= 0.3.3 && > 0.4
+                   , HUnit >= 1.6.0 && < 1.7
+                   , test-framework-hunit >= 0.3.0 && < 0.4
+                   , nettle
+  Other-modules:
+    HexUtils
+    TestUtils
   ghc-options: -fno-warn-tabs
 
 source-repository head

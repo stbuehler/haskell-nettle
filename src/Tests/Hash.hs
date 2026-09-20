@@ -35,4 +35,7 @@ main = defaultMain
 	, testHash `witness` (undefined :: SHA3_256)
 	, testHash `witness` (undefined :: SHA3_384)
 	, testHash `witness` (undefined :: SHA3_512)
+	, testHash `witness` (undefined :: SM3)
+	, testHash `witness` (undefined :: STREEBOG512)
+	, testHash `witness` (undefined :: STREEBOG256)
 	]
