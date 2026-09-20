@@ -55,7 +55,7 @@ Library
   include-dirs:      src
   C-sources:         src/nettle-ciphers.c
   if flag(UsePkgConfig)
-    PkgConfig-Depends: nettle
+    PkgConfig-Depends: nettle >= 3.9
   else
     Extra-libraries: nettle
 
