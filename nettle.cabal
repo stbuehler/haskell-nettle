@@ -1,6 +1,6 @@
 Cabal-Version:       2.0
 Name:                nettle
-Version:             0.3.1.1
+Version:             0.4
 Synopsis:            safe nettle binding
 Description:
   safe binding for the nettle (<http://www.lysator.liu.se/~nisse/nettle/nettle.html>) library.
