@@ -24,6 +24,7 @@ module Nettle.Utils
 	, unsafeDupablePerformIO
 	, withByteStringPtr
 	, copyScrubbedBytes
+	, copyScrubbedBytesIO
 	, copyAndConvertToScrubbedBytes
 	, createScrubbedBytes
 	, concatToScrubbedBytes
@@ -61,6 +62,13 @@ Copy a 'BA.ScrubbedBytes'.
 -}
 copyScrubbedBytes :: BA.ScrubbedBytes -> BA.ScrubbedBytes
 copyScrubbedBytes ba = BA.copyAndFreeze ba (\_ -> return ())
+
+{-|
+Copy a 'BA.ScrubbedBytes' IO-ly.
+-}
+copyScrubbedBytesIO :: BA.ScrubbedBytes -> IO BA.ScrubbedBytes
+copyScrubbedBytesIO ba = BA.create (BA.length ba) $ \dptr ->
+        BA.withByteArray ba $ \sptr -> copyBytes dptr sptr (BA.length ba)
 
 {-|
 Make a copy of a 'BA.ByteArrayAccess' that gets scrubbed.

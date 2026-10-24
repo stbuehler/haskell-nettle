@@ -124,12 +124,13 @@ nettle_streamCombine c indata = let (r, c') = stream_crypt (nsc_streamCombine `w
 nettle_streamSetNonce :: NettleStreamCipher c => c -> B.ByteString -> Maybe c
 nettle_streamSetNonce c nonce = case nsc_setNonce `witness` c of
 	Nothing -> Nothing
-	Just setnonce -> let ctx' = copyScrubbedBytes (nc_ctx c) in
-		unsafeDupablePerformIO $
-		BA.withByteArray ctx' $ \ctxptr ->
-		withByteStringPtr nonce $ \noncelen nonceptr ->
-		setnonce ctxptr noncelen nonceptr >>
-		return (Just $ nc_Ctx ctx')
+	Just setnonce ->
+		unsafeDupablePerformIO $ do
+                        ctx' <- copyScrubbedBytesIO (nc_ctx c)
+                        BA.withByteArray ctx' $ \ctxptr ->
+                                withByteStringPtr nonce $ \noncelen nonceptr ->
+                                setnonce ctxptr noncelen nonceptr >>
+                                return (Just $ nc_Ctx ctx')
 
 nettle_blockedStreamCombine :: (NettleBlockedStreamCipher c, BA.ByteArray bin, BA.ByteArray bout) => c -> bin -> (bout, c)
 nettle_blockedStreamCombine c indata = if BA.length indata == 0 then (BA.convert indata, c) else
@@ -154,12 +155,13 @@ nettle_blockedStreamCombine c indata = if BA.length indata == 0 then (BA.convert
 nettle_blockedStreamSetNonce :: NettleBlockedStreamCipher c => c -> B.ByteString -> Maybe c
 nettle_blockedStreamSetNonce c nonce = case nbsc_setNonce `witness` c of
 	Nothing -> Nothing
-	Just setnonce -> let ctx' = copyScrubbedBytes (nc_ctx c) in
-		unsafeDupablePerformIO $
-		BA.withByteArray ctx' $ \ctxptr ->
-		withByteStringPtr nonce $ \noncelen nonceptr ->
-		setnonce ctxptr noncelen nonceptr >>
-		return (Just $ nc_Ctx ctx')
+	Just setnonce ->
+		unsafeDupablePerformIO $ do
+                        ctx' <- copyScrubbedBytesIO (nc_ctx c)
+                        BA.withByteArray ctx' $ \ctxptr ->
+                                withByteStringPtr nonce $ \noncelen nonceptr ->
+                                setnonce ctxptr noncelen nonceptr >>
+                                return (Just $ nc_Ctx ctx')
 
 
 nettle_gcm_aeadInit              :: (NettleBlockCipher c, NettleAeadModeImpl c NettleGCM, BA.ByteArrayAccess iv) => c -> iv -> CryptoFailable (CCT.AEAD c)
@@ -305,10 +307,11 @@ stream_crypt
 	    BA.ByteArray bout)
 	=> NettleCryptFunc
 	-> BA.ScrubbedBytes -> bin -> (bout, BA.ScrubbedBytes)
-stream_crypt crypt ctx indata = let ctx' = copyScrubbedBytes ctx in
-	unsafeDupablePerformIO $
-	BA.withByteArray ctx' $ \ctxptr ->
-	BA.withByteArray indata $ \indataptr -> do
-	outdata <- BA.create (BA.length indata) $ \outptr ->
-		crypt ctxptr (fromIntegral $ BA.length indata) outptr indataptr
-	return (outdata, ctx')
+stream_crypt crypt ctx indata =
+	unsafeDupablePerformIO $ do
+                ctx' <- copyScrubbedBytesIO ctx
+                BA.withByteArray ctx' $ \ctxptr ->
+                        BA.withByteArray indata $ \indataptr -> do
+                                outdata <- BA.create (BA.length indata) $ \outptr ->
+                                        crypt ctxptr (fromIntegral $ BA.length indata) outptr indataptr
+                                return (outdata, ctx')
